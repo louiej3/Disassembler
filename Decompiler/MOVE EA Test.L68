@@ -1,0 +1,211 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.12.29
+Created On: 11/12/2014 1:46:50 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : Move EA Test
+00000000                             3  * Written by : John Louie
+00000000                             4  * Date       : 11-11-14
+00000000                             5  * Description: Testing Move EA
+00000000                             6  *-----------------------------------------------------------
+00000000                             7  ;----- Variables to identify modes/registers -----;
+00000000  =00000000                  8  Dn_Mode             EQU     %000
+00000000  =00000001                  9  An_Mode             EQU     %001
+00000000  =00000002                 10  An_Pntr_Mode        EQU     %010
+00000000  =00000003                 11  An_Inc_Mode         EQU     %011
+00000000  =00000004                 12  An_Dec_Mode         EQU     %100
+00000000  =00000007                 13  Word_Mode           EQU     %111
+00000000  =00000000                 14  Word_Reg            EQU     %000
+00000000  =00000007                 15  Long_Mode           EQU     %111
+00000000  =00000001                 16  Long_Reg            EQU     %001
+00000000  =00000007                 17  Imm_Mode            EQU     %111
+00000000  =00000004                 18  Imm_Reg             EQU     %100
+00000000                            19  
+00000000                            20  ;----- Test variables -----;
+00000000  =00001401                 21  Test_Move1          EQU     %0001010000000001   ; Move.B D1,D2
+00000000  =00001444                 22  Test_Move2          EQU     %0001010001000100   ; Move.B A2,D4 INCORRECT
+00000000  =00001E90                 23  Test_Move3          EQU     %0001111010010000   ; Move.B (A0),(A7) 
+00000000                            24      
+00001000                            25      ORG    $1000
+00001000                            26      
+00001000                            27  START:                  ; first instruction of program
+00001000                            28          ;Move.W  #Test_Move1, D4
+00001000                            29          ;Move.W  #Test_Move2, D4
+00001000  383C 1E90                 30          Move.W  #Test_Move3, D4
+00001004                            31          
+00001004  6000 0002                 32          Bra     EA_Move     ; Branch to EA function for Move
+00001008                            33          
+00001008                            34  ;----- Effective Address Sub Routines -----;
+00001008                            35  ; These subroutines look for the correct effective address
+00001008                            36  ; in each OP code.
+00001008                            37  
+00001008                            38  ;----- EA Move -----;
+00001008                            39  EA_Move
+00001008  4EB9 00001018             40          Jsr     EA_Move_Source          ; Add the EA for source
+0000100E  1CFC 002C                 41          Move.B  #',', (A6)+             ; Add a comma
+00001012  4EB9 00001040             42          Jsr     EA_Move_Dest            ; Add the EA for destination
+00001018                            43                  
+00001018                            44  EA_Move_Source  ; Find out Move's source
+00001018  4EB9 000010BC             45          Jsr     GET3TO5                 ; Get source mode
+0000101E  1A00                      46          Move.B  D0, D5                  ; Move source mode to D5
+00001020  4EB9 000010CE             47          Jsr     Get0TO2                 ; Get source register
+00001026                            48          
+00001026                            49          ; List of valid effective addresses
+00001026  BA3C 0000                 50          Cmp.B   #Dn_Mode, D5            ; Dn
+0000102A  6700 0034                 51          Beq     EA_Dn
+0000102E                            52          
+0000102E  BA3C 0001                 53          Cmp.B   #An_Mode, D5            ; An
+00001032  6700 0038                 54          Beq     EA_An
+00001036                            55          
+00001036  BA3C 0002                 56          Cmp.B   #An_Pntr_Mode, D5       ; (An)
+0000103A  6700 003C                 57          Beq     EA_An_Pntr
+0000103E                            58          
+0000103E  4E75                      59          Rts
+00001040                            60          
+00001040                            61  EA_Move_Dest    ; Find out Move's destination
+00001040  4EB9 000010AA             62          Jsr     GET6TO8                 ; Get destination mode
+00001046  1A00                      63          Move.B  D0, D5                  ; Move destination mode to D5
+00001048  4EB9 00001098             64          Jsr     Get9TO11                ; Get destination register
+0000104E                            65          
+0000104E                            66          ; List of valid effective addresses
+0000104E  BA3C 0000                 67          Cmp.B   #Dn_Mode, D5            ; Dn
+00001052  6700 000C                 68          Beq     EA_Dn
+00001056                            69          
+00001056  BA3C 0002                 70          Cmp.B   #An_Pntr_Mode, D5       ; (An)
+0000105A  6700 001C                 71          Beq     EA_An_Pntr
+0000105E                            72          
+0000105E  4E75                      73          Rts
+00001060                            74          
+00001060                            75  ;----- General EA functions -----;
+00001060                            76  EA_Dn   ; Adds Dn EA to string
+00001060  1CFC 0044                 77          Move.B  #'D', (A6)+             
+00001064  0600 0030                 78          Add.B   #$30, D0        
+00001068  1CC0                      79          Move.B  D0, (A6)+               
+0000106A                            80                  
+0000106A  4E75                      81          Rts
+0000106C                            82  
+0000106C                            83  EA_An   ; Adds An EA to string
+0000106C  1CFC 0041                 84          Move.B  #'A', (A6)+
+00001070  0600 0030                 85          Add.B   #$30, D0    
+00001074  1CC0                      86          Move.B  D0, (A6)+               
+00001076                            87                  
+00001076  4E75                      88          Rts
+00001078                            89  
+00001078                            90  EA_An_Pntr  ; Adds (An) EA to string
+00001078  1CFC 0028                 91          Move.B  #'(', (A6)+
+0000107C  1CFC 0041                 92          Move.B  #'A', (A6)+
+00001080  0600 0030                 93          Add.B   #$30, D0
+00001084  1CC0                      94          Move.B  D0, (A6)+
+00001086  1CFC 0029                 95          Move.B  #')', (A6)+
+0000108A                            96                  
+0000108A  4E75                      97          Rts
+0000108C                            98  
+0000108C                            99  ;---------------- Bit Chopping Sub Routines ----------------;
+0000108C                           100  ; These Sub Routines Chop a WORD size piece of data from
+0000108C                           101  ; Data register 4 into a smaller piece, leaving just the
+0000108C                           102  ; Piece in register 0 while leaving the original piece
+0000108C                           103  ; of data intact.
+0000108C                           104  
+0000108C                           105  GET12TO15
+0000108C  4280                     106          CLR.L   D0
+0000108E  3004                     107          Move.W  D4, D0
+00001090                           108                  
+00001090  123C 000C                109          Move.B  #12, D1
+00001094  E268                     110          LSR     D1, D0
+00001096                           111                  
+00001096  4E75                     112          RTS
+00001098                           113                  
+00001098                           114  GET9TO11        
+00001098  4280                     115          CLR.L   D0
+0000109A  3004                     116          Move.W  D4, D0
+0000109C                           117                  
+0000109C  123C 0004                118          Move.B  #4, D1
+000010A0  E368                     119          LSL     D1, D0
+000010A2                           120                  
+000010A2  123C 000D                121          Move.B  #13, D1
+000010A6  E268                     122          LSR     D1, D0
+000010A8                           123                  
+000010A8  4E75                     124          RTS
+000010AA                           125                  
+000010AA                           126  GET6TO8 
+000010AA  4280                     127          CLR.L   D0
+000010AC  3004                     128          Move.W  D4, D0
+000010AE                           129                  
+000010AE  123C 0007                130          Move.B  #7, D1
+000010B2  E368                     131          LSL     D1, D0
+000010B4                           132                  
+000010B4  123C 000D                133          Move.B  #13, D1
+000010B8  E268                     134          LSR     D1, D0
+000010BA                           135                  
+000010BA  4E75                     136          RTS
+000010BC                           137                  
+000010BC                           138  GET3TO5 
+000010BC  4280                     139          CLR.L   D0
+000010BE  3004                     140          Move.W  D4, D0
+000010C0                           141                  
+000010C0  123C 000A                142          Move.B  #10, D1
+000010C4  E368                     143          LSL     D1, D0
+000010C6                           144                  
+000010C6  123C 000D                145          Move.B  #13, D1
+000010CA  E268                     146          LSR     D1, D0
+000010CC                           147                  
+000010CC  4E75                     148          RTS
+000010CE                           149  GET0TO2 
+000010CE  4280                     150          CLR.L   D0
+000010D0  3004                     151          Move.W  D4, D0
+000010D2                           152                  
+000010D2  123C 000D                153          Move.B  #13, D1
+000010D6  E368                     154          LSL     D1, D0
+000010D8                           155                  
+000010D8  123C 000D                156          Move.B  #13, D1
+000010DC  E268                     157          LSR     D1, D0
+000010DE                           158                  
+000010DE  4E75                     159          RTS
+000010E0                           160  GETBIT8
+000010E0  4280                     161          CLR.L   D0
+000010E2  3004                     162          Move.W  D4, D0
+000010E4                           163                  
+000010E4  123C 0007                164          Move.B  #7, D1
+000010E8  E368                     165          LSL     D1, D0
+000010EA                           166                  
+000010EA  123C 000F                167          Move.B  #15, D1
+000010EE  E268                     168          LSR     D1, D0
+000010F0                           169                  
+000010F0  4E75                     170          RTS    
+000010F2                           171  
+000010F2                           172      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+AN_DEC_MODE         4
+AN_INC_MODE         3
+AN_MODE             1
+AN_PNTR_MODE        2
+DN_MODE             0
+EA_AN               106C
+EA_AN_PNTR          1078
+EA_DN               1060
+EA_MOVE             1008
+EA_MOVE_DEST        1040
+EA_MOVE_SOURCE      1018
+GET0TO2             10CE
+GET12TO15           108C
+GET3TO5             10BC
+GET6TO8             10AA
+GET9TO11            1098
+GETBIT8             10E0
+IMM_MODE            7
+IMM_REG             4
+LONG_MODE           7
+LONG_REG            1
+START               1000
+TEST_MOVE1          1401
+TEST_MOVE2          1444
+TEST_MOVE3          1E90
+WORD_MODE           7
+WORD_REG            0
