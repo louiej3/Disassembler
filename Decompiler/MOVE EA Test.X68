@@ -130,9 +130,6 @@ EA_MOVE_DEST    ; Find out Move's destination
 EA_MOVE_SIZE    ; Find the size of immediate data being moved
         Jsr     GET12TO13               ; Get Move size
 
-        Cmp.B   #%01, D0                 ; Byte
-        Beq     EA_IMM_BYTE
-
         Cmp.B   #%11, D0                 ; Word
         Beq     EA_IMM_WORD
         
@@ -350,38 +347,7 @@ EA_LONG_TO_STRING   ; Adds the long in D6 to the string
         Move.B  D0, (A6)+
         
         Rts
-        
-EA_BYTE_TO_STRING   ; Adds the byte in D6 to the string
-        Clr.L   D0              ; Clear D0
-        Move.L  D6, D0          ; Move the byte into D0 so it can be shifted
-
-        Move.B  #4, D1         ; Grab bits 4 to 7
-        Lsr.L   D1, D0
-        Add.B   #$30, D0
-        Move.B  D0, (A6)+
-        
-        Clr.L   D0             
-        Move.L  D6, D0          
-        
-        Move.B  #4, D1          ; Grab bits 0 to 3
-        Lsl.L   D1, D0
-        Move.B  #4, D1
-        Lsr.L   D1, D0
-        Add.B   #$30, D0
-        Move.B  D0, (A6)+
-        
-        Rts
-
-EA_IMM_BYTE ; Finds the immediate byte data
-        Move.B (A3)+, D6            ; Move the immediate byte data into D6 and move forward in memory
-        
-        Move.B  #'#', (A6)+         
-        Move.B  #'$', (A6)+         
-        
-        Jsr     EA_BYTE_TO_STRING    
-        
-        Rts
-        
+                
 EA_IMM_WORD ; Finds the immediate word data
         Move.W (A3)+, D6            ; Move the immediate word data into D6 and move forward in memory
         
@@ -489,6 +455,7 @@ GETBIT8
 		RTS 
 
     END    START        ; last line of source
+
 
 
 
