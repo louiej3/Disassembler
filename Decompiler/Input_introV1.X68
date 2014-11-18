@@ -70,10 +70,7 @@ valid_end       JSR     chk_bound           ; Check if the input has odd/even bo
                 BGT     end_error           ; Input address is too high
                 CMP.L   A5,D3               ; Is input at or above minimum address
                 BLT     end_error           ; Input address is too low
-                MOVE.L  D3,D6               ; Load ending address for calculations
-                SUB.L   A5,D6               ; Find total length of instructions 
-                DIVU.W  #$2,D6              ; Calculate total instructions
-                ANDI.L  #$0000FFFF,D6       ; Remove remainder from division                 
+                MOVEA.L D3,A6               ; Load ending address into its register                
                 JMP     done                ; **PLACEHOLDER**
                 
 ;-----------Verify/ConvertASCIItoHex-------------------------------------------
@@ -165,6 +162,7 @@ start_input     DS.L    32              ; Allocates 2 long spaces for start addr
 end_input       DS.L    32              ; Allocates 2 long spaces for end address
 
                 END    START            ; End-of-program
+
 
 
 
