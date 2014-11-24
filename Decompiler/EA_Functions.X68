@@ -146,6 +146,39 @@ EA_ADD
         Move.B  #',', (A6)+             ; Add a comma
         Jsr     EA_ADD_DEST             ; Add the EA for destination
         
+EA_ADD_SOURCE   ; Find out Add's source
+        Jsr     GET3TO5                 ; Get source mode
+        Move.B  D0, D5                  ; Move source mode to D5
+        Jsr     Get0TO2                 ; Get source register
+        
+        ; List of valid effective addresses
+        Cmp.B   #Dn_Mode, D5            ; Dn
+        Beq     EA_DN
+        
+        Cmp.B   #An_Mode, D5            ; An
+        Beq     EA_AN
+        
+        Cmp.B   #An_Pntr_Mode, D5       ; (An)
+        Beq     EA_AN_PNTR
+        
+        Cmp.B   #An_Inc_Mode, D5        ; (An)+
+        Beq     EA_AN_INC
+        
+        Cmp.B   #An_Dec_Mode, D5        ; -(An)
+        Beq     EA_AN_DEC
+        
+        ; Comparing registers at this point because modes are the same
+        Cmp.B   #Word_Reg, D0           ; (xxx).W
+        Beq     EA_WORD_ADDR
+        
+        Cmp.B   #Long_Reg, D0           ; (xxx).L
+        Beq     EA_LONG_ADDR
+        
+        Cmp.B   #Imm_Reg, D0            ; #<data>
+        Beq     EA_MOVE_SIZE
+        
+        Rts
+        
 ;==========================================;        
 ;---------- General EA functions ----------;
 ;==========================================;
