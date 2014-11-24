@@ -141,10 +141,22 @@ EA_MOVE_SIZE    ; Find the size of immediate data being moved
 ;===========================================;        
 ;--------------- EA Add/AddA ---------------;
 ;===========================================;
-EA_ADD
-        Jsr     EA_ADD_SOURCE           ; Add the EA for source
-        Move.B  #',', (A6)+             ; Add a comma
-        Jsr     EA_ADD_DEST             ; Add the EA for destination
+EA_ADD        
+        Jsr     GET6TO8
+        
+        Cmp.B   #%000, D0
+        Beq     EA_ADD_OPMODE_SOURCE
+        
+        Cmp.B   #%001, D0
+        Beq     EA_ADD_OPMODE_SOURCE
+        
+        Cmp.B   #%010, D0
+        Beq     EA_ADD_OPMODE_SOURCE
+        
+        Jmp     EA_ADD_OPMODE_DESTINATION
+        
+EA_ADD_OPMODE_SOURCE
+        Jsr     EA_ADD_SOURCE
         
 EA_ADD_SOURCE   ; Find out Add's source
         Jsr     GET3TO5                 ; Get source mode
@@ -175,7 +187,21 @@ EA_ADD_SOURCE   ; Find out Add's source
         Beq     EA_LONG_ADDR
         
         Cmp.B   #Imm_Reg, D0            ; #<data>
-        Beq     EA_MOVE_SIZE
+        Beq     EA_ADD_SIZE
+        
+        Rts
+        
+EA_ADD_SIZE ; Find the size of immediate data being moved
+        Jsr     GET6TO8                 ; Get Move size
+
+        Cmp.B   #%000, D0               ; Byte
+        Beq     EA_IMM_BYTE
+
+        Cmp.B   #%001, D0               ; Word
+        Beq     EA_IMM_WORD
+        
+        Cmp.B   #%010, D0               ; Long
+        Beq     EA_IMM_LONG
         
         Rts
         
