@@ -130,13 +130,21 @@ EA_MOVE_DEST    ; Find out Move's destination
 EA_MOVE_SIZE    ; Find the size of immediate data being moved
         Jsr     GET12TO13               ; Get Move size
 
-        Cmp.B   #%11, D0                 ; Word
+        Cmp.B   #%11, D0                ; Word
         Beq     EA_IMM_WORD
         
-        Cmp.B   #%10, D0                 ; Long
+        Cmp.B   #%10, D0                ; Long
         Beq     EA_IMM_LONG
         
         Rts
+
+;===========================================;        
+;--------------- EA Add/AddA ---------------;
+;===========================================;
+EA_ADD
+        Jsr     EA_ADD_SOURCE           ; Add the EA for source
+        Move.B  #',', (A6)+             ; Add a comma
+        Jsr     EA_ADD_DEST             ; Add the EA for destination
         
 ;==========================================;        
 ;---------- General EA functions ----------;
