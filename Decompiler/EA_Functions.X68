@@ -130,6 +130,9 @@ EA_MOVE_DEST    ; Find out Move's destination
 EA_MOVE_SIZE    ; Find the size of immediate data being moved
         Jsr     GET12TO13               ; Get Move size
 
+        Cmp.B   #%01, D0                ; Byte
+        Beq     EA_IMM_BYTE
+
         Cmp.B   #%11, D0                ; Word
         Beq     EA_IMM_WORD
         
