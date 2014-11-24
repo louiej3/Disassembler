@@ -1,4 +1,1 @@
-Psychobots disassembler.
-
-Blong Thao
-
+Psychobots disassembler
