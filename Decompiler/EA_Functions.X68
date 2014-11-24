@@ -159,43 +159,43 @@ EA_MOVE_SIZE    ; Find the size of immediate data being moved
 ;===========================================;        
 ;--------------- EA Add/AddA ---------------;
 ;===========================================;
-EA_ADD        
-        Jsr     GET6TO8
+EA_ADD  ; Figures out the EA for Add        
+        Jsr     GET6TO8                 ; Isolate the Op mode
         
-        Cmp.B   #%011, D0
+        Cmp.B   #%011, D0               ; Compare to AddA word
         Beq     EA_ADDA
         
-        Cmp.B   #%111, D0
+        Cmp.B   #%111, D0               ; Compare to AddA long
         Beq     EA_ADDA
 
-        Cmp.B   #%000, D0
+        Cmp.B   #%000, D0               ; Compare to Add source byte
         Beq     EA_ADD_OPMODE_SOURCE
         
-        Cmp.B   #%001, D0
+        Cmp.B   #%001, D0               ; Compare to Add source word
         Beq     EA_ADD_OPMODE_SOURCE
         
-        Cmp.B   #%010, D0
+        Cmp.B   #%010, D0               ; Compare to Add source Long
         Beq     EA_ADD_OPMODE_SOURCE
         
-        Jmp     EA_ADD_OPMODE_DEST
+        Jmp     EA_ADD_OPMODE_DEST      ; Must be an Add destination if none of the above
         
-EA_ADDA
-        Jsr     EA_ADD_SOURCE
+EA_ADDA ; Figures out the EA for AddA
+        Jsr     EA_ADD_SOURCE           ; Get the source EA
         Move.B  #',', (A6)+             ; Add a comma
-        Jsr     GET9TO11
-        Jsr     EA_AN
+        Jsr     GET9TO11                ; Get the register
+        Jsr     EA_AN                   ; Add An
         
-EA_ADD_OPMODE_SOURCE
-        Jsr     EA_ADD_SOURCE
+EA_ADD_OPMODE_SOURCE    ; Finds the EA for Add if it is for the source
+        Jsr     EA_ADD_SOURCE           ; Get the source EA
         Move.B  #',', (A6)+             ; Add a comma
-        Jsr     GET9TO11
-        Jsr     EA_DN
+        Jsr     GET9TO11                ; Get the register
+        Jsr     EA_DN                   ; Add Dn
         
-EA_ADD_OPMODE_DEST
-        Jsr     GET9TO11
-        Jsr     EA_DN
+EA_ADD_OPMODE_DEST      ; Finds the EA for Add if it is for the destination
+        Jsr     GET9TO11                ; Get the register
+        Jsr     EA_DN                   ; Add Dn
         Move.B  #',', (A6)+             ; Add a comma
-        Jsr     EA_ADD_DEST
+        Jsr     EA_ADD_DEST             ; Get the destination EA 
         
 EA_ADD_SOURCE   ; Find out Add's source
         Jsr     GET3TO5                 ; Get source mode
@@ -511,7 +511,7 @@ EA_IMM_BYTE ; Finds the immediate byte data
         Move.B  #'#', (A6)+         
         Move.B  #'$', (A6)+         
         
-        Jsr     EA_BYTE_TO_STRING    
+        Jsr     EA_BYTE_TO_STRING   ; Add the byte to the string
         
         Rts
                 
@@ -531,7 +531,7 @@ EA_IMM_LONG ; Finds the immediate long data
         Move.B  #'#', (A6)+
         Move.B  #'$', (A6)+
         
-        Jsr     EA_LONG_TO_STRING
+        Jsr     EA_LONG_TO_STRING   ; Add the long to the string
         
         Rts
 
