@@ -31,24 +31,39 @@ Test_Move5          EQU     %0001001000111000   ; Move.B $Word,D1
 Test_Move6          EQU     %0001111000111001   ; Move.B $Long,D7
 Test_Move7          EQU     %0011010010111100   ; Move.W #$Imm,(A2)
 Test_Move8          EQU     %0010111100111100   ; Move.L #$Imm,-(A7)
-    
+
+Add_Test1           EQU     %1101111011000001   ; AddA.W D1,A7
+Add_Test2           EQU     %1101100001111100   ; Add.W #$Imm,D4
+Add_Test3           EQU     %1101111101010111   ; Add.W D7,(A7)
+Add_Test4           EQU     %1101111111111001   ; AddA.L #$Imm,A7
+        
     ORG    $1000
     
 START:                  ; first instruction of program
+        Move.L  #$0000400, A3
+
+        ;Move.W  #$4030, (A3)
+        Move.L  #$12345678, (A3)
+        ;Move.L  #$12349999, (A3)
+        ;Move.W  #$11, (A3)
+        
         ;Move.W  #Test_Move1, D4
         ;Move.W  #Test_Move2, D4
         ;Move.W  #Test_Move3, D4
         ;Move.W  #Test_Move4, D4
         ;Move.W  #Test_Move5, D4
-        ;Move.W  #$4030, A3
-        ;Move.W  #Test_Move6, D4
-        ;Move.L  #$12349999, A3
-        ;Move.W  #Test_Move7, D4
-        ;Move.W  #$11, A3
-        Move.W  #Test_Move8, D4
-        Move.L  #$12345678, A3
+        ;Move.W  #Test_Move6, D4        
+        ;Move.W  #Test_Move7, D4        
+        ;Move.W  #Test_Move8, D4
+        
+        ;Move.W  #Add_Test1, D4
+        ;Move.W  #Add_Test2, D4
+        ;Move.W  #Add_Test3, D4
+        Move.W  #Add_Test4, D4
+
                 
-        Bra     EA_MOVE     ; Branch to EA function for Move
+        ;Jmp     EA_MOVE     ; Branch to EA function for Move
+        Jmp     EA_ADD
 
 ;]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]];  
 ;-------------------- Effective Address Sub Routines --------------------;
@@ -147,6 +162,12 @@ EA_MOVE_SIZE    ; Find the size of immediate data being moved
 EA_ADD        
         Jsr     GET6TO8
         
+        Cmp.B   #%011, D0
+        Beq     EA_ADDA
+        
+        Cmp.B   #%111, D0
+        Beq     EA_ADDA
+
         Cmp.B   #%000, D0
         Beq     EA_ADD_OPMODE_SOURCE
         
@@ -156,10 +177,25 @@ EA_ADD
         Cmp.B   #%010, D0
         Beq     EA_ADD_OPMODE_SOURCE
         
-        Jmp     EA_ADD_OPMODE_DESTINATION
+        Jmp     EA_ADD_OPMODE_DEST
+        
+EA_ADDA
+        Jsr     EA_ADD_SOURCE
+        Move.B  #',', (A6)+             ; Add a comma
+        Jsr     GET9TO11
+        Jsr     EA_AN
         
 EA_ADD_OPMODE_SOURCE
         Jsr     EA_ADD_SOURCE
+        Move.B  #',', (A6)+             ; Add a comma
+        Jsr     GET9TO11
+        Jsr     EA_DN
+        
+EA_ADD_OPMODE_DEST
+        Jsr     GET9TO11
+        Jsr     EA_DN
+        Move.B  #',', (A6)+             ; Add a comma
+        Jsr     EA_ADD_DEST
         
 EA_ADD_SOURCE   ; Find out Add's source
         Jsr     GET3TO5                 ; Get source mode
@@ -194,6 +230,30 @@ EA_ADD_SOURCE   ; Find out Add's source
         
         Rts
         
+EA_ADD_DEST ; Find out Add's destination
+        Jsr     GET3TO5                 ; Get destination mode
+        Move.B  D0, D5                  ; Move destination mode to D5
+        Jsr     Get0TO2                 ; Get destination register
+        
+        ; List of valid effective addresses
+        Cmp.B   #An_Pntr_Mode, D5       ; (An)
+        Beq     EA_AN_PNTR
+        
+        Cmp.B   #An_Inc_Mode, D5        ; (An)+
+        Beq     EA_AN_INC
+        
+        Cmp.B   #An_Dec_Mode, D5        ; -(An)
+        Beq     EA_AN_DEC
+        
+        ; Comparing registers at this point because modes are the same
+        Cmp.B   #Word_Reg, D0           ; (xxx).W
+        Beq     EA_WORD_ADDR
+        
+        Cmp.B   #Long_Reg, D0           ; (xxx).L
+        Beq     EA_LONG_ADDR
+                
+        Rts
+        
 EA_ADD_SIZE ; Find the size of immediate data being moved
         Jsr     GET6TO8                 ; Get Move size
 
@@ -204,6 +264,12 @@ EA_ADD_SIZE ; Find the size of immediate data being moved
         Beq     EA_IMM_WORD
         
         Cmp.B   #%010, D0               ; Long
+        Beq     EA_IMM_LONG
+        
+        Cmp.B   #%011, D0               ; AddA Word
+        Beq     EA_IMM_WORD
+   
+        Cmp.B   #%111, D0               ; AddA Long
         Beq     EA_IMM_LONG
         
         Rts
@@ -450,7 +516,7 @@ EA_IMM_BYTE ; Finds the immediate byte data
         Rts
                 
 EA_IMM_WORD ; Finds the immediate word data
-        Move.W (A3)+, D6            ; Move the immediate word data into D6 and move forward in memory
+        Move.W  (A3)+, D6            ; Move the immediate word data into D6 and move forward in memory
         
         Move.B  #'#', (A6)+         
         Move.B  #'$', (A6)+         
@@ -460,7 +526,7 @@ EA_IMM_WORD ; Finds the immediate word data
         Rts
         
 EA_IMM_LONG ; Finds the immediate long data
-        Move.L (A3)+, D6            ; Move the immediate long data into D6 and move forward in memory
+        Move.L  (A3)+, D6            ; Move the immediate long data into D6 and move forward in memory
         
         Move.B  #'#', (A6)+
         Move.B  #'$', (A6)+
