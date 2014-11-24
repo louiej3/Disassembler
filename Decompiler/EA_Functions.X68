@@ -158,7 +158,7 @@ EA_MOVE_SIZE    ; Find the size of immediate data being moved
 
 ;===========================================;        
 ;--------------- EA Add/AddA ---------------;
-;===========================================;
+;===========================================;       
 EA_ADD  ; Figures out the EA for Add        
         Jsr     GET6TO8                 ; Isolate the Op mode
         
@@ -196,8 +196,8 @@ EA_ADD_OPMODE_DEST      ; Finds the EA for Add if it is for the destination
         Jsr     EA_DN                   ; Add Dn
         Move.B  #',', (A6)+             ; Add a comma
         Jsr     EA_ADD_DEST             ; Get the destination EA 
-        
-EA_ADD_SOURCE   ; Find out Add's source
+
+EA_ADD_SOURCE   ; Find out Add source
         Jsr     GET3TO5                 ; Get source mode
         Move.B  D0, D5                  ; Move source mode to D5
         Jsr     Get0TO2                 ; Get source register
@@ -230,7 +230,7 @@ EA_ADD_SOURCE   ; Find out Add's source
         
         Rts
         
-EA_ADD_DEST ; Find out Add's destination
+EA_ADD_DEST ; Find out Add destination
         Jsr     GET3TO5                 ; Get destination mode
         Move.B  D0, D5                  ; Move destination mode to D5
         Jsr     Get0TO2                 ; Get destination register
@@ -273,6 +273,14 @@ EA_ADD_SIZE ; Find the size of immediate data being moved
         Beq     EA_IMM_LONG
         
         Rts
+        
+;=========================================================;        
+;---------------------- EA Sub/SubA ----------------------;
+; Jumps straight to EA_ADD because the EA for Add/AddA and
+; Sub/SubA are exactly the same.
+;=========================================================;
+EA_SUB
+        Jmp     EA_ADD
         
 ;==========================================;        
 ;---------- General EA functions ----------;
@@ -506,7 +514,7 @@ EA_BYTE_TO_STRING   ; Adds the byte in D6 to the string
         Rts
 
 EA_IMM_BYTE ; Finds the immediate byte data
-        Move.B (A3)+, D6            ; Move the immediate byte data into D6 and move forward in memory
+        Move.B  (A3)+, D6            ; Move the immediate byte data into D6 and move forward in memory
         
         Move.B  #'#', (A6)+         
         Move.B  #'$', (A6)+         
