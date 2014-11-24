@@ -281,6 +281,14 @@ EA_ADD_SIZE ; Find the size of immediate data being moved
 ;=========================================================;
 EA_SUB
         Jmp     EA_ADD
+
+;=========================================================;        
+;---------------------- EA Cmp/CmpA ----------------------;
+; Jumps straight to EA_ADD because the EA for Add/AddA and
+; Cmp/CmpA are exactly the same.
+;=========================================================;
+EA_CMP       
+        Jmp     EA_ADD
         
 ;==========================================;        
 ;---------- General EA functions ----------;
