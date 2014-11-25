@@ -289,7 +289,15 @@ EA_SUB
 ;=========================================================;
 EA_CMP       
         Jmp     EA_ADD
-        
+
+;============================================;
+;--------------- EA Bit Shift ---------------;
+;============================================;
+; If bits 6-7 are 11 (3 in decimal), dealing with memory shift 
+    ; Bit 5 specifies immediate shift or register shift count
+    
+; Else, dealing with a register shift
+       
 ;==========================================;        
 ;---------- General EA functions ----------;
 ;==========================================;
@@ -638,6 +646,7 @@ GETBIT8
 		RTS 
 
     END    START        ; last line of source
+
 
 
 
