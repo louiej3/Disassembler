@@ -45,6 +45,9 @@ Shift_Test5         EQU     %1110000100000100   ; Asl.B #8,D4
 
 Imm_Test1           EQU     %0000010000011111   ; SubI.B #$Imm,(A7)+
 Imm_Test2           EQU     %0000010001111001   ; SubI.W #$Imm,$Long
+
+AddQ_Test1          EQU     %0101111000001001   ; AddQ.B #7,A1
+AddQ_Test2          EQU     %0101000000001001   ; AddQ.B #8,A1
         
     ORG    $1000
     
@@ -79,12 +82,16 @@ START:                  ; first instruction of program
         ;Move.W  #Shift_Test5, D4
         
         ;Move.W  #Imm_Test1, D4
-        Move.W  #Imm_Test2, D4
+        ;Move.W  #Imm_Test2, D4
+        
+        ;Move.W  #AddQ_Test1, D4
+        Move.W  #AddQ_Test2, D4
                 
         ;Jmp     EA_MOVE     ; Branch to EA function for Move
         ;Jmp     EA_ADD
         ;Jmp     EA_BIT_SHIFT
-        Jmp     EA_IMMEDIATE
+        ;Jmp     EA_IMMEDIATE
+        Jmp     EA_ADDQ
 
 ;]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]];  
 ;-------------------- Effective Address Sub Routines --------------------;
@@ -302,6 +309,59 @@ EA_ADD_SIZE ; Find the size of immediate data being moved
         Beq     EA_IMM_LONG
         
         Rts
+        
+;=================================================;        
+;-------------------- EA AddQ --------------------;
+;=================================================;
+EA_ADDQ ; Figures out the EA for AddQ
+        Jsr     EA_ADDQ_CHECK_8         ; Get the immediate value
+        Move.B  #',', (A6)+             ; Add a comma
+        Jsr     EA_ADDQ_DEST            ; Add the destination
+
+EA_ADDQ_CHECK_8 ; A bit value of 1-7 corresponds to 1-7, but 0 corresponds to 8
+        Jsr     GET9TO11                ; Isolate the count/register bits
+        
+        Cmp.B   #0, D0                  ; If the bits are greater than 0, proceed normally
+        Bgt     EA_ADDQ_IMMEDIATE
+        
+        Move.B  #8, D0                  ; Else, use 8 as the immediate value
+        
+        Jmp     EA_ADDQ_IMMEDIATE
+        
+EA_ADDQ_IMMEDIATE   ; Adds an immediate value before the comma
+        Move.B  #'#', (A6)+
+        Add.B   #$30, D0
+        Move.B  D0, (A6)+               ; Add the immediate value to the string
+        
+        Rts
+        
+EA_ADDQ_DEST    ; Determines the destination       
+        Jsr     GET3TO5                 ; Get source mode
+        Move.B  D0, D5                  ; Move source mode to D5
+        Jsr     Get0TO2                 ; Get source register
+        
+        ; List of valid effective addresses
+        Cmp.B   #Dn_Mode, D5            ; Dn
+        Beq     EA_DN
+        
+        Cmp.B   #An_Mode, D5            ; An
+        Beq     EA_AN
+        
+        Cmp.B   #An_Pntr_Mode, D5       ; (An)
+        Beq     EA_AN_PNTR
+        
+        Cmp.B   #An_Inc_Mode, D5        ; (An)+
+        Beq     EA_AN_INC
+        
+        Cmp.B   #An_Dec_Mode, D5        ; -(An)
+        Beq     EA_AN_DEC
+        
+        ; Comparing registers at this point because modes are the same
+        Cmp.B   #Word_Reg, D0           ; (xxx).W
+        Beq     EA_WORD_ADDR
+        
+        Cmp.B   #Long_Reg, D0           ; (xxx).L
+        Beq     EA_LONG_ADDR
         
 ;=========================================================;        
 ;---------------------- EA Sub/SubA ----------------------;
