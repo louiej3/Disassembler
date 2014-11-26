@@ -907,6 +907,18 @@ GET12TO15	;1001 0000 0000 0000 -> 1001
 				LSR.W	    D1, D0		
 				
 				RTS
+				
+GET12TO13	; 0000 1010 0000 0000 -> 1010	
+				CLR.L	D0		    ; Clear out D0
+				Move.W 	D4, D0		; Move a copy of the bit string to D0
+				
+				Move.B	#2, D1		; This is nessassary to move by > 8 bits
+				LSL.W 	D1, D0		; Move the string all the way to the left
+				
+				Move.B	#14, D1		; Change the amount of bits shifted
+				LSR.W	    D1, D0		; Move the bits all the way back to the right, isolating the bits
+				
+				RTS			        ; Return from the subroutine
 
 GET8TO11	; 0000 1010 0000 0000 -> 1010	
 				CLR.L	D0		; Clear out D0
@@ -1021,6 +1033,7 @@ DONE       ; Close out the program
 ILLEGAL     ; PLACEHOLDER
         Bra     DONE
     END    START        ; last line of source
+
 
 
 

@@ -45,8 +45,8 @@ START:                  ; first instruction of program
         ;Move.L  #$12349999, A3
         ;Move.W  #Test_Move7, D4
         ;Move.W  #$11, A3
-        Move.W  #Test_Move8, D4
-        Move.L  #$12345678, A3
+        ;Move.W  #Test_Move8, D4
+        ;Move.L  #$12345678, A3
                 
         Bra     EA_MOVE     ; Branch to EA function for Move
 
@@ -455,6 +455,7 @@ GETBIT8
 		RTS 
 
     END    START        ; last line of source
+
 
 
 
