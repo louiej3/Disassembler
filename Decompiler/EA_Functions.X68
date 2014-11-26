@@ -90,6 +90,8 @@ EA_MOVE
         Jsr     EA_MOVE_SOURCE          ; Add the EA for source
         Move.B  #',', (A6)+             ; Add a comma
         Jsr     EA_MOVE_DEST            ; Add the EA for destination
+        
+        ; <Next instruction>
                 
 EA_MOVE_SOURCE  ; Find out Move's source
         Jsr     GET3TO5                 ; Get source mode
@@ -197,17 +199,23 @@ EA_ADDA ; Figures out the EA for AddA
         Jsr     GET9TO11                ; Get the register
         Jsr     EA_AN                   ; Add An
         
+        ; <Next instruction>
+        
 EA_ADD_OPMODE_SOURCE    ; Finds the EA for Add if it is for the source
         Jsr     EA_ADD_SOURCE           ; Get the source EA
         Move.B  #',', (A6)+             ; Add a comma
         Jsr     GET9TO11                ; Get the register
         Jsr     EA_DN                   ; Add Dn
         
+        ; <Next instruction>
+        
 EA_ADD_OPMODE_DEST      ; Finds the EA for Add if it is for the destination
         Jsr     GET9TO11                ; Get the register
         Jsr     EA_DN                   ; Add Dn
         Move.B  #',', (A6)+             ; Add a comma
         Jsr     EA_ADD_DEST             ; Get the destination EA 
+        
+        ; <Next instruction>
 
 EA_ADD_SOURCE   ; Find out Add source
         Jsr     GET3TO5                 ; Get source mode
