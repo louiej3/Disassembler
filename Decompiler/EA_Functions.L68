@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.02
-Created On: 11/25/2014 11:04:09 PM
+Created On: 11/25/2014 11:07:40 PM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      : Move EA Test
@@ -423,7 +423,7 @@ Created On: 11/25/2014 11:04:09 PM
 000012E2  B03C 0002                419          Cmp.B   #%10, D0                ; Immediate long
 000012E6  6700 0244                420          Beq     EA_IMM_LONG
 000012EA                           421          
-000012EA  524B                     422          AddA.W  #1, A3                  ; Else, add 8 to pointer and get the next byte
+000012EA  524B                     422          AddA.W  #1, A3                  ; Else, move the pointer forward by a byte get the next byte
 000012EC  4EF9 0000150C            423          Jmp     EA_IMM_BYTE
 000012F2                           424          
 000012F2  4E75                     425          Rts

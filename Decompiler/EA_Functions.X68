@@ -419,7 +419,7 @@ EA_IMMEDIATE_SIZE   ; Determines the size of the immediate data and adds it
         Cmp.B   #%10, D0                ; Immediate long
         Beq     EA_IMM_LONG
         
-        AddA.W  #1, A3                  ; Else, add 8 to pointer and get the next byte
+        AddA.W  #1, A3                  ; Else, move the pointer forward by a byte get the next byte
         Jmp     EA_IMM_BYTE
         
         Rts
