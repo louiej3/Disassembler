@@ -1,1 +1,1 @@
-Psychobots decompiler.
+Psychobots disassembler
