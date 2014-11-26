@@ -53,10 +53,13 @@ START:                  ; first instruction of program
     
     ; Add CMPI
 
-;-------------- BCC --------------------;
+;------------ BCC & Jumps --------------;
 
     Bra         $1234
     Beq         $5678
+    
+    Jsr         $ABCD
+    Rts
     
 ;--------- SHIFT FUNCTIONS -------------;
 
@@ -70,10 +73,42 @@ START:                  ; first instruction of program
     
     ROR.L       D1,D5
     ROL.B       #6,D2
+    
+;--------- IMMEDIATE FUNCTIONS ---------;
+
+    CmpI.W  #$ABCD, D4
+    CmpI.L  #$87654321, $12345678
+    
+    OrI.B   #$02,(A6)
+    OrI.L   #12,(A5)+
+    
+    SubI.W  #1423,-(A3)
+    SubI.B  #12,D3
+    
+    EorI.L  #$ABCE1452,(A5)
+    EorI.B  #255,$FFFFA000
+        
+;------- Neg - Not - Muls - Divs -------;
+
+    Neg.L   D1
+    Neg.W   (A3)
+    Neg.B   (A6)+
+    
+    Not.L   -(A2)
+    Not.B   D3
+    Not.W   $7532
+    
+    Muls.W  $9764, D4
+    Muls.W  #15, D6
+    
+    Divs.W  #3,D7
+    Divs.W  (A2),D3
+
 
 * Put variables and constants here
 
     END    START        ; last line of source
+
 
 
 

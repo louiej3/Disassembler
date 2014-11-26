@@ -71,6 +71,9 @@ IMMEDIATE_BTST  ; Continue through Op-code Tree, first 4 are 0000
         Cmp.B     #%101, D0        ; Exclusive or, I
         Beq     OP_EORI
         
+        Cmp.B     #%110, D0        ; Compare I
+        Beq     OP_CMPI
+        
         Bra     ILLEGAL         ; Everything else is uncovered
         
 SINGLE_OPERATOR_CODES   ; Continue through Op-code Tree, first 4 are 0100
@@ -89,10 +92,10 @@ SINGLE_OPERATOR_CODES   ; Continue through Op-code Tree, first 4 are 0100
         Beq     OP_NOT
         
         Cmp.B     #%100, D0    ; Move multiple registers Registers -> Memory
-        Beq     OP_MOVEM_RTOM
+        Beq     OP_MOVEM
         
         Cmp.B     #%110, D0    ; Move multiple registers Memory -> Registers
-        Beq     OP_MOVEM_MTOR
+        Beq     OP_MOVEM
         
         Cmp.B     #%111, D0    ; Not enough info, call JSR_RTS
         Beq     JSR_RTS
@@ -267,14 +270,46 @@ OP_MOVE_DATA
         Beq     OP_SET_DATA_WORD
         
         Rts
+
+;-----------------------  ADDQ  -----------------------------;
         
 OP_ADDQ
-    Bra DONE    ; PLACEHOLDER
+    ; start string
+    
+        Move.B  #'A', (A6)+
+        Move.B  #'D', (A6)+
+        Move.B  #'D', (A6)+
+        Move.B  #'Q', (A6)+
+        
+    ; Check data type        
+        Jsr     OP_CHECK_DATA_SIZE
+        
+    ; Put in tabs
+        Jsr     OP_TAB
+        
+    ; Hand the function off to John
+        ;Bra     EA_IMMEDIATE
+
     
 ;------------------  DIVIDE SINGED  -------------------------;
     
 OP_DIVS
-    Bra DONE    ; PLACEHOLDER
+    ; start string
+    
+        Move.B  #'D', (A6)+
+        Move.B  #'I', (A6)+
+        Move.B  #'V', (A6)+
+        Move.B  #'S', (A6)+
+        Move.B  #'.', (A6)+
+        Move.B  #'W', (A6)+
+        
+    ; Put in tabs
+        Jsr     OP_TAB    
+    
+    ; Handoff to John
+        
+        ;Bra     #OP_DIVS
+
     
 ;-----------------------  SUB  ------------------------------;    
     
@@ -284,6 +319,7 @@ OP_SUB
         Move.B  #'S', (A6)+
         Move.B  #'U', (A6)+
         Move.B  #'B', (A6)+
+
 
      ; Check for address version
         
@@ -354,28 +390,215 @@ OP_ADD_ADDR
         ; Handoff
         ;Bra     EA_ADDA
 
+;------------------------  BTST -----------------------------;
+
 OP_BSTS
-    Bra DONE    ; PLACEHOLDER
+    ; start string
+    
+        Move.B  #'B', (A6)+
+        Move.B  #'T', (A6)+
+        Move.B  #'S', (A6)+
+        Move.B  #'T', (A6)+
+        
+    ; Btst has data sizes, but they are implicit based on mode
+        
+    ; Put in tabs
+        Jsr     OP_TAB
+        
+    ; Hand the function off to John
+        ;Bra     EA_BTST
+
+
+;---------------  IMEMDIATE FUNCTIONS  ----------------------;
+
+;------------------------  ORI  -----------------------------;
+    
 OP_ORI
-    Bra DONE    ; PLACEHOLDER
+    ; start string
+    
+        Move.B  #'O', (A6)+
+        Move.B  #'R', (A6)+
+        Move.B  #'I', (A6)+
+        
+    ; Check data type        
+        Jsr     OP_CHECK_DATA_SIZE
+        
+    ; Put in tabs
+        Jsr     OP_TAB
+        
+    ; Hand the function off to John
+        ;Bra     EA_IMMEDIATE
+
+;-----------------------  SUBI  -----------------------------;
+
 OP_SUBI
-    Bra DONE    ; PLACEHOLDER
+    ; start string
+    
+        Move.B  #'S', (A6)+
+        Move.B  #'U', (A6)+
+        Move.B  #'B', (A6)+
+        Move.B  #'I', (A6)+
+        
+    ; Check data type        
+        Jsr     OP_CHECK_DATA_SIZE
+        
+    ; Put in tabs
+        Jsr     OP_TAB
+        
+    ; Hand the function off to John
+        ;Bra     EA_IMMEDIATE  
+        
+;-----------------------  EORI  -----------------------------;        
+        
 OP_EORI
-    Bra DONE    ; PLACEHOLDER
+    ; start string
+    
+        Move.B  #'E', (A6)+
+        Move.B  #'O', (A6)+
+        Move.B  #'R', (A6)+
+        Move.B  #'I', (A6)+
+        
+    ; Check data type        
+        Jsr     OP_CHECK_DATA_SIZE
+        
+    ; Put in tabs
+        Jsr     OP_TAB
+        
+    ; Hand the function off to John
+        ;Bra     EA_IMMEDIATE  
+        
+;-----------------------  CMPI  -----------------------------;        
+        
+OP_CMPI
+    ; start string
+    
+        Move.B  #'C', (A6)+
+        Move.B  #'M', (A6)+
+        Move.B  #'P', (A6)+
+        Move.B  #'I', (A6)+
+        
+    ; Check data type        
+        Jsr     OP_CHECK_DATA_SIZE
+        
+    ; Put in tabs
+        Jsr     OP_TAB
+        
+    ; Hand the function off to John
+        ;Bra     EA_IMMEDIATE  
+        
+;-----------------------  LEA  ------------------------------;
+
 OP_LEA
-    Bra DONE    ; PLACEHOLDER
+    ; start string
+    
+        Move.B  #'L', (A6)+
+        Move.B  #'E', (A6)+
+        Move.B  #'A', (A6)+
+        
+    ; No data size for LEA
+        
+    ; Put in tabs
+        Jsr     OP_TAB
+        
+    ; Hand the function off to John
+        ;Bra     EA_LEA  
+
+;-----------------------  NEG  ------------------------------;
+
 OP_NEG
-    Bra DONE    ; PLACEHOLDER
+    ; start string
+    
+        Move.B  #'N', (A6)+
+        Move.B  #'E', (A6)+
+        Move.B  #'G', (A6)+
+        
+    ; Data size
+        Jsr     OP_CHECK_DATA_SIZE
+        
+    ; Put in tabs
+        Jsr     OP_TAB
+        
+    ; Hand the function off to John
+        ;Bra     EA_NEG  
+
+    
+;-----------------------  NOT  ------------------------------;    
+    
 OP_NOT
-    Bra DONE    ; PLACEHOLDER
-OP_MOVEM_RTOM
-    Bra DONE    ; PLACEHOLDER
-OP_MOVEM_MTOR
-    Bra DONE    ; PLACEHOLDER
+    ; start string
+    
+        Move.B  #'N', (A6)+
+        Move.B  #'O', (A6)+
+        Move.B  #'T', (A6)+
+        
+    ; Data size
+        Jsr     OP_CHECK_DATA_SIZE
+        
+    ; Put in tabs
+        Jsr     OP_TAB
+        
+    ; Hand the function off to John
+        ;Bra     EA_NOT
+
+;-------------------  MOVE MULITPLE  ------------------------;
+        
+OP_MOVEM
+    ; start string
+    
+        Move.B  #'M', (A6)+
+        Move.B  #'O', (A6)+
+        Move.B  #'V', (A6)+
+        Move.B  #'E', (A6)+
+        Move.B  #'M', (A6)+        
+
+    ; Data size has to be checked manually
+        Jsr     OP_MOVEM_DATA
+        
+    ; Put in tabs
+        Jsr     OP_TAB
+        
+    ; Hand the function off to John
+        ;Bra     EA_MOVEM
+        
+OP_MOVEM_DATA
+    ; get the size bit
+        Jsr     GET6AND7
+        
+        Cmp.B   #%10,D0
+        Beq     OP_SET_DATA_WORD
+        
+        Bra     OP_SET_DATA_LONG   
+
 OP_RTS
-    Bra DONE    ; PLACEHOLDER
+    ; start string
+    
+        Move.B  #'R', (A6)+
+        Move.B  #'T', (A6)+
+        Move.B  #'S', (A6)+
+
+    ; Put in tabs
+        Jsr     OP_TAB
+
+    ; Handoff to Blong
+    
+        ;Bra     PRINT
+        
+;-----------------------  JSR  ------------------------------;        
+        
 OP_JSR
-    Bra DONE    ; PLACEHOLDER
+    ; start string
+    
+        Move.B  #'J', (A6)+
+        Move.B  #'S', (A6)+
+        Move.B  #'R', (A6)+
+        
+    ; No data size
+        
+    ; Put in tabs
+        Jsr     OP_TAB
+        
+    ; Hand the function off to John
+        ;Bra     EA_JSR
 
 ;------------------  BRANCH CONDITIONALS  ------------------------;
 
@@ -589,10 +812,46 @@ OP_BRA_LE
     
         ;Bra     EA_BCC
 
+;------------------  Multiply Singed ----------------------;    
+
 OP_MULS
-    Bra DONE    ; PLACEHOLDER
+    ; MULS only has one format, and that data size of word, so I don't need
+    ; a very intelligent system
+    
+        Move.B  #'M', (A6)+
+        Move.B  #'U', (A6)+
+        Move.B  #'L', (A6)+
+        Move.B  #'S', (A6)+
+        Move.B  #'.', (A6)+
+        Move.B  #'W', (A6)+
+
+    ; Put in tabs
+        Jsr     OP_TAB       
+    
+    ; Give to john
+    
+        ;Bra     EA_MULS
+
+    
+;-----------------------  AND  ------------------------------;    
+    
 OP_AND
-    Bra DONE    ; PLACEHOLDER
+    ; start string
+    
+        Move.B  #'A', (A6)+
+        Move.B  #'N', (A6)+
+        Move.B  #'D', (A6)+
+
+    ; No Address Version
+        
+    ; Check data size
+        Jsr     OP_CHECK_DATA_SIZE
+        
+    ; Put in tabs
+        Jsr     OP_TAB
+        
+    ;Bra     EA_AND
+
     
 ;-----------------  ARITHMETIC SHIFTS  ----------------------;
         
@@ -762,9 +1021,24 @@ OP_CMP_ADDR
     ; Handoff
         ;Bra     EA_CMPA
     
+;-----------------------  EOR  ------------------------------;
 
 OP_EOR
-    Bra DONE    ; PLACEHOLDER
+    ; start string
+    
+        Move.B  #'E', (A6)+
+        Move.B  #'O', (A6)+
+        Move.B  #'R', (A6)+
+
+    ; No Address Version
+        
+    ; Check data size
+        Jsr     OP_CHECK_DATA_SIZE
+        
+    ; Put in tabs
+        Jsr     OP_TAB
+        
+    ;Bra     EA_EOR
 
 ;---------------- Misc Op-Code Sub Routines ----------------;
 ; Set Bad Buffer
@@ -907,18 +1181,6 @@ GET12TO15	;1001 0000 0000 0000 -> 1001
 				LSR.W	    D1, D0		
 				
 				RTS
-				
-GET12TO13	; 0000 1010 0000 0000 -> 1010	
-				CLR.L	D0		    ; Clear out D0
-				Move.W 	D4, D0		; Move a copy of the bit string to D0
-				
-				Move.B	#2, D1		; This is nessassary to move by > 8 bits
-				LSL.W 	D1, D0		; Move the string all the way to the left
-				
-				Move.B	#14, D1		; Change the amount of bits shifted
-				LSR.W	    D1, D0		; Move the bits all the way back to the right, isolating the bits
-				
-				RTS			        ; Return from the subroutine
 
 GET8TO11	; 0000 1010 0000 0000 -> 1010	
 				CLR.L	D0		; Clear out D0
@@ -1033,6 +1295,8 @@ DONE       ; Close out the program
 ILLEGAL     ; PLACEHOLDER
         Bra     DONE
     END    START        ; last line of source
+
+
 
 
 
