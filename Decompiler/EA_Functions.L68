@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.02
-Created On: 11/25/2014 9:35:00 PM
+Created On: 11/25/2014 9:46:49 PM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      : Move EA Test
@@ -312,17 +312,17 @@ Created On: 11/25/2014 9:35:00 PM
 00001212                           308  ; are combined because the EA for each code is exactly the
 00001212                           309  ; same.
 00001212                           310  ;=========================================================;
-00001212                           311  EA_BIT_SHIFT
+00001212                           311  EA_BIT_SHIFT    ; Figures out the EA for bit shift functions
 00001212  4EB9 0000153E            312          Jsr     GET6TO7
 00001218                           313          
-00001218  B03C 0003                314          Cmp.B   #%11, D0
+00001218  B03C 0003                314          Cmp.B   #%11, D0                ; If bits 6 and 7 are not %11, then we are shifting a register
 0000121C  6600 0040                315          Bne     EA_SHIFT_REGISTER
 00001220                           316          
-00001220  4EB9 00001226            317          Jsr     EA_SHIFT_MEMORY
+00001220  4EB9 00001226            317          Jsr     EA_SHIFT_MEMORY         ; If bits 6 and 7 are %11, then we are shifting memory
 00001226                           318          
 00001226                           319          ; <Next instruction>
 00001226                           320                  
-00001226                           321  EA_SHIFT_MEMORY
+00001226                           321  EA_SHIFT_MEMORY ; Adds the correct EA for a memory shift
 00001226  4EB9 00001508            322          Jsr     GET3TO5                 ; Get source mode
 0000122C  1A00                     323          Move.B  D0, D5                  ; Move source mode to D5
 0000122E  4EB9 0000151A            324          Jsr     Get0TO2                 ; Get source register
@@ -346,44 +346,44 @@ Created On: 11/25/2014 9:35:00 PM
 0000125C                           342          
 0000125C  4E75                     343          Rts
 0000125E                           344          
-0000125E                           345  EA_SHIFT_REGISTER
+0000125E                           345  EA_SHIFT_REGISTER   ; Figure out if we are shifting by #<data> or by the value in a data register
 0000125E  4EB9 00001550            346          Jsr     GETBIT5
 00001264                           347          
-00001264  B03C 0000                348          Cmp.B   #0, D0
+00001264  B03C 0000                348          Cmp.B   #0, D0                  ; Check if bit 5 is %0
 00001268  6700 0008                349          Beq     EA_SHIFT_CHECK_8
 0000126C                           350          
-0000126C  4EF9 0000129A            351          Jmp     EA_SHIFT_DN
+0000126C  4EF9 0000129A            351          Jmp     EA_SHIFT_DN             ; If it's not, we are shifting from a data register
 00001272                           352          
-00001272                           353  EA_SHIFT_CHECK_8
-00001272  4EB9 000014E4            354          Jsr     GET9TO11
+00001272                           353  EA_SHIFT_CHECK_8    ; A bit value of 1-7 corresponds to 1-7, but 0 corresponds to 8
+00001272  4EB9 000014E4            354          Jsr     GET9TO11                ; Isolate the count/register bits
 00001278                           355          
-00001278  B03C 0000                356          Cmp.B   #0, D0
+00001278  B03C 0000                356          Cmp.B   #0, D0                  ; If the bits are greater than 0, proceed normally
 0000127C  6E00 000C                357          Bgt     EA_SHIFT_IMMEDIATE
 00001280                           358          
-00001280  103C 0008                359          Move.B  #8, D0
+00001280  103C 0008                359          Move.B  #8, D0                  ; Else, use 8 as the immediate value
 00001284                           360                  
 00001284  4EF9 0000128A            361          Jmp     EA_SHIFT_IMMEDIATE
 0000128A                           362          
-0000128A                           363  EA_SHIFT_IMMEDIATE        
+0000128A                           363  EA_SHIFT_IMMEDIATE  ; Adds an immediate value before the comma
 0000128A  1CFC 0023                364          Move.B  #'#', (A6)+
 0000128E  0600 0030                365          Add.B   #$30, D0
-00001292  1CC0                     366          Move.B  D0, (A6)+
+00001292  1CC0                     366          Move.B  D0, (A6)+               ; Add the immediate value to the string
 00001294                           367  
-00001294  4EF9 000012AC            368          Jmp     EA_SHIFT_COMMA
+00001294  4EF9 000012AC            368          Jmp     EA_SHIFT_COMMA          ; Add the comma and everything after it
 0000129A                           369          
-0000129A                           370  EA_SHIFT_DN
-0000129A  4EB9 000014E4            371          Jsr     GET9TO11
+0000129A                           370  EA_SHIFT_DN ; Adds a data register before the comma
+0000129A  4EB9 000014E4            371          Jsr     GET9TO11                ; Isolate the data register bits
 000012A0                           372          
-000012A0  4EB9 000012BC            373          Jsr     EA_DN
+000012A0  4EB9 000012BC            373          Jsr     EA_DN                   ; Add the data register to the string
 000012A6                           374          
-000012A6  4EF9 000012AC            375          Jmp     EA_SHIFT_COMMA
+000012A6  4EF9 000012AC            375          Jmp     EA_SHIFT_COMMA          ; Add the comma and everything after it 
 000012AC                           376          
-000012AC                           377  EA_SHIFT_COMMA
+000012AC                           377  EA_SHIFT_COMMA  ; Adds the comma and everything after it to the string
 000012AC  1CFC 002C                378          Move.B  #',', (A6)+
 000012B0                           379          
-000012B0  4EB9 0000151A            380          Jsr     GET0TO2
+000012B0  4EB9 0000151A            380          Jsr     GET0TO2                 ; Get the register number
 000012B6                           381          
-000012B6  4EB9 000012BC            382          Jsr     EA_DN
+000012B6  4EB9 000012BC            382          Jsr     EA_DN                   ; Add the register
 000012BC                           383          
 000012BC                           384          ; <Next instruction>
 000012BC                           385         

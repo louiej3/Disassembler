@@ -308,17 +308,17 @@ EA_CMP
 ; are combined because the EA for each code is exactly the
 ; same.
 ;=========================================================;
-EA_BIT_SHIFT
+EA_BIT_SHIFT    ; Figures out the EA for bit shift functions
         Jsr     GET6TO7
         
-        Cmp.B   #%11, D0
+        Cmp.B   #%11, D0                ; If bits 6 and 7 are not %11, then we are shifting a register
         Bne     EA_SHIFT_REGISTER
         
-        Jsr     EA_SHIFT_MEMORY
+        Jsr     EA_SHIFT_MEMORY         ; If bits 6 and 7 are %11, then we are shifting memory
         
         ; <Next instruction>
                 
-EA_SHIFT_MEMORY
+EA_SHIFT_MEMORY ; Adds the correct EA for a memory shift
         Jsr     GET3TO5                 ; Get source mode
         Move.B  D0, D5                  ; Move source mode to D5
         Jsr     Get0TO2                 ; Get source register
@@ -342,44 +342,44 @@ EA_SHIFT_MEMORY
         
         Rts
         
-EA_SHIFT_REGISTER
+EA_SHIFT_REGISTER   ; Figure out if we are shifting by #<data> or by the value in a data register
         Jsr     GETBIT5
         
-        Cmp.B   #0, D0
+        Cmp.B   #0, D0                  ; Check if bit 5 is %0
         Beq     EA_SHIFT_CHECK_8
         
-        Jmp     EA_SHIFT_DN
+        Jmp     EA_SHIFT_DN             ; If it's not, we are shifting from a data register
         
-EA_SHIFT_CHECK_8
-        Jsr     GET9TO11
+EA_SHIFT_CHECK_8    ; A bit value of 1-7 corresponds to 1-7, but 0 corresponds to 8
+        Jsr     GET9TO11                ; Isolate the count/register bits
         
-        Cmp.B   #0, D0
+        Cmp.B   #0, D0                  ; If the bits are greater than 0, proceed normally
         Bgt     EA_SHIFT_IMMEDIATE
         
-        Move.B  #8, D0
+        Move.B  #8, D0                  ; Else, use 8 as the immediate value
                 
         Jmp     EA_SHIFT_IMMEDIATE
         
-EA_SHIFT_IMMEDIATE        
+EA_SHIFT_IMMEDIATE  ; Adds an immediate value before the comma
         Move.B  #'#', (A6)+
         Add.B   #$30, D0
-        Move.B  D0, (A6)+
+        Move.B  D0, (A6)+               ; Add the immediate value to the string
 
-        Jmp     EA_SHIFT_COMMA
+        Jmp     EA_SHIFT_COMMA          ; Add the comma and everything after it
         
-EA_SHIFT_DN
-        Jsr     GET9TO11
+EA_SHIFT_DN ; Adds a data register before the comma
+        Jsr     GET9TO11                ; Isolate the data register bits
         
-        Jsr     EA_DN
+        Jsr     EA_DN                   ; Add the data register to the string
         
-        Jmp     EA_SHIFT_COMMA
+        Jmp     EA_SHIFT_COMMA          ; Add the comma and everything after it 
         
-EA_SHIFT_COMMA
+EA_SHIFT_COMMA  ; Adds the comma and everything after it to the string
         Move.B  #',', (A6)+
         
-        Jsr     GET0TO2
+        Jsr     GET0TO2                 ; Get the register number
         
-        Jsr     EA_DN
+        Jsr     EA_DN                   ; Add the register
         
         ; <Next instruction>
        
