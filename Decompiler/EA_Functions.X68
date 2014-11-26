@@ -42,14 +42,19 @@ Shift_Test2         EQU     %1110000111111000   ; Asl $Word
 Shift_Test3         EQU     %1110111100100001   ; Asl.B D7,D1
 Shift_Test4         EQU     %1110010100000111   ; Asl.B #2,D7
 Shift_Test5         EQU     %1110000100000100   ; Asl.B #8,D4
+
+Imm_Test1           EQU     %0000010000011111   ; SubI.B #$Imm,(A7)+
+Imm_Test2           EQU     %0000010001111001   ; SubI.W #$Imm,$Long
         
     ORG    $1000
     
 START:                  ; first instruction of program
         Move.L  #$0000400, A3
-
-        Move.W  #$4030, (A3)
-        ;Move.L  #$12345678, (A3)
+        
+        ;Move.W  #$0034, (A3)
+        Move.W  #$4030, (A3)+
+        Move.L  #$12345678, (A3)
+        Sub.W   #2, A3
         ;Move.L  #$12349999, (A3)
         ;Move.W  #$11, (A3)
         
@@ -71,11 +76,15 @@ START:                  ; first instruction of program
         ;Move.W  #Shift_Test2, D4
         ;Move.W  #Shift_Test3, D4
         ;Move.W  #Shift_Test4, D4
-        Move.W  #Shift_Test5, D4
+        ;Move.W  #Shift_Test5, D4
+        
+        ;Move.W  #Imm_Test1, D4
+        Move.W  #Imm_Test2, D4
                 
         ;Jmp     EA_MOVE     ; Branch to EA function for Move
         ;Jmp     EA_ADD
-        Jmp     EA_BIT_SHIFT
+        ;Jmp     EA_BIT_SHIFT
+        Jmp     EA_IMMEDIATE
 
 ;]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]];  
 ;-------------------- Effective Address Sub Routines --------------------;
@@ -390,7 +399,56 @@ EA_SHIFT_COMMA  ; Adds the comma and everything after it to the string
         Jsr     EA_DN                   ; Add the register
         
         ; <Next instruction>
-       
+
+;============================================;        
+;--------------- EA Immediate ---------------;
+;============================================;
+EA_IMMEDIATE    ; Figures out the EA for immediate data OP codes
+        Jsr     EA_IMMEDIATE_SIZE       ; Get the size of the immediate data and add to string
+        Move.B  #',', (A6)+             ; Add a comma
+        Jsr     EA_IMMEDIATE_DEST       ; Add the destination EA
+        
+        ; <Next instruction>
+        
+EA_IMMEDIATE_SIZE   ; Determines the size of the immediate data and adds it
+        Jsr     GET6TO7                 ; Isolate the size bits
+                
+        Cmp.B   #%01, D0                ; Immediate word
+        Beq     EA_IMM_WORD
+        
+        Cmp.B   #%10, D0                ; Immediate long
+        Beq     EA_IMM_LONG
+        
+        AddA.W  #1, A3                  ; Else, add 8 to pointer and get the next byte
+        Jmp     EA_IMM_BYTE
+        
+        Rts
+        
+EA_IMMEDIATE_DEST   ; Determines the destination EA
+        Jsr     GET3TO5                 ; Get source mode
+        Move.B  D0, D5                  ; Move source mode to D5
+        Jsr     Get0TO2                 ; Get source register
+     
+        ; List of valid effective addresses
+        Cmp.B   #Dn_Mode, D5            ; Dn
+        Beq     EA_DN
+        
+        Cmp.B   #An_Pntr_Mode, D5       ; (An)
+        Beq     EA_AN_PNTR
+        
+        Cmp.B   #An_Inc_Mode, D5        ; (An)+
+        Beq     EA_AN_INC
+        
+        Cmp.B   #An_Dec_Mode, D5        ; -(An)
+        Beq     EA_AN_DEC
+        
+        ; Comparing registers at this point because modes are the same
+        Cmp.B   #Word_Reg, D0           ; (xxx).W
+        Beq     EA_WORD_ADDR
+        
+        Cmp.B   #Long_Reg, D0           ; (xxx).L
+        Beq     EA_LONG_ADDR
+               
 ;==========================================;        
 ;---------- General EA functions ----------;
 ;==========================================;
@@ -605,8 +663,8 @@ EA_BYTE_TO_STRING   ; Adds the byte in D6 to the string
         Clr.L   D0              ; Clear D0
         Move.L  D6, D0          ; Move the byte into D0 so it can be shifted
 
-        Move.B  #4, D1         ; Grab bits 4 to 7
-        Lsr.L   D1, D0
+        Move.B  #4, D1          ; Grab bits 4 to 7
+        Lsr.B   D1, D0
         Add.B   #$30, D0
         Move.B  D0, (A6)+
         
@@ -614,9 +672,9 @@ EA_BYTE_TO_STRING   ; Adds the byte in D6 to the string
         Move.L  D6, D0          
         
         Move.B  #4, D1          ; Grab bits 0 to 3
-        Lsl.L   D1, D0
+        Lsl.B   D1, D0
         Move.B  #4, D1
-        Lsr.L   D1, D0
+        Lsr.B   D1, D0
         Add.B   #$30, D0
         Move.B  D0, (A6)+
         
@@ -628,7 +686,7 @@ EA_IMM_BYTE ; Finds the immediate byte data
         Move.B  #'#', (A6)+         
         Move.B  #'$', (A6)+         
         
-        Jsr     EA_BYTE_TO_STRING   ; Add the byte to the string
+        Jsr     EA_BYTE_TO_STRING    ; Add the byte to the string
         
         Rts
                 
@@ -638,7 +696,7 @@ EA_IMM_WORD ; Finds the immediate word data
         Move.B  #'#', (A6)+         
         Move.B  #'$', (A6)+         
         
-        Jsr     EA_WORD_TO_STRING   ; Add the word to the string
+        Jsr     EA_WORD_TO_STRING    ; Add the word to the string
         
         Rts
         
@@ -648,7 +706,7 @@ EA_IMM_LONG ; Finds the immediate long data
         Move.B  #'#', (A6)+
         Move.B  #'$', (A6)+
         
-        Jsr     EA_LONG_TO_STRING   ; Add the long to the string
+        Jsr     EA_LONG_TO_STRING    ; Add the long to the string
         
         Rts
 
