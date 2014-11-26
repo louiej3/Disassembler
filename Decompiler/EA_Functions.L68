@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.02
-Created On: 11/25/2014 11:53:45 PM
+Created On: 11/26/2014 12:09:39 AM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      : Move EA Test
@@ -114,32 +114,32 @@ Created On: 11/25/2014 11:53:45 PM
 0000102C                           110          ; <Next instruction>
 0000102C                           111                  
 0000102C                           112  EA_MOVE_SOURCE  ; Find out Move's source
-0000102C  4EB9 000015FC            113          Jsr     GET3TO5                 ; Get source mode
+0000102C  4EB9 00001600            113          Jsr     GET3TO5                 ; Get source mode
 00001032  1A00                     114          Move.B  D0, D5                  ; Move source mode to D5
-00001034  4EB9 0000160E            115          Jsr     Get0TO2                 ; Get source register
+00001034  4EB9 00001612            115          Jsr     Get0TO2                 ; Get source register
 0000103A                           116          
 0000103A                           117          ; List of valid effective addresses
 0000103A  BA3C 0000                118          Cmp.B   #Dn_Mode, D5            ; Dn
-0000103E  6700 0370                119          Beq     EA_DN
+0000103E  6700 0374                119          Beq     EA_DN
 00001042                           120          
 00001042  BA3C 0001                121          Cmp.B   #An_Mode, D5            ; An
-00001046  6700 0374                122          Beq     EA_AN
+00001046  6700 0378                122          Beq     EA_AN
 0000104A                           123          
 0000104A  BA3C 0002                124          Cmp.B   #An_Pntr_Mode, D5       ; (An)
-0000104E  6700 0378                125          Beq     EA_AN_PNTR
+0000104E  6700 037C                125          Beq     EA_AN_PNTR
 00001052                           126          
 00001052  BA3C 0003                127          Cmp.B   #An_Inc_Mode, D5        ; (An)+
-00001056  6700 0384                128          Beq     EA_AN_INC
+00001056  6700 0388                128          Beq     EA_AN_INC
 0000105A                           129          
 0000105A  BA3C 0004                130          Cmp.B   #An_Dec_Mode, D5        ; -(An)
-0000105E  6700 0394                131          Beq     EA_AN_DEC
+0000105E  6700 0398                131          Beq     EA_AN_DEC
 00001062                           132          
 00001062                           133          ; Comparing registers at this point because modes are the same
 00001062  B03C 0000                134          Cmp.B   #Word_Reg, D0           ; (xxx).W
-00001066  6700 03A4                135          Beq     EA_WORD_ADDR
+00001066  6700 03A8                135          Beq     EA_WORD_ADDR
 0000106A                           136          
 0000106A  B03C 0001                137          Cmp.B   #Long_Reg, D0           ; (xxx).L
-0000106E  6700 0438                138          Beq     EA_LONG_ADDR
+0000106E  6700 043C                138          Beq     EA_LONG_ADDR
 00001072                           139          
 00001072  B03C 0004                140          Cmp.B   #Imm_Reg, D0            ; #<data>
 00001076  6700 004C                141          Beq     EA_MOVE_SIZE
@@ -147,46 +147,46 @@ Created On: 11/25/2014 11:53:45 PM
 0000107A  4E75                     143          Rts
 0000107C                           144          
 0000107C                           145  EA_MOVE_DEST    ; Find out Move's destination
-0000107C  4EB9 000015EA            146          Jsr     GET6TO8                 ; Get destination mode
+0000107C  4EB9 000015EE            146          Jsr     GET6TO8                 ; Get destination mode
 00001082  1A00                     147          Move.B  D0, D5                  ; Move destination mode to D5
-00001084  4EB9 000015D8            148          Jsr     GET9TO11                ; Get destination register
+00001084  4EB9 000015DC            148          Jsr     GET9TO11                ; Get destination register
 0000108A                           149          
 0000108A                           150          ; List of valid effective addresses
 0000108A  BA3C 0000                151          Cmp.B   #Dn_Mode, D5            ; Dn
-0000108E  6700 0320                152          Beq     EA_DN
+0000108E  6700 0324                152          Beq     EA_DN
 00001092                           153          
 00001092  BA3C 0001                154          Cmp.B   #An_Mode, D5            ; An
-00001096  6700 0324                155          Beq     EA_AN
+00001096  6700 0328                155          Beq     EA_AN
 0000109A                           156          
 0000109A  BA3C 0002                157          Cmp.B   #An_Pntr_Mode, D5       ; (An)
-0000109E  6700 0328                158          Beq     EA_AN_PNTR
+0000109E  6700 032C                158          Beq     EA_AN_PNTR
 000010A2                           159          
 000010A2  BA3C 0003                160          Cmp.B   #An_Inc_Mode, D5        ; (An)+
-000010A6  6700 0334                161          Beq     EA_AN_INC
+000010A6  6700 0338                161          Beq     EA_AN_INC
 000010AA                           162          
 000010AA  BA3C 0004                163          Cmp.B   #An_Dec_Mode, D5        ; -(An)
-000010AE  6700 0344                164          Beq     EA_AN_DEC
+000010AE  6700 0348                164          Beq     EA_AN_DEC
 000010B2                           165          
 000010B2                           166          ; Comparing registers at this point because modes are the same
 000010B2  B03C 0000                167          Cmp.B   #Word_Reg, D0           ; (xxx).W
-000010B6  6700 0354                168          Beq     EA_WORD_ADDR
+000010B6  6700 0358                168          Beq     EA_WORD_ADDR
 000010BA                           169          
 000010BA  B03C 0001                170          Cmp.B   #Long_Reg, D0           ; (xxx).L
-000010BE  6700 03E8                171          Beq     EA_LONG_ADDR
+000010BE  6700 03EC                171          Beq     EA_LONG_ADDR
 000010C2                           172          
 000010C2  4E75                     173          Rts
 000010C4                           174          
 000010C4                           175  EA_MOVE_SIZE    ; Find the size of immediate data being moved
-000010C4  4EB9 000015C6            176          Jsr     GET12TO13               ; Get Move size
+000010C4  4EB9 000015CA            176          Jsr     GET12TO13               ; Get Move size
 000010CA                           177  
 000010CA  B03C 0001                178          Cmp.B   #%01, D0                ; Byte
-000010CE  6700 04BA                179          Beq     EA_IMM_BYTE
+000010CE  6700 04BE                179          Beq     EA_IMM_BYTE
 000010D2                           180  
 000010D2  B03C 0003                181          Cmp.B   #%11, D0                ; Word
-000010D6  6700 04C2                182          Beq     EA_IMM_WORD
+000010D6  6700 04C6                182          Beq     EA_IMM_WORD
 000010DA                           183          
 000010DA  B03C 0002                184          Cmp.B   #%10, D0                ; Long
-000010DE  6700 04CA                185          Beq     EA_IMM_LONG
+000010DE  6700 04CE                185          Beq     EA_IMM_LONG
 000010E2                           186          
 000010E2  4E75                     187          Rts
 000010E4                           188  
@@ -194,7 +194,7 @@ Created On: 11/25/2014 11:53:45 PM
 000010E4                           190  ;--------------- EA Add/AddA ---------------;
 000010E4                           191  ;===========================================;       
 000010E4                           192  EA_ADD  ; Figures out the EA for Add        
-000010E4  4EB9 000015EA            193          Jsr     GET6TO8                 ; Isolate the Op mode
+000010E4  4EB9 000015EE            193          Jsr     GET6TO8                 ; Isolate the Op mode
 000010EA                           194          
 000010EA  B03C 0003                195          Cmp.B   #%011, D0               ; Compare to AddA word
 000010EE  6700 0028                196          Beq     EA_ADDA
@@ -216,54 +216,54 @@ Created On: 11/25/2014 11:53:45 PM
 00001118                           212  EA_ADDA ; Figures out the EA for AddA
 00001118  4EB9 0000115A            213          Jsr     EA_ADD_SOURCE           ; Get the source EA
 0000111E  1CFC 002C                214          Move.B  #',', (A6)+             ; Add a comma
-00001122  4EB9 000015D8            215          Jsr     GET9TO11                ; Get the register
-00001128  4EB9 000013BC            216          Jsr     EA_AN                   ; Add An
+00001122  4EB9 000015DC            215          Jsr     GET9TO11                ; Get the register
+00001128  4EB9 000013C0            216          Jsr     EA_AN                   ; Add An
 0000112E                           217          
 0000112E                           218          ; <Next instruction>
 0000112E                           219          
 0000112E                           220  EA_ADD_OPMODE_SOURCE    ; Finds the EA for Add if it is for the source
 0000112E  4EB9 0000115A            221          Jsr     EA_ADD_SOURCE           ; Get the source EA
 00001134  1CFC 002C                222          Move.B  #',', (A6)+             ; Add a comma
-00001138  4EB9 000015D8            223          Jsr     GET9TO11                ; Get the register
-0000113E  4EB9 000013B0            224          Jsr     EA_DN                   ; Add Dn
+00001138  4EB9 000015DC            223          Jsr     GET9TO11                ; Get the register
+0000113E  4EB9 000013B4            224          Jsr     EA_DN                   ; Add Dn
 00001144                           225          
 00001144                           226          ; <Next instruction>
 00001144                           227          
 00001144                           228  EA_ADD_OPMODE_DEST      ; Finds the EA for Add if it is for the destination
-00001144  4EB9 000015D8            229          Jsr     GET9TO11                ; Get the register
-0000114A  4EB9 000013B0            230          Jsr     EA_DN                   ; Add Dn
+00001144  4EB9 000015DC            229          Jsr     GET9TO11                ; Get the register
+0000114A  4EB9 000013B4            230          Jsr     EA_DN                   ; Add Dn
 00001150  1CFC 002C                231          Move.B  #',', (A6)+             ; Add a comma
 00001154  4EB9 000011AA            232          Jsr     EA_ADD_DEST             ; Get the destination EA 
 0000115A                           233          
 0000115A                           234          ; <Next instruction>
 0000115A                           235  
 0000115A                           236  EA_ADD_SOURCE   ; Find out Add source
-0000115A  4EB9 000015FC            237          Jsr     GET3TO5                 ; Get source mode
+0000115A  4EB9 00001600            237          Jsr     GET3TO5                 ; Get source mode
 00001160  1A00                     238          Move.B  D0, D5                  ; Move source mode to D5
-00001162  4EB9 0000160E            239          Jsr     Get0TO2                 ; Get source register
+00001162  4EB9 00001612            239          Jsr     Get0TO2                 ; Get source register
 00001168                           240          
 00001168                           241          ; List of valid effective addresses
 00001168  BA3C 0000                242          Cmp.B   #Dn_Mode, D5            ; Dn
-0000116C  6700 0242                243          Beq     EA_DN
+0000116C  6700 0246                243          Beq     EA_DN
 00001170                           244          
 00001170  BA3C 0001                245          Cmp.B   #An_Mode, D5            ; An
-00001174  6700 0246                246          Beq     EA_AN
+00001174  6700 024A                246          Beq     EA_AN
 00001178                           247          
 00001178  BA3C 0002                248          Cmp.B   #An_Pntr_Mode, D5       ; (An)
-0000117C  6700 024A                249          Beq     EA_AN_PNTR
+0000117C  6700 024E                249          Beq     EA_AN_PNTR
 00001180                           250          
 00001180  BA3C 0003                251          Cmp.B   #An_Inc_Mode, D5        ; (An)+
-00001184  6700 0256                252          Beq     EA_AN_INC
+00001184  6700 025A                252          Beq     EA_AN_INC
 00001188                           253          
 00001188  BA3C 0004                254          Cmp.B   #An_Dec_Mode, D5        ; -(An)
-0000118C  6700 0266                255          Beq     EA_AN_DEC
+0000118C  6700 026A                255          Beq     EA_AN_DEC
 00001190                           256          
 00001190                           257          ; Comparing registers at this point because modes are the same
 00001190  B03C 0000                258          Cmp.B   #Word_Reg, D0           ; (xxx).W
-00001194  6700 0276                259          Beq     EA_WORD_ADDR
+00001194  6700 027A                259          Beq     EA_WORD_ADDR
 00001198                           260          
 00001198  B03C 0001                261          Cmp.B   #Long_Reg, D0           ; (xxx).L
-0000119C  6700 030A                262          Beq     EA_LONG_ADDR
+0000119C  6700 030E                262          Beq     EA_LONG_ADDR
 000011A0                           263          
 000011A0  B03C 0004                264          Cmp.B   #Imm_Reg, D0            ; #<data>
 000011A4  6700 003C                265          Beq     EA_ADD_SIZE
@@ -271,46 +271,46 @@ Created On: 11/25/2014 11:53:45 PM
 000011A8  4E75                     267          Rts
 000011AA                           268          
 000011AA                           269  EA_ADD_DEST ; Find out Add destination
-000011AA  4EB9 000015FC            270          Jsr     GET3TO5                 ; Get destination mode
+000011AA  4EB9 00001600            270          Jsr     GET3TO5                 ; Get destination mode
 000011B0  1A00                     271          Move.B  D0, D5                  ; Move destination mode to D5
-000011B2  4EB9 0000160E            272          Jsr     Get0TO2                 ; Get destination register
+000011B2  4EB9 00001612            272          Jsr     Get0TO2                 ; Get destination register
 000011B8                           273          
 000011B8                           274          ; List of valid effective addresses
 000011B8  BA3C 0002                275          Cmp.B   #An_Pntr_Mode, D5       ; (An)
-000011BC  6700 020A                276          Beq     EA_AN_PNTR
+000011BC  6700 020E                276          Beq     EA_AN_PNTR
 000011C0                           277          
 000011C0  BA3C 0003                278          Cmp.B   #An_Inc_Mode, D5        ; (An)+
-000011C4  6700 0216                279          Beq     EA_AN_INC
+000011C4  6700 021A                279          Beq     EA_AN_INC
 000011C8                           280          
 000011C8  BA3C 0004                281          Cmp.B   #An_Dec_Mode, D5        ; -(An)
-000011CC  6700 0226                282          Beq     EA_AN_DEC
+000011CC  6700 022A                282          Beq     EA_AN_DEC
 000011D0                           283          
 000011D0                           284          ; Comparing registers at this point because modes are the same
 000011D0  B03C 0000                285          Cmp.B   #Word_Reg, D0           ; (xxx).W
-000011D4  6700 0236                286          Beq     EA_WORD_ADDR
+000011D4  6700 023A                286          Beq     EA_WORD_ADDR
 000011D8                           287          
 000011D8  B03C 0001                288          Cmp.B   #Long_Reg, D0           ; (xxx).L
-000011DC  6700 02CA                289          Beq     EA_LONG_ADDR
+000011DC  6700 02CE                289          Beq     EA_LONG_ADDR
 000011E0                           290                  
 000011E0  4E75                     291          Rts
 000011E2                           292          
 000011E2                           293  EA_ADD_SIZE ; Find the size of immediate data being moved
-000011E2  4EB9 000015EA            294          Jsr     GET6TO8                 ; Get Move size
+000011E2  4EB9 000015EE            294          Jsr     GET6TO8                 ; Get Move size
 000011E8                           295  
 000011E8  B03C 0000                296          Cmp.B   #%000, D0               ; Byte
-000011EC  6700 039C                297          Beq     EA_IMM_BYTE
+000011EC  6700 03A0                297          Beq     EA_IMM_BYTE
 000011F0                           298  
 000011F0  B03C 0001                299          Cmp.B   #%001, D0               ; Word
-000011F4  6700 03A4                300          Beq     EA_IMM_WORD
+000011F4  6700 03A8                300          Beq     EA_IMM_WORD
 000011F8                           301          
 000011F8  B03C 0002                302          Cmp.B   #%010, D0               ; Long
-000011FC  6700 03AC                303          Beq     EA_IMM_LONG
+000011FC  6700 03B0                303          Beq     EA_IMM_LONG
 00001200                           304          
 00001200  B03C 0003                305          Cmp.B   #%011, D0               ; AddA Word
-00001204  6700 0394                306          Beq     EA_IMM_WORD
+00001204  6700 0398                306          Beq     EA_IMM_WORD
 00001208                           307     
 00001208  B03C 0007                308          Cmp.B   #%111, D0               ; AddA Long
-0000120C  6700 039C                309          Beq     EA_IMM_LONG
+0000120C  6700 03A0                309          Beq     EA_IMM_LONG
 00001210                           310          
 00001210  4E75                     311          Rts
 00001212                           312          
@@ -323,7 +323,7 @@ Created On: 11/25/2014 11:53:45 PM
 0000121C  4EB9 00001246            319          Jsr     EA_ADDQ_DEST            ; Add the destination
 00001222                           320  
 00001222                           321  EA_ADDQ_CHECK_8 ; A bit value of 1-7 corresponds to 1-7, but 0 corresponds to 8
-00001222  4EB9 000015D8            322          Jsr     GET9TO11                ; Isolate the count/register bits
+00001222  4EB9 000015DC            322          Jsr     GET9TO11                ; Isolate the count/register bits
 00001228                           323          
 00001228  B03C 0000                324          Cmp.B   #0, D0                  ; If the bits are greater than 0, proceed normally
 0000122C  6E00 000C                325          Bgt     EA_ADDQ_IMMEDIATE
@@ -340,32 +340,32 @@ Created On: 11/25/2014 11:53:45 PM
 00001244  4E75                     336          Rts
 00001246                           337          
 00001246                           338  EA_ADDQ_DEST    ; Determines the destination       
-00001246  4EB9 000015FC            339          Jsr     GET3TO5                 ; Get source mode
+00001246  4EB9 00001600            339          Jsr     GET3TO5                 ; Get source mode
 0000124C  1A00                     340          Move.B  D0, D5                  ; Move source mode to D5
-0000124E  4EB9 0000160E            341          Jsr     Get0TO2                 ; Get source register
+0000124E  4EB9 00001612            341          Jsr     Get0TO2                 ; Get source register
 00001254                           342          
 00001254                           343          ; List of valid effective addresses
 00001254  BA3C 0000                344          Cmp.B   #Dn_Mode, D5            ; Dn
-00001258  6700 0156                345          Beq     EA_DN
+00001258  6700 015A                345          Beq     EA_DN
 0000125C                           346          
 0000125C  BA3C 0001                347          Cmp.B   #An_Mode, D5            ; An
-00001260  6700 015A                348          Beq     EA_AN
+00001260  6700 015E                348          Beq     EA_AN
 00001264                           349          
 00001264  BA3C 0002                350          Cmp.B   #An_Pntr_Mode, D5       ; (An)
-00001268  6700 015E                351          Beq     EA_AN_PNTR
+00001268  6700 0162                351          Beq     EA_AN_PNTR
 0000126C                           352          
 0000126C  BA3C 0003                353          Cmp.B   #An_Inc_Mode, D5        ; (An)+
-00001270  6700 016A                354          Beq     EA_AN_INC
+00001270  6700 016E                354          Beq     EA_AN_INC
 00001274                           355          
 00001274  BA3C 0004                356          Cmp.B   #An_Dec_Mode, D5        ; -(An)
-00001278  6700 017A                357          Beq     EA_AN_DEC
+00001278  6700 017E                357          Beq     EA_AN_DEC
 0000127C                           358          
 0000127C                           359          ; Comparing registers at this point because modes are the same
 0000127C  B03C 0000                360          Cmp.B   #Word_Reg, D0           ; (xxx).W
-00001280  6700 018A                361          Beq     EA_WORD_ADDR
+00001280  6700 018E                361          Beq     EA_WORD_ADDR
 00001284                           362          
 00001284  B03C 0001                363          Cmp.B   #Long_Reg, D0           ; (xxx).L
-00001288  6700 021E                364          Beq     EA_LONG_ADDR
+00001288  6700 0222                364          Beq     EA_LONG_ADDR
 0000128C                           365          
 0000128C                           366  ;=========================================================;        
 0000128C                           367  ;---------------------- EA Sub/SubA ----------------------;
@@ -385,515 +385,523 @@ Created On: 11/25/2014 11:53:45 PM
 00001294                           381          
 00001294                           382  ;=========================================================;        
 00001294                           383  ;------------------------ EA Lea -------------------------;
-00001294                           384  ; Jumps straight to EA_ADD because the EA for Add/AddA and
-00001294                           385  ; Cmp/CmpA are exactly the same.
+00001294                           384  ; Jumps straight to EA_ADD because the EA for AddA and Lea
+00001294                           385  ; are exactly the same.
 00001294                           386  ;=========================================================;
 00001294                           387  EA_LEA
 00001294  4EF8 10E4                388          Jmp     EA_ADD
-00001298                           389  
-00001298                           390  ;=========================================================;
-00001298                           391  ;--------------------- EA Bit Shift ----------------------;
-00001298                           392  ; Finds the EA for ASd, LSd, ROd. All of these OP codes
-00001298                           393  ; are combined because the EA for each code is exactly the
-00001298                           394  ; same.
-00001298                           395  ;=========================================================;
-00001298                           396  EA_BIT_SHIFT    ; Figures out the EA for bit shift functions
-00001298  4EB9 00001632            397          Jsr     GET6TO7
-0000129E                           398          
-0000129E  B03C 0003                399          Cmp.B   #%11, D0                ; If bits 6 and 7 are not %11, then we are shifting a register
-000012A2  6600 0040                400          Bne     EA_SHIFT_REGISTER
-000012A6                           401          
-000012A6  4EB9 000012AC            402          Jsr     EA_SHIFT_MEMORY         ; If bits 6 and 7 are %11, then we are shifting memory
-000012AC                           403          
-000012AC                           404          ; <Next instruction>
-000012AC                           405                  
-000012AC                           406  EA_SHIFT_MEMORY ; Adds the correct EA for a memory shift
-000012AC  4EB9 000015FC            407          Jsr     GET3TO5                 ; Get source mode
-000012B2  1A00                     408          Move.B  D0, D5                  ; Move source mode to D5
-000012B4  4EB9 0000160E            409          Jsr     Get0TO2                 ; Get source register
-000012BA                           410          
-000012BA                           411          ; List of valid effective addresses        
-000012BA  BA3C 0002                412          Cmp.B   #An_Pntr_Mode, D5       ; (An)
-000012BE  6700 0108                413          Beq     EA_AN_PNTR
-000012C2                           414          
-000012C2  BA3C 0003                415          Cmp.B   #An_Inc_Mode, D5        ; (An)+
-000012C6  6700 0114                416          Beq     EA_AN_INC
-000012CA                           417          
-000012CA  BA3C 0004                418          Cmp.B   #An_Dec_Mode, D5        ; -(An)
-000012CE  6700 0124                419          Beq     EA_AN_DEC
-000012D2                           420          
-000012D2                           421          ; Comparing registers at this point because modes are the same
-000012D2  B03C 0000                422          Cmp.B   #Word_Reg, D0           ; (xxx).W
-000012D6  6700 0134                423          Beq     EA_WORD_ADDR
-000012DA                           424          
-000012DA  B03C 0001                425          Cmp.B   #Long_Reg, D0           ; (xxx).L
-000012DE  6700 01C8                426          Beq     EA_LONG_ADDR
-000012E2                           427          
-000012E2  4E75                     428          Rts
-000012E4                           429          
-000012E4                           430  EA_SHIFT_REGISTER   ; Figure out if we are shifting by #<data> or by the value in a data register
-000012E4  4EB9 00001644            431          Jsr     GETBIT5
-000012EA                           432          
-000012EA  B03C 0000                433          Cmp.B   #0, D0                  ; Check if bit 5 is %0
-000012EE  6700 0008                434          Beq     EA_SHIFT_CHECK_8
-000012F2                           435          
-000012F2  4EF9 00001320            436          Jmp     EA_SHIFT_DN             ; If it's not, we are shifting from a data register
-000012F8                           437          
-000012F8                           438  EA_SHIFT_CHECK_8    ; A bit value of 1-7 corresponds to 1-7, but 0 corresponds to 8
-000012F8  4EB9 000015D8            439          Jsr     GET9TO11                ; Isolate the count/register bits
-000012FE                           440          
-000012FE  B03C 0000                441          Cmp.B   #0, D0                  ; If the bits are greater than 0, proceed normally
-00001302  6E00 000C                442          Bgt     EA_SHIFT_IMMEDIATE
-00001306                           443          
-00001306  103C 0008                444          Move.B  #8, D0                  ; Else, use 8 as the immediate value
-0000130A                           445                  
-0000130A  4EF9 00001310            446          Jmp     EA_SHIFT_IMMEDIATE
-00001310                           447          
-00001310                           448  EA_SHIFT_IMMEDIATE  ; Adds an immediate value before the comma
-00001310  1CFC 0023                449          Move.B  #'#', (A6)+
-00001314  0600 0030                450          Add.B   #$30, D0
-00001318  1CC0                     451          Move.B  D0, (A6)+               ; Add the immediate value to the string
-0000131A                           452  
-0000131A  4EF9 00001332            453          Jmp     EA_SHIFT_COMMA          ; Add the comma and everything after it
-00001320                           454          
-00001320                           455  EA_SHIFT_DN ; Adds a data register before the comma
-00001320  4EB9 000015D8            456          Jsr     GET9TO11                ; Isolate the data register bits
-00001326                           457          
-00001326  4EB9 000013B0            458          Jsr     EA_DN                   ; Add the data register to the string
-0000132C                           459          
-0000132C  4EF9 00001332            460          Jmp     EA_SHIFT_COMMA          ; Add the comma and everything after it 
-00001332                           461          
-00001332                           462  EA_SHIFT_COMMA  ; Adds the comma and everything after it to the string
-00001332  1CFC 002C                463          Move.B  #',', (A6)+
-00001336                           464          
-00001336  4EB9 0000160E            465          Jsr     GET0TO2                 ; Get the register number
-0000133C                           466          
-0000133C  4EB9 000013B0            467          Jsr     EA_DN                   ; Add the register
-00001342                           468          
-00001342                           469          ; <Next instruction>
-00001342                           470  
-00001342                           471  ;============================================;        
-00001342                           472  ;--------------- EA Immediate ---------------;
-00001342                           473  ;============================================;
-00001342                           474  EA_IMMEDIATE    ; Figures out the EA for immediate data OP codes
-00001342  4EB9 00001352            475          Jsr     EA_IMMEDIATE_SIZE       ; Get the size of the immediate data and add to string
-00001348  1CFC 002C                476          Move.B  #',', (A6)+             ; Add a comma
-0000134C  4EB9 00001372            477          Jsr     EA_IMMEDIATE_DEST       ; Add the destination EA
-00001352                           478          
-00001352                           479          ; <Next instruction>
-00001352                           480          
-00001352                           481  EA_IMMEDIATE_SIZE   ; Determines the size of the immediate data and adds it
-00001352  4EB9 00001632            482          Jsr     GET6TO7                 ; Isolate the size bits
-00001358                           483                  
-00001358  B03C 0001                484          Cmp.B   #%01, D0                ; Immediate word
-0000135C  6700 023C                485          Beq     EA_IMM_WORD
-00001360                           486          
-00001360  B03C 0002                487          Cmp.B   #%10, D0                ; Immediate long
-00001364  6700 0244                488          Beq     EA_IMM_LONG
-00001368                           489          
-00001368  524B                     490          AddA.W  #1, A3                  ; Else, move the pointer forward by a byte get the next byte
-0000136A  4EF9 0000158A            491          Jmp     EA_IMM_BYTE
-00001370                           492          
-00001370  4E75                     493          Rts
-00001372                           494          
-00001372                           495  EA_IMMEDIATE_DEST   ; Determines the destination EA
-00001372  4EB9 000015FC            496          Jsr     GET3TO5                 ; Get source mode
-00001378  1A00                     497          Move.B  D0, D5                  ; Move source mode to D5
-0000137A  4EB9 0000160E            498          Jsr     Get0TO2                 ; Get source register
-00001380                           499       
-00001380                           500          ; List of valid effective addresses
-00001380  BA3C 0000                501          Cmp.B   #Dn_Mode, D5            ; Dn
-00001384  6700 002A                502          Beq     EA_DN
-00001388                           503          
-00001388  BA3C 0002                504          Cmp.B   #An_Pntr_Mode, D5       ; (An)
-0000138C  6700 003A                505          Beq     EA_AN_PNTR
-00001390                           506          
-00001390  BA3C 0003                507          Cmp.B   #An_Inc_Mode, D5        ; (An)+
-00001394  6700 0046                508          Beq     EA_AN_INC
-00001398                           509          
-00001398  BA3C 0004                510          Cmp.B   #An_Dec_Mode, D5        ; -(An)
-0000139C  6700 0056                511          Beq     EA_AN_DEC
-000013A0                           512          
-000013A0                           513          ; Comparing registers at this point because modes are the same
-000013A0  B03C 0000                514          Cmp.B   #Word_Reg, D0           ; (xxx).W
-000013A4  6700 0066                515          Beq     EA_WORD_ADDR
-000013A8                           516          
-000013A8  B03C 0001                517          Cmp.B   #Long_Reg, D0           ; (xxx).L
-000013AC  6700 00FA                518          Beq     EA_LONG_ADDR
-000013B0                           519                 
-000013B0                           520  ;==========================================;        
-000013B0                           521  ;---------- General EA functions ----------;
-000013B0                           522  ;==========================================;
-000013B0                           523  EA_DN   ; Adds Dn EA to string
-000013B0  1CFC 0044                524          Move.B  #'D', (A6)+             
-000013B4  0600 0030                525          Add.B   #$30, D0        
-000013B8  1CC0                     526          Move.B  D0, (A6)+               
-000013BA                           527                  
-000013BA  4E75                     528          Rts
-000013BC                           529  
-000013BC                           530  EA_AN   ; Adds An EA to string
-000013BC  1CFC 0041                531          Move.B  #'A', (A6)+
-000013C0  0600 0030                532          Add.B   #$30, D0    
-000013C4  1CC0                     533          Move.B  D0, (A6)+               
-000013C6                           534                  
-000013C6  4E75                     535          Rts
-000013C8                           536  
-000013C8                           537  EA_AN_PNTR  ; Adds (An) EA to string
-000013C8  1CFC 0028                538          Move.B  #'(', (A6)+
-000013CC  1CFC 0041                539          Move.B  #'A', (A6)+
-000013D0  0600 0030                540          Add.B   #$30, D0
-000013D4  1CC0                     541          Move.B  D0, (A6)+
-000013D6  1CFC 0029                542          Move.B  #')', (A6)+
-000013DA                           543                  
-000013DA  4E75                     544          Rts
-000013DC                           545          
-000013DC                           546  EA_AN_INC   ; Adds (An)+ EA to string
-000013DC  1CFC 0028                547          Move.B  #'(', (A6)+
-000013E0  1CFC 0041                548          Move.B  #'A', (A6)+
-000013E4  0600 0030                549          Add.B   #$30, D0
-000013E8  1CC0                     550          Move.B  D0, (A6)+
-000013EA  1CFC 0029                551          Move.B  #')', (A6)+
-000013EE  1CFC 002B                552          Move.B  #'+', (A6)+
-000013F2                           553                  
-000013F2  4E75                     554          Rts 
-000013F4                           555          
-000013F4                           556  EA_AN_DEC   ; Adds -(An) EA to string
-000013F4  1CFC 002D                557          Move.B  #'-', (A6)+
-000013F8  1CFC 0028                558          Move.B  #'(', (A6)+
-000013FC  1CFC 0041                559          Move.B  #'A', (A6)+
-00001400  0600 0030                560          Add.B   #$30, D0
-00001404  1CC0                     561          Move.B  D0, (A6)+
-00001406  1CFC 0029                562          Move.B  #')', (A6)+
-0000140A                           563                  
-0000140A  4E75                     564          Rts 
-0000140C                           565  
-0000140C                           566  EA_WORD_ADDR    ; Adds $Word to string
-0000140C  3C1B                     567          Move.W  (A3)+, D6           ; Move the word address into D6 and move forward in memory
-0000140E                           568          
-0000140E  1CFC 0024                569          Move.B  #'$', (A6)+
-00001412                           570          
-00001412  BC7C 8000                571          Cmp.W   #$8000, D6          ; Word address is less than 8000
-00001416  6E00 000C                572          Bgt     EA_SIGN_EXT_16
-0000141A                           573          
-0000141A  BC7C 8000                574          Cmp.W   #$8000, D6          ; Word address is greater than 8000
-0000141E  6F00 001C                575          Ble     EA_SIGN_EXT_32
-00001422                           576          
-00001422  4E75                     577          Rts
-00001424                           578                  
-00001424                           579  EA_SIGN_EXT_16  ; Adds 0 if the word address is 16 bit
-00001424  1CFC 0030                580          Move.B  #'0', (A6)+
-00001428  1CFC 0030                581          Move.B  #'0', (A6)+
-0000142C  1CFC 0030                582          Move.B  #'0', (A6)+
-00001430  1CFC 0030                583          Move.B  #'0', (A6)+
-00001434                           584          
-00001434  4EB9 00001454            585          Jsr     EA_WORD_TO_STRING       
-0000143A                           586          
-0000143A  4E75                     587          Rts
-0000143C                           588  
-0000143C                           589  EA_SIGN_EXT_32 ; Adds F is the word address is 32 bit
-0000143C  1CFC 0046                590          Move.B  #'F', (A6)+
-00001440  1CFC 0046                591          Move.B  #'F', (A6)+
-00001444  1CFC 0046                592          Move.B  #'F', (A6)+
-00001448  1CFC 0046                593          Move.B  #'F', (A6)+
-0000144C                           594          
-0000144C  4EB9 00001454            595          Jsr     EA_WORD_TO_STRING   
-00001452                           596          
-00001452  4E75                     597          Rts
-00001454                           598          
-00001454                           599  EA_WORD_TO_STRING   ; Adds the word in D6 to the string
-00001454  4280                     600          Clr.L   D0              ; Clear D0
-00001456  3006                     601          Move.W  D6, D0          ; Move the word into D0 so it can be shifted
-00001458                           602  
-00001458  123C 000C                603          Move.B  #12, D1         ; Grab bits 12 to 15
-0000145C  E268                     604          Lsr     D1, D0
-0000145E  0600 0030                605          Add.B   #$30, D0
-00001462  1CC0                     606          Move.B  D0, (A6)+
-00001464                           607          
-00001464  4280                     608          Clr.L   D0
-00001466  3006                     609          Move.W  D6, D0
-00001468                           610          
-00001468  123C 0004                611          Move.B  #4, D1          ; Grab bits 8 to 11
-0000146C  E368                     612          Lsl     D1, D0
-0000146E  123C 000C                613          Move.B  #12, D1
-00001472  E268                     614          Lsr     D1, D0  
-00001474  0600 0030                615          Add.B   #$30, D0
-00001478  1CC0                     616          Move.B  D0, (A6)+
-0000147A                           617          
-0000147A  4280                     618          Clr.L   D0
-0000147C  3006                     619          Move.W  D6, D0
-0000147E                           620          
-0000147E  123C 0008                621          Move.B  #8, D1          ; Grab bits 4 to 7
-00001482  E368                     622          Lsl     D1, D0
-00001484  123C 000C                623          Move.B  #12, D1
-00001488  E268                     624          Lsr     D1, D0
-0000148A  0600 0030                625          Add.B   #$30, D0
-0000148E  1CC0                     626          Move.B  D0, (A6)+
-00001490                           627          
-00001490  4280                     628          Clr.L   D0
-00001492  3006                     629          Move.W  D6, D0
-00001494                           630          
-00001494  123C 000C                631          Move.B  #12, D1         ; Grab bits 0 to 3
-00001498  E368                     632          Lsl     D1, D0
-0000149A  123C 000C                633          Move.B  #12, D1
-0000149E  E268                     634          Lsr     D1, D0
-000014A0  0600 0030                635          Add.B   #$30, D0
-000014A4  1CC0                     636          Move.B  D0, (A6)+
-000014A6                           637          
-000014A6  4E75                     638          Rts
-000014A8                           639          
-000014A8                           640  EA_LONG_ADDR    ; Adds $Long to string
-000014A8  2C1B                     641          Move.L  (A3)+, D6           ; Move the long address into D6 and move forward in memory
-000014AA                           642          
-000014AA  1CFC 0024                643          Move.B  #'$', (A6)+
-000014AE                           644          
-000014AE  4EB9 000014B6            645          Jsr     EA_LONG_TO_STRING
-000014B4                           646  
-000014B4  4E75                     647          Rts
-000014B6                           648                  
-000014B6                           649  EA_LONG_TO_STRING   ; Adds the long in D6 to the string
-000014B6  4280                     650          Clr.L   D0              ; Clear D0
-000014B8  2006                     651          Move.L  D6, D0          ; Move the long into D0 so it can be shifted
-000014BA                           652  
-000014BA  123C 001C                653          Move.B  #28, D1         ; Grab bits 28 to 31
-000014BE  E2A8                     654          Lsr.L   D1, D0
-000014C0  0600 0030                655          Add.B   #$30, D0
-000014C4  1CC0                     656          Move.B  D0, (A6)+
-000014C6                           657          
-000014C6  4280                     658          Clr.L   D0             
-000014C8  2006                     659          Move.L  D6, D0          
-000014CA                           660          
-000014CA  123C 0004                661          Move.B  #4, D1          ; Grab bits 24 to 27
-000014CE  E3A8                     662          Lsl.L   D1, D0
-000014D0  123C 001C                663          Move.B  #28, D1
-000014D4  E2A8                     664          Lsr.L   D1, D0
-000014D6  0600 0030                665          Add.B   #$30, D0
-000014DA  1CC0                     666          Move.B  D0, (A6)+
-000014DC                           667          
-000014DC  4280                     668          Clr.L   D0             
-000014DE  2006                     669          Move.L  D6, D0
-000014E0                           670  
-000014E0  123C 0008                671          Move.B  #8, D1          ; Grab bits 20 to 23
-000014E4  E3A8                     672          Lsl.L   D1, D0
-000014E6  123C 001C                673          Move.B  #28, D1
-000014EA  E2A8                     674          Lsr.L   D1, D0
-000014EC  0600 0030                675          Add.B   #$30, D0
-000014F0  1CC0                     676          Move.B  D0, (A6)+
-000014F2                           677          
-000014F2  4280                     678          Clr.L   D0             
-000014F4  2006                     679          Move.L  D6, D0
-000014F6                           680  
-000014F6  123C 000C                681          Move.B  #12, D1         ; Grab bits 16 to 19
-000014FA  E3A8                     682          Lsl.L   D1, D0
-000014FC  123C 001C                683          Move.B  #28, D1
-00001500  E2A8                     684          Lsr.L   D1, D0
-00001502  0600 0030                685          Add.B   #$30, D0
-00001506  1CC0                     686          Move.B  D0, (A6)+
-00001508                           687          
-00001508  4280                     688          Clr.L   D0             
-0000150A  2006                     689          Move.L  D6, D0
-0000150C                           690  
-0000150C  123C 0010                691          Move.B  #16, D1         ; Grab bits 12 to 15
-00001510  E3A8                     692          Lsl.L   D1, D0
-00001512  123C 001C                693          Move.B  #28, D1
-00001516  E2A8                     694          Lsr.L   D1, D0
-00001518  0600 0030                695          Add.B   #$30, D0
-0000151C  1CC0                     696          Move.B  D0, (A6)+
-0000151E                           697          
-0000151E  4280                     698          Clr.L   D0             
-00001520  2006                     699          Move.L  D6, D0
-00001522                           700          
-00001522  123C 0014                701          Move.B  #20, D1         ; Grab bits 8 to 11
-00001526  E3A8                     702          Lsl.L   D1, D0
-00001528  123C 001C                703          Move.B  #28, D1
-0000152C  E2A8                     704          Lsr.L   D1, D0
-0000152E  0600 0030                705          Add.B   #$30, D0
-00001532  1CC0                     706          Move.B  D0, (A6)+
-00001534                           707          
-00001534  4280                     708          Clr.L   D0             
-00001536  2006                     709          Move.L  D6, D0
-00001538                           710  
-00001538  123C 0018                711          Move.B  #24, D1         ; Grab bits 4 to 7
-0000153C  E3A8                     712          Lsl.L   D1, D0
-0000153E  123C 001C                713          Move.B  #28, D1
-00001542  E2A8                     714          Lsr.L   D1, D0
-00001544  0600 0030                715          Add.B   #$30, D0
-00001548  1CC0                     716          Move.B  D0, (A6)+
-0000154A                           717          
-0000154A  4280                     718          Clr.L   D0             
-0000154C  2006                     719          Move.L  D6, D0
-0000154E                           720  
-0000154E  123C 001C                721          Move.B  #28, D1         ; Grab bits 0 to 3
-00001552  E3A8                     722          Lsl.L   D1, D0
-00001554  123C 001C                723          Move.B  #28, D1
-00001558  E2A8                     724          Lsr.L   D1, D0
-0000155A  0600 0030                725          Add.B   #$30, D0
-0000155E  1CC0                     726          Move.B  D0, (A6)+
-00001560                           727          
-00001560  4E75                     728          Rts
-00001562                           729          
-00001562                           730  EA_BYTE_TO_STRING   ; Adds the byte in D6 to the string
-00001562  4280                     731          Clr.L   D0              ; Clear D0
-00001564  2006                     732          Move.L  D6, D0          ; Move the byte into D0 so it can be shifted
-00001566                           733  
-00001566  123C 0004                734          Move.B  #4, D1          ; Grab bits 4 to 7
-0000156A  E228                     735          Lsr.B   D1, D0
-0000156C  0600 0030                736          Add.B   #$30, D0
-00001570  1CC0                     737          Move.B  D0, (A6)+
-00001572                           738          
-00001572  4280                     739          Clr.L   D0             
-00001574  2006                     740          Move.L  D6, D0          
-00001576                           741          
-00001576  123C 0004                742          Move.B  #4, D1          ; Grab bits 0 to 3
-0000157A  E328                     743          Lsl.B   D1, D0
-0000157C  123C 0004                744          Move.B  #4, D1
-00001580  E228                     745          Lsr.B   D1, D0
-00001582  0600 0030                746          Add.B   #$30, D0
-00001586  1CC0                     747          Move.B  D0, (A6)+
-00001588                           748          
-00001588  4E75                     749          Rts
-0000158A                           750  
-0000158A                           751  EA_IMM_BYTE ; Finds the immediate byte data
-0000158A  1C1B                     752          Move.B  (A3)+, D6            ; Move the immediate byte data into D6 and move forward in memory
-0000158C                           753          
-0000158C  1CFC 0023                754          Move.B  #'#', (A6)+         
-00001590  1CFC 0024                755          Move.B  #'$', (A6)+         
-00001594                           756          
-00001594  4EB8 1562                757          Jsr     EA_BYTE_TO_STRING    ; Add the byte to the string
-00001598                           758          
-00001598  4E75                     759          Rts
-0000159A                           760                  
-0000159A                           761  EA_IMM_WORD ; Finds the immediate word data
-0000159A  3C1B                     762          Move.W  (A3)+, D6            ; Move the immediate word data into D6 and move forward in memory
-0000159C                           763          
-0000159C  1CFC 0023                764          Move.B  #'#', (A6)+         
-000015A0  1CFC 0024                765          Move.B  #'$', (A6)+         
-000015A4                           766          
-000015A4  4EB8 1454                767          Jsr     EA_WORD_TO_STRING    ; Add the word to the string
-000015A8                           768          
-000015A8  4E75                     769          Rts
-000015AA                           770          
-000015AA                           771  EA_IMM_LONG ; Finds the immediate long data
-000015AA  2C1B                     772          Move.L  (A3)+, D6            ; Move the immediate long data into D6 and move forward in memory
-000015AC                           773          
-000015AC  1CFC 0023                774          Move.B  #'#', (A6)+
-000015B0  1CFC 0024                775          Move.B  #'$', (A6)+
-000015B4                           776          
-000015B4  4EB8 14B6                777          Jsr     EA_LONG_TO_STRING    ; Add the long to the string
-000015B8                           778          
-000015B8  4E75                     779          Rts
-000015BA                           780  
-000015BA                           781  ;===========================================================;       
-000015BA                           782  ;---------------- Bit Chopping Sub Routines ----------------;
-000015BA                           783  ; These Sub Routines Chop a WORD size piece of data from
-000015BA                           784  ; Data register 4 into a smaller piece, leaving just the
-000015BA                           785  ; Piece in register 0 while leaving the original piece
-000015BA                           786  ; of data intact.
-000015BA                           787  ;===========================================================;
-000015BA                           788  GET12TO15
-000015BA  4280                     789          CLR.L   D0
-000015BC  3004                     790          Move.W  D4, D0
-000015BE                           791                  
-000015BE  123C 000C                792          Move.B  #12, D1
-000015C2  E268                     793          LSR     D1, D0
-000015C4                           794                  
-000015C4  4E75                     795          RTS
-000015C6                           796  
-000015C6                           797  GET12TO13
-000015C6  4280                     798          CLR.L   D0
-000015C8  3004                     799          Move.W  D4, D0
-000015CA                           800          
-000015CA  123C 0002                801          Move.B  #2, D1
-000015CE  E368                     802          LSL     D1, D0
-000015D0                           803          
-000015D0  123C 000E                804          Move.B  #14, D1
-000015D4  E268                     805          LSR     D1, D0
-000015D6                           806          
-000015D6  4E75                     807          RTS
-000015D8                           808                  
-000015D8                           809  GET9TO11        
-000015D8  4280                     810          CLR.L   D0
-000015DA  3004                     811          Move.W  D4, D0
-000015DC                           812                  
-000015DC  123C 0004                813          Move.B  #4, D1
-000015E0  E368                     814          LSL     D1, D0
-000015E2                           815                  
-000015E2  123C 000D                816          Move.B  #13, D1
-000015E6  E268                     817          LSR     D1, D0
-000015E8                           818                  
-000015E8  4E75                     819          RTS
-000015EA                           820                  
-000015EA                           821  GET6TO8 
-000015EA  4280                     822          CLR.L   D0
-000015EC  3004                     823          Move.W  D4, D0
-000015EE                           824                  
-000015EE  123C 0007                825          Move.B  #7, D1
-000015F2  E368                     826          LSL     D1, D0
-000015F4                           827                  
-000015F4  123C 000D                828          Move.B  #13, D1
-000015F8  E268                     829          LSR     D1, D0
-000015FA                           830                  
-000015FA  4E75                     831          RTS
-000015FC                           832                  
-000015FC                           833  GET3TO5 
-000015FC  4280                     834          CLR.L   D0
-000015FE  3004                     835          Move.W  D4, D0
-00001600                           836                  
-00001600  123C 000A                837          Move.B  #10, D1
-00001604  E368                     838          LSL     D1, D0
-00001606                           839                  
-00001606  123C 000D                840          Move.B  #13, D1
-0000160A  E268                     841          LSR     D1, D0
-0000160C                           842                  
-0000160C  4E75                     843          RTS
-0000160E                           844  GET0TO2 
-0000160E  4280                     845          CLR.L   D0
-00001610  3004                     846          Move.W  D4, D0
-00001612                           847                  
-00001612  123C 000D                848          Move.B  #13, D1
-00001616  E368                     849          LSL     D1, D0
-00001618                           850                  
-00001618  123C 000D                851          Move.B  #13, D1
-0000161C  E268                     852          LSR     D1, D0
-0000161E                           853                  
-0000161E  4E75                     854          RTS
-00001620                           855  GETBIT8
-00001620  4280                     856          CLR.L   D0
-00001622  3004                     857          Move.W  D4, D0
-00001624                           858                  
-00001624  123C 0007                859          Move.B  #7, D1
-00001628  E368                     860          LSL     D1, D0
-0000162A                           861                  
-0000162A  123C 000F                862          Move.B  #15, D1
-0000162E  E268                     863          LSR     D1, D0
-00001630                           864                  
-00001630  4E75                     865          RTS 
-00001632                           866          
-00001632                           867  GET6TO7
-00001632  4280                     868          Clr.L   D0
-00001634  3004                     869          Move.W  D4, D0
-00001636                           870          
-00001636  123C 0008                871          Move.B  #8, D1
-0000163A  E368                     872          Lsl     D1, D0
-0000163C                           873          
-0000163C  123C 000E                874          Move.B  #14, D1
-00001640  E268                     875          Lsr     D1, D0
-00001642                           876          
-00001642  4E75                     877          Rts
-00001644                           878          
-00001644                           879  GETBIT5
-00001644  4280                     880          Clr.L   D0
-00001646  3004                     881          Move.W  D4, D0
-00001648                           882          
-00001648  123C 000A                883          Move.B  #10, D1
-0000164C  E368                     884          Lsl     D1, D0
-0000164E                           885          
-0000164E  123C 000F                886          Move.B  #15, D1
-00001652  E268                     887          Lsr     D1, D0
-00001654                           888          
-00001654  4E75                     889          Rts
-00001656                           890  
-00001656                           891  
-00001656                           892      END    START        ; last line of source
+00001298                           389          
+00001298                           390  ;=========================================================;        
+00001298                           391  ;------------------------ EA And -------------------------;
+00001298                           392  ; Jumps straight to EA_ADD because the EA for Add and And
+00001298                           393  ; are exactly the same.
+00001298                           394  ;=========================================================;
+00001298                           395  EA_AND
+00001298  4EF8 10E4                396          Jmp     EA_ADD
+0000129C                           397  
+0000129C                           398  ;=========================================================;
+0000129C                           399  ;--------------------- EA Bit Shift ----------------------;
+0000129C                           400  ; Finds the EA for ASd, LSd, ROd. All of these OP codes
+0000129C                           401  ; are combined because the EA for each code is exactly the
+0000129C                           402  ; same.
+0000129C                           403  ;=========================================================;
+0000129C                           404  EA_BIT_SHIFT    ; Figures out the EA for bit shift functions
+0000129C  4EB9 00001636            405          Jsr     GET6TO7
+000012A2                           406          
+000012A2  B03C 0003                407          Cmp.B   #%11, D0                ; If bits 6 and 7 are not %11, then we are shifting a register
+000012A6  6600 0040                408          Bne     EA_SHIFT_REGISTER
+000012AA                           409          
+000012AA  4EB9 000012B0            410          Jsr     EA_SHIFT_MEMORY         ; If bits 6 and 7 are %11, then we are shifting memory
+000012B0                           411          
+000012B0                           412          ; <Next instruction>
+000012B0                           413                  
+000012B0                           414  EA_SHIFT_MEMORY ; Adds the correct EA for a memory shift
+000012B0  4EB9 00001600            415          Jsr     GET3TO5                 ; Get source mode
+000012B6  1A00                     416          Move.B  D0, D5                  ; Move source mode to D5
+000012B8  4EB9 00001612            417          Jsr     Get0TO2                 ; Get source register
+000012BE                           418          
+000012BE                           419          ; List of valid effective addresses        
+000012BE  BA3C 0002                420          Cmp.B   #An_Pntr_Mode, D5       ; (An)
+000012C2  6700 0108                421          Beq     EA_AN_PNTR
+000012C6                           422          
+000012C6  BA3C 0003                423          Cmp.B   #An_Inc_Mode, D5        ; (An)+
+000012CA  6700 0114                424          Beq     EA_AN_INC
+000012CE                           425          
+000012CE  BA3C 0004                426          Cmp.B   #An_Dec_Mode, D5        ; -(An)
+000012D2  6700 0124                427          Beq     EA_AN_DEC
+000012D6                           428          
+000012D6                           429          ; Comparing registers at this point because modes are the same
+000012D6  B03C 0000                430          Cmp.B   #Word_Reg, D0           ; (xxx).W
+000012DA  6700 0134                431          Beq     EA_WORD_ADDR
+000012DE                           432          
+000012DE  B03C 0001                433          Cmp.B   #Long_Reg, D0           ; (xxx).L
+000012E2  6700 01C8                434          Beq     EA_LONG_ADDR
+000012E6                           435          
+000012E6  4E75                     436          Rts
+000012E8                           437          
+000012E8                           438  EA_SHIFT_REGISTER   ; Figure out if we are shifting by #<data> or by the value in a data register
+000012E8  4EB9 00001648            439          Jsr     GETBIT5
+000012EE                           440          
+000012EE  B03C 0000                441          Cmp.B   #0, D0                  ; Check if bit 5 is %0
+000012F2  6700 0008                442          Beq     EA_SHIFT_CHECK_8
+000012F6                           443          
+000012F6  4EF9 00001324            444          Jmp     EA_SHIFT_DN             ; If it's not, we are shifting from a data register
+000012FC                           445          
+000012FC                           446  EA_SHIFT_CHECK_8    ; A bit value of 1-7 corresponds to 1-7, but 0 corresponds to 8
+000012FC  4EB9 000015DC            447          Jsr     GET9TO11                ; Isolate the count/register bits
+00001302                           448          
+00001302  B03C 0000                449          Cmp.B   #0, D0                  ; If the bits are greater than 0, proceed normally
+00001306  6E00 000C                450          Bgt     EA_SHIFT_IMMEDIATE
+0000130A                           451          
+0000130A  103C 0008                452          Move.B  #8, D0                  ; Else, use 8 as the immediate value
+0000130E                           453                  
+0000130E  4EF9 00001314            454          Jmp     EA_SHIFT_IMMEDIATE
+00001314                           455          
+00001314                           456  EA_SHIFT_IMMEDIATE  ; Adds an immediate value before the comma
+00001314  1CFC 0023                457          Move.B  #'#', (A6)+
+00001318  0600 0030                458          Add.B   #$30, D0
+0000131C  1CC0                     459          Move.B  D0, (A6)+               ; Add the immediate value to the string
+0000131E                           460  
+0000131E  4EF9 00001336            461          Jmp     EA_SHIFT_COMMA          ; Add the comma and everything after it
+00001324                           462          
+00001324                           463  EA_SHIFT_DN ; Adds a data register before the comma
+00001324  4EB9 000015DC            464          Jsr     GET9TO11                ; Isolate the data register bits
+0000132A                           465          
+0000132A  4EB9 000013B4            466          Jsr     EA_DN                   ; Add the data register to the string
+00001330                           467          
+00001330  4EF9 00001336            468          Jmp     EA_SHIFT_COMMA          ; Add the comma and everything after it 
+00001336                           469          
+00001336                           470  EA_SHIFT_COMMA  ; Adds the comma and everything after it to the string
+00001336  1CFC 002C                471          Move.B  #',', (A6)+
+0000133A                           472          
+0000133A  4EB9 00001612            473          Jsr     GET0TO2                 ; Get the register number
+00001340                           474          
+00001340  4EB9 000013B4            475          Jsr     EA_DN                   ; Add the register
+00001346                           476          
+00001346                           477          ; <Next instruction>
+00001346                           478  
+00001346                           479  ;============================================;        
+00001346                           480  ;--------------- EA Immediate ---------------;
+00001346                           481  ;============================================;
+00001346                           482  EA_IMMEDIATE    ; Figures out the EA for immediate data OP codes
+00001346  4EB9 00001356            483          Jsr     EA_IMMEDIATE_SIZE       ; Get the size of the immediate data and add to string
+0000134C  1CFC 002C                484          Move.B  #',', (A6)+             ; Add a comma
+00001350  4EB9 00001376            485          Jsr     EA_IMMEDIATE_DEST       ; Add the destination EA
+00001356                           486          
+00001356                           487          ; <Next instruction>
+00001356                           488          
+00001356                           489  EA_IMMEDIATE_SIZE   ; Determines the size of the immediate data and adds it
+00001356  4EB9 00001636            490          Jsr     GET6TO7                 ; Isolate the size bits
+0000135C                           491                  
+0000135C  B03C 0001                492          Cmp.B   #%01, D0                ; Immediate word
+00001360  6700 023C                493          Beq     EA_IMM_WORD
+00001364                           494          
+00001364  B03C 0002                495          Cmp.B   #%10, D0                ; Immediate long
+00001368  6700 0244                496          Beq     EA_IMM_LONG
+0000136C                           497          
+0000136C  524B                     498          AddA.W  #1, A3                  ; Else, move the pointer forward by a byte get the next byte
+0000136E  4EF9 0000158E            499          Jmp     EA_IMM_BYTE
+00001374                           500          
+00001374  4E75                     501          Rts
+00001376                           502          
+00001376                           503  EA_IMMEDIATE_DEST   ; Determines the destination EA
+00001376  4EB9 00001600            504          Jsr     GET3TO5                 ; Get source mode
+0000137C  1A00                     505          Move.B  D0, D5                  ; Move source mode to D5
+0000137E  4EB9 00001612            506          Jsr     Get0TO2                 ; Get source register
+00001384                           507       
+00001384                           508          ; List of valid effective addresses
+00001384  BA3C 0000                509          Cmp.B   #Dn_Mode, D5            ; Dn
+00001388  6700 002A                510          Beq     EA_DN
+0000138C                           511          
+0000138C  BA3C 0002                512          Cmp.B   #An_Pntr_Mode, D5       ; (An)
+00001390  6700 003A                513          Beq     EA_AN_PNTR
+00001394                           514          
+00001394  BA3C 0003                515          Cmp.B   #An_Inc_Mode, D5        ; (An)+
+00001398  6700 0046                516          Beq     EA_AN_INC
+0000139C                           517          
+0000139C  BA3C 0004                518          Cmp.B   #An_Dec_Mode, D5        ; -(An)
+000013A0  6700 0056                519          Beq     EA_AN_DEC
+000013A4                           520          
+000013A4                           521          ; Comparing registers at this point because modes are the same
+000013A4  B03C 0000                522          Cmp.B   #Word_Reg, D0           ; (xxx).W
+000013A8  6700 0066                523          Beq     EA_WORD_ADDR
+000013AC                           524          
+000013AC  B03C 0001                525          Cmp.B   #Long_Reg, D0           ; (xxx).L
+000013B0  6700 00FA                526          Beq     EA_LONG_ADDR
+000013B4                           527                 
+000013B4                           528  ;==========================================;        
+000013B4                           529  ;---------- General EA functions ----------;
+000013B4                           530  ;==========================================;
+000013B4                           531  EA_DN   ; Adds Dn EA to string
+000013B4  1CFC 0044                532          Move.B  #'D', (A6)+             
+000013B8  0600 0030                533          Add.B   #$30, D0        
+000013BC  1CC0                     534          Move.B  D0, (A6)+               
+000013BE                           535                  
+000013BE  4E75                     536          Rts
+000013C0                           537  
+000013C0                           538  EA_AN   ; Adds An EA to string
+000013C0  1CFC 0041                539          Move.B  #'A', (A6)+
+000013C4  0600 0030                540          Add.B   #$30, D0    
+000013C8  1CC0                     541          Move.B  D0, (A6)+               
+000013CA                           542                  
+000013CA  4E75                     543          Rts
+000013CC                           544  
+000013CC                           545  EA_AN_PNTR  ; Adds (An) EA to string
+000013CC  1CFC 0028                546          Move.B  #'(', (A6)+
+000013D0  1CFC 0041                547          Move.B  #'A', (A6)+
+000013D4  0600 0030                548          Add.B   #$30, D0
+000013D8  1CC0                     549          Move.B  D0, (A6)+
+000013DA  1CFC 0029                550          Move.B  #')', (A6)+
+000013DE                           551                  
+000013DE  4E75                     552          Rts
+000013E0                           553          
+000013E0                           554  EA_AN_INC   ; Adds (An)+ EA to string
+000013E0  1CFC 0028                555          Move.B  #'(', (A6)+
+000013E4  1CFC 0041                556          Move.B  #'A', (A6)+
+000013E8  0600 0030                557          Add.B   #$30, D0
+000013EC  1CC0                     558          Move.B  D0, (A6)+
+000013EE  1CFC 0029                559          Move.B  #')', (A6)+
+000013F2  1CFC 002B                560          Move.B  #'+', (A6)+
+000013F6                           561                  
+000013F6  4E75                     562          Rts 
+000013F8                           563          
+000013F8                           564  EA_AN_DEC   ; Adds -(An) EA to string
+000013F8  1CFC 002D                565          Move.B  #'-', (A6)+
+000013FC  1CFC 0028                566          Move.B  #'(', (A6)+
+00001400  1CFC 0041                567          Move.B  #'A', (A6)+
+00001404  0600 0030                568          Add.B   #$30, D0
+00001408  1CC0                     569          Move.B  D0, (A6)+
+0000140A  1CFC 0029                570          Move.B  #')', (A6)+
+0000140E                           571                  
+0000140E  4E75                     572          Rts 
+00001410                           573  
+00001410                           574  EA_WORD_ADDR    ; Adds $Word to string
+00001410  3C1B                     575          Move.W  (A3)+, D6           ; Move the word address into D6 and move forward in memory
+00001412                           576          
+00001412  1CFC 0024                577          Move.B  #'$', (A6)+
+00001416                           578          
+00001416  BC7C 8000                579          Cmp.W   #$8000, D6          ; Word address is less than 8000
+0000141A  6E00 000C                580          Bgt     EA_SIGN_EXT_16
+0000141E                           581          
+0000141E  BC7C 8000                582          Cmp.W   #$8000, D6          ; Word address is greater than 8000
+00001422  6F00 001C                583          Ble     EA_SIGN_EXT_32
+00001426                           584          
+00001426  4E75                     585          Rts
+00001428                           586                  
+00001428                           587  EA_SIGN_EXT_16  ; Adds 0 if the word address is 16 bit
+00001428  1CFC 0030                588          Move.B  #'0', (A6)+
+0000142C  1CFC 0030                589          Move.B  #'0', (A6)+
+00001430  1CFC 0030                590          Move.B  #'0', (A6)+
+00001434  1CFC 0030                591          Move.B  #'0', (A6)+
+00001438                           592          
+00001438  4EB9 00001458            593          Jsr     EA_WORD_TO_STRING       
+0000143E                           594          
+0000143E  4E75                     595          Rts
+00001440                           596  
+00001440                           597  EA_SIGN_EXT_32 ; Adds F is the word address is 32 bit
+00001440  1CFC 0046                598          Move.B  #'F', (A6)+
+00001444  1CFC 0046                599          Move.B  #'F', (A6)+
+00001448  1CFC 0046                600          Move.B  #'F', (A6)+
+0000144C  1CFC 0046                601          Move.B  #'F', (A6)+
+00001450                           602          
+00001450  4EB9 00001458            603          Jsr     EA_WORD_TO_STRING   
+00001456                           604          
+00001456  4E75                     605          Rts
+00001458                           606          
+00001458                           607  EA_WORD_TO_STRING   ; Adds the word in D6 to the string
+00001458  4280                     608          Clr.L   D0              ; Clear D0
+0000145A  3006                     609          Move.W  D6, D0          ; Move the word into D0 so it can be shifted
+0000145C                           610  
+0000145C  123C 000C                611          Move.B  #12, D1         ; Grab bits 12 to 15
+00001460  E268                     612          Lsr     D1, D0
+00001462  0600 0030                613          Add.B   #$30, D0
+00001466  1CC0                     614          Move.B  D0, (A6)+
+00001468                           615          
+00001468  4280                     616          Clr.L   D0
+0000146A  3006                     617          Move.W  D6, D0
+0000146C                           618          
+0000146C  123C 0004                619          Move.B  #4, D1          ; Grab bits 8 to 11
+00001470  E368                     620          Lsl     D1, D0
+00001472  123C 000C                621          Move.B  #12, D1
+00001476  E268                     622          Lsr     D1, D0  
+00001478  0600 0030                623          Add.B   #$30, D0
+0000147C  1CC0                     624          Move.B  D0, (A6)+
+0000147E                           625          
+0000147E  4280                     626          Clr.L   D0
+00001480  3006                     627          Move.W  D6, D0
+00001482                           628          
+00001482  123C 0008                629          Move.B  #8, D1          ; Grab bits 4 to 7
+00001486  E368                     630          Lsl     D1, D0
+00001488  123C 000C                631          Move.B  #12, D1
+0000148C  E268                     632          Lsr     D1, D0
+0000148E  0600 0030                633          Add.B   #$30, D0
+00001492  1CC0                     634          Move.B  D0, (A6)+
+00001494                           635          
+00001494  4280                     636          Clr.L   D0
+00001496  3006                     637          Move.W  D6, D0
+00001498                           638          
+00001498  123C 000C                639          Move.B  #12, D1         ; Grab bits 0 to 3
+0000149C  E368                     640          Lsl     D1, D0
+0000149E  123C 000C                641          Move.B  #12, D1
+000014A2  E268                     642          Lsr     D1, D0
+000014A4  0600 0030                643          Add.B   #$30, D0
+000014A8  1CC0                     644          Move.B  D0, (A6)+
+000014AA                           645          
+000014AA  4E75                     646          Rts
+000014AC                           647          
+000014AC                           648  EA_LONG_ADDR    ; Adds $Long to string
+000014AC  2C1B                     649          Move.L  (A3)+, D6           ; Move the long address into D6 and move forward in memory
+000014AE                           650          
+000014AE  1CFC 0024                651          Move.B  #'$', (A6)+
+000014B2                           652          
+000014B2  4EB9 000014BA            653          Jsr     EA_LONG_TO_STRING
+000014B8                           654  
+000014B8  4E75                     655          Rts
+000014BA                           656                  
+000014BA                           657  EA_LONG_TO_STRING   ; Adds the long in D6 to the string
+000014BA  4280                     658          Clr.L   D0              ; Clear D0
+000014BC  2006                     659          Move.L  D6, D0          ; Move the long into D0 so it can be shifted
+000014BE                           660  
+000014BE  123C 001C                661          Move.B  #28, D1         ; Grab bits 28 to 31
+000014C2  E2A8                     662          Lsr.L   D1, D0
+000014C4  0600 0030                663          Add.B   #$30, D0
+000014C8  1CC0                     664          Move.B  D0, (A6)+
+000014CA                           665          
+000014CA  4280                     666          Clr.L   D0             
+000014CC  2006                     667          Move.L  D6, D0          
+000014CE                           668          
+000014CE  123C 0004                669          Move.B  #4, D1          ; Grab bits 24 to 27
+000014D2  E3A8                     670          Lsl.L   D1, D0
+000014D4  123C 001C                671          Move.B  #28, D1
+000014D8  E2A8                     672          Lsr.L   D1, D0
+000014DA  0600 0030                673          Add.B   #$30, D0
+000014DE  1CC0                     674          Move.B  D0, (A6)+
+000014E0                           675          
+000014E0  4280                     676          Clr.L   D0             
+000014E2  2006                     677          Move.L  D6, D0
+000014E4                           678  
+000014E4  123C 0008                679          Move.B  #8, D1          ; Grab bits 20 to 23
+000014E8  E3A8                     680          Lsl.L   D1, D0
+000014EA  123C 001C                681          Move.B  #28, D1
+000014EE  E2A8                     682          Lsr.L   D1, D0
+000014F0  0600 0030                683          Add.B   #$30, D0
+000014F4  1CC0                     684          Move.B  D0, (A6)+
+000014F6                           685          
+000014F6  4280                     686          Clr.L   D0             
+000014F8  2006                     687          Move.L  D6, D0
+000014FA                           688  
+000014FA  123C 000C                689          Move.B  #12, D1         ; Grab bits 16 to 19
+000014FE  E3A8                     690          Lsl.L   D1, D0
+00001500  123C 001C                691          Move.B  #28, D1
+00001504  E2A8                     692          Lsr.L   D1, D0
+00001506  0600 0030                693          Add.B   #$30, D0
+0000150A  1CC0                     694          Move.B  D0, (A6)+
+0000150C                           695          
+0000150C  4280                     696          Clr.L   D0             
+0000150E  2006                     697          Move.L  D6, D0
+00001510                           698  
+00001510  123C 0010                699          Move.B  #16, D1         ; Grab bits 12 to 15
+00001514  E3A8                     700          Lsl.L   D1, D0
+00001516  123C 001C                701          Move.B  #28, D1
+0000151A  E2A8                     702          Lsr.L   D1, D0
+0000151C  0600 0030                703          Add.B   #$30, D0
+00001520  1CC0                     704          Move.B  D0, (A6)+
+00001522                           705          
+00001522  4280                     706          Clr.L   D0             
+00001524  2006                     707          Move.L  D6, D0
+00001526                           708          
+00001526  123C 0014                709          Move.B  #20, D1         ; Grab bits 8 to 11
+0000152A  E3A8                     710          Lsl.L   D1, D0
+0000152C  123C 001C                711          Move.B  #28, D1
+00001530  E2A8                     712          Lsr.L   D1, D0
+00001532  0600 0030                713          Add.B   #$30, D0
+00001536  1CC0                     714          Move.B  D0, (A6)+
+00001538                           715          
+00001538  4280                     716          Clr.L   D0             
+0000153A  2006                     717          Move.L  D6, D0
+0000153C                           718  
+0000153C  123C 0018                719          Move.B  #24, D1         ; Grab bits 4 to 7
+00001540  E3A8                     720          Lsl.L   D1, D0
+00001542  123C 001C                721          Move.B  #28, D1
+00001546  E2A8                     722          Lsr.L   D1, D0
+00001548  0600 0030                723          Add.B   #$30, D0
+0000154C  1CC0                     724          Move.B  D0, (A6)+
+0000154E                           725          
+0000154E  4280                     726          Clr.L   D0             
+00001550  2006                     727          Move.L  D6, D0
+00001552                           728  
+00001552  123C 001C                729          Move.B  #28, D1         ; Grab bits 0 to 3
+00001556  E3A8                     730          Lsl.L   D1, D0
+00001558  123C 001C                731          Move.B  #28, D1
+0000155C  E2A8                     732          Lsr.L   D1, D0
+0000155E  0600 0030                733          Add.B   #$30, D0
+00001562  1CC0                     734          Move.B  D0, (A6)+
+00001564                           735          
+00001564  4E75                     736          Rts
+00001566                           737          
+00001566                           738  EA_BYTE_TO_STRING   ; Adds the byte in D6 to the string
+00001566  4280                     739          Clr.L   D0              ; Clear D0
+00001568  2006                     740          Move.L  D6, D0          ; Move the byte into D0 so it can be shifted
+0000156A                           741  
+0000156A  123C 0004                742          Move.B  #4, D1          ; Grab bits 4 to 7
+0000156E  E228                     743          Lsr.B   D1, D0
+00001570  0600 0030                744          Add.B   #$30, D0
+00001574  1CC0                     745          Move.B  D0, (A6)+
+00001576                           746          
+00001576  4280                     747          Clr.L   D0             
+00001578  2006                     748          Move.L  D6, D0          
+0000157A                           749          
+0000157A  123C 0004                750          Move.B  #4, D1          ; Grab bits 0 to 3
+0000157E  E328                     751          Lsl.B   D1, D0
+00001580  123C 0004                752          Move.B  #4, D1
+00001584  E228                     753          Lsr.B   D1, D0
+00001586  0600 0030                754          Add.B   #$30, D0
+0000158A  1CC0                     755          Move.B  D0, (A6)+
+0000158C                           756          
+0000158C  4E75                     757          Rts
+0000158E                           758  
+0000158E                           759  EA_IMM_BYTE ; Finds the immediate byte data
+0000158E  1C1B                     760          Move.B  (A3)+, D6            ; Move the immediate byte data into D6 and move forward in memory
+00001590                           761          
+00001590  1CFC 0023                762          Move.B  #'#', (A6)+         
+00001594  1CFC 0024                763          Move.B  #'$', (A6)+         
+00001598                           764          
+00001598  4EB8 1566                765          Jsr     EA_BYTE_TO_STRING    ; Add the byte to the string
+0000159C                           766          
+0000159C  4E75                     767          Rts
+0000159E                           768                  
+0000159E                           769  EA_IMM_WORD ; Finds the immediate word data
+0000159E  3C1B                     770          Move.W  (A3)+, D6            ; Move the immediate word data into D6 and move forward in memory
+000015A0                           771          
+000015A0  1CFC 0023                772          Move.B  #'#', (A6)+         
+000015A4  1CFC 0024                773          Move.B  #'$', (A6)+         
+000015A8                           774          
+000015A8  4EB8 1458                775          Jsr     EA_WORD_TO_STRING    ; Add the word to the string
+000015AC                           776          
+000015AC  4E75                     777          Rts
+000015AE                           778          
+000015AE                           779  EA_IMM_LONG ; Finds the immediate long data
+000015AE  2C1B                     780          Move.L  (A3)+, D6            ; Move the immediate long data into D6 and move forward in memory
+000015B0                           781          
+000015B0  1CFC 0023                782          Move.B  #'#', (A6)+
+000015B4  1CFC 0024                783          Move.B  #'$', (A6)+
+000015B8                           784          
+000015B8  4EB8 14BA                785          Jsr     EA_LONG_TO_STRING    ; Add the long to the string
+000015BC                           786          
+000015BC  4E75                     787          Rts
+000015BE                           788  
+000015BE                           789  ;===========================================================;       
+000015BE                           790  ;---------------- Bit Chopping Sub Routines ----------------;
+000015BE                           791  ; These Sub Routines Chop a WORD size piece of data from
+000015BE                           792  ; Data register 4 into a smaller piece, leaving just the
+000015BE                           793  ; Piece in register 0 while leaving the original piece
+000015BE                           794  ; of data intact.
+000015BE                           795  ;===========================================================;
+000015BE                           796  GET12TO15
+000015BE  4280                     797          CLR.L   D0
+000015C0  3004                     798          Move.W  D4, D0
+000015C2                           799                  
+000015C2  123C 000C                800          Move.B  #12, D1
+000015C6  E268                     801          LSR     D1, D0
+000015C8                           802                  
+000015C8  4E75                     803          RTS
+000015CA                           804  
+000015CA                           805  GET12TO13
+000015CA  4280                     806          CLR.L   D0
+000015CC  3004                     807          Move.W  D4, D0
+000015CE                           808          
+000015CE  123C 0002                809          Move.B  #2, D1
+000015D2  E368                     810          LSL     D1, D0
+000015D4                           811          
+000015D4  123C 000E                812          Move.B  #14, D1
+000015D8  E268                     813          LSR     D1, D0
+000015DA                           814          
+000015DA  4E75                     815          RTS
+000015DC                           816                  
+000015DC                           817  GET9TO11        
+000015DC  4280                     818          CLR.L   D0
+000015DE  3004                     819          Move.W  D4, D0
+000015E0                           820                  
+000015E0  123C 0004                821          Move.B  #4, D1
+000015E4  E368                     822          LSL     D1, D0
+000015E6                           823                  
+000015E6  123C 000D                824          Move.B  #13, D1
+000015EA  E268                     825          LSR     D1, D0
+000015EC                           826                  
+000015EC  4E75                     827          RTS
+000015EE                           828                  
+000015EE                           829  GET6TO8 
+000015EE  4280                     830          CLR.L   D0
+000015F0  3004                     831          Move.W  D4, D0
+000015F2                           832                  
+000015F2  123C 0007                833          Move.B  #7, D1
+000015F6  E368                     834          LSL     D1, D0
+000015F8                           835                  
+000015F8  123C 000D                836          Move.B  #13, D1
+000015FC  E268                     837          LSR     D1, D0
+000015FE                           838                  
+000015FE  4E75                     839          RTS
+00001600                           840                  
+00001600                           841  GET3TO5 
+00001600  4280                     842          CLR.L   D0
+00001602  3004                     843          Move.W  D4, D0
+00001604                           844                  
+00001604  123C 000A                845          Move.B  #10, D1
+00001608  E368                     846          LSL     D1, D0
+0000160A                           847                  
+0000160A  123C 000D                848          Move.B  #13, D1
+0000160E  E268                     849          LSR     D1, D0
+00001610                           850                  
+00001610  4E75                     851          RTS
+00001612                           852  GET0TO2 
+00001612  4280                     853          CLR.L   D0
+00001614  3004                     854          Move.W  D4, D0
+00001616                           855                  
+00001616  123C 000D                856          Move.B  #13, D1
+0000161A  E368                     857          LSL     D1, D0
+0000161C                           858                  
+0000161C  123C 000D                859          Move.B  #13, D1
+00001620  E268                     860          LSR     D1, D0
+00001622                           861                  
+00001622  4E75                     862          RTS
+00001624                           863  GETBIT8
+00001624  4280                     864          CLR.L   D0
+00001626  3004                     865          Move.W  D4, D0
+00001628                           866                  
+00001628  123C 0007                867          Move.B  #7, D1
+0000162C  E368                     868          LSL     D1, D0
+0000162E                           869                  
+0000162E  123C 000F                870          Move.B  #15, D1
+00001632  E268                     871          LSR     D1, D0
+00001634                           872                  
+00001634  4E75                     873          RTS 
+00001636                           874          
+00001636                           875  GET6TO7
+00001636  4280                     876          Clr.L   D0
+00001638  3004                     877          Move.W  D4, D0
+0000163A                           878          
+0000163A  123C 0008                879          Move.B  #8, D1
+0000163E  E368                     880          Lsl     D1, D0
+00001640                           881          
+00001640  123C 000E                882          Move.B  #14, D1
+00001644  E268                     883          Lsr     D1, D0
+00001646                           884          
+00001646  4E75                     885          Rts
+00001648                           886          
+00001648                           887  GETBIT5
+00001648  4280                     888          Clr.L   D0
+0000164A  3004                     889          Move.W  D4, D0
+0000164C                           890          
+0000164C  123C 000A                891          Move.B  #10, D1
+00001650  E368                     892          Lsl     D1, D0
+00001652                           893          
+00001652  123C 000F                894          Move.B  #15, D1
+00001656  E268                     895          Lsr     D1, D0
+00001658                           896          
+00001658  4E75                     897          Rts
+0000165A                           898  
+0000165A                           899  
+0000165A                           900      END    START        ; last line of source
 
 No errors detected
 No warnings generated
@@ -924,47 +932,48 @@ EA_ADD_OPMODE_DEST  1144
 EA_ADD_OPMODE_SOURCE  112E
 EA_ADD_SIZE         11E2
 EA_ADD_SOURCE       115A
-EA_AN               13BC
-EA_AN_DEC           13F4
-EA_AN_INC           13DC
-EA_AN_PNTR          13C8
-EA_BIT_SHIFT        1298
-EA_BYTE_TO_STRING   1562
+EA_AN               13C0
+EA_AND              1298
+EA_AN_DEC           13F8
+EA_AN_INC           13E0
+EA_AN_PNTR          13CC
+EA_BIT_SHIFT        129C
+EA_BYTE_TO_STRING   1566
 EA_CMP              1290
-EA_DN               13B0
-EA_IMMEDIATE        1342
-EA_IMMEDIATE_DEST   1372
-EA_IMMEDIATE_SIZE   1352
-EA_IMM_BYTE         158A
-EA_IMM_LONG         15AA
-EA_IMM_WORD         159A
+EA_DN               13B4
+EA_IMMEDIATE        1346
+EA_IMMEDIATE_DEST   1376
+EA_IMMEDIATE_SIZE   1356
+EA_IMM_BYTE         158E
+EA_IMM_LONG         15AE
+EA_IMM_WORD         159E
 EA_LEA              1294
-EA_LONG_ADDR        14A8
-EA_LONG_TO_STRING   14B6
+EA_LONG_ADDR        14AC
+EA_LONG_TO_STRING   14BA
 EA_MOVE             101C
 EA_MOVE_DEST        107C
 EA_MOVE_SIZE        10C4
 EA_MOVE_SOURCE      102C
-EA_SHIFT_CHECK_8    12F8
-EA_SHIFT_COMMA      1332
-EA_SHIFT_DN         1320
-EA_SHIFT_IMMEDIATE  1310
-EA_SHIFT_MEMORY     12AC
-EA_SHIFT_REGISTER   12E4
-EA_SIGN_EXT_16      1424
-EA_SIGN_EXT_32      143C
+EA_SHIFT_CHECK_8    12FC
+EA_SHIFT_COMMA      1336
+EA_SHIFT_DN         1324
+EA_SHIFT_IMMEDIATE  1314
+EA_SHIFT_MEMORY     12B0
+EA_SHIFT_REGISTER   12E8
+EA_SIGN_EXT_16      1428
+EA_SIGN_EXT_32      1440
 EA_SUB              128C
-EA_WORD_ADDR        140C
-EA_WORD_TO_STRING   1454
-GET0TO2             160E
-GET12TO13           15C6
-GET12TO15           15BA
-GET3TO5             15FC
-GET6TO7             1632
-GET6TO8             15EA
-GET9TO11            15D8
-GETBIT5             1644
-GETBIT8             1620
+EA_WORD_ADDR        1410
+EA_WORD_TO_STRING   1458
+GET0TO2             1612
+GET12TO13           15CA
+GET12TO15           15BE
+GET3TO5             1600
+GET6TO7             1636
+GET6TO8             15EE
+GET9TO11            15DC
+GETBIT5             1648
+GETBIT8             1624
 IMM_MODE            7
 IMM_REG             4
 IMM_TEST1           41F

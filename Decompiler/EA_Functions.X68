@@ -381,10 +381,18 @@ EA_CMP
         
 ;=========================================================;        
 ;------------------------ EA Lea -------------------------;
-; Jumps straight to EA_ADD because the EA for Add/AddA and
-; Cmp/CmpA are exactly the same.
+; Jumps straight to EA_ADD because the EA for AddA and Lea
+; are exactly the same.
 ;=========================================================;
 EA_LEA
+        Jmp     EA_ADD
+        
+;=========================================================;        
+;------------------------ EA And -------------------------;
+; Jumps straight to EA_ADD because the EA for Add and And
+; are exactly the same.
+;=========================================================;
+EA_AND
         Jmp     EA_ADD
 
 ;=========================================================;
