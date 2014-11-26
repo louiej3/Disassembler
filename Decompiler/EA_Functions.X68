@@ -36,14 +36,20 @@ Add_Test1           EQU     %1101111011000001   ; AddA.W D1,A7
 Add_Test2           EQU     %1101100001111100   ; Add.W #$Imm,D4
 Add_Test3           EQU     %1101111101010111   ; Add.W D7,(A7)
 Add_Test4           EQU     %1101111111111001   ; AddA.L #$Imm,A7
+
+Shift_Test1         EQU     %1110000111010111   ; Asl (A7)
+Shift_Test2         EQU     %1110000111111000   ; Asl $Word
+Shift_Test3         EQU     %1110111100100001   ; Asl.B D7,D1
+Shift_Test4         EQU     %1110010100000111   ; Asl.B #2,D7
+Shift_Test5         EQU     %1110000100000100   ; Asl.B #8,D4
         
     ORG    $1000
     
 START:                  ; first instruction of program
         Move.L  #$0000400, A3
 
-        ;Move.W  #$4030, (A3)
-        Move.L  #$12345678, (A3)
+        Move.W  #$4030, (A3)
+        ;Move.L  #$12345678, (A3)
         ;Move.L  #$12349999, (A3)
         ;Move.W  #$11, (A3)
         
@@ -59,11 +65,17 @@ START:                  ; first instruction of program
         ;Move.W  #Add_Test1, D4
         ;Move.W  #Add_Test2, D4
         ;Move.W  #Add_Test3, D4
-        Move.W  #Add_Test4, D4
-
+        ;Move.W  #Add_Test4, D4
+        
+        ;Move.W  #Shift_Test1, D4
+        ;Move.W  #Shift_Test2, D4
+        ;Move.W  #Shift_Test3, D4
+        ;Move.W  #Shift_Test4, D4
+        Move.W  #Shift_Test5, D4
                 
         ;Jmp     EA_MOVE     ; Branch to EA function for Move
-        Jmp     EA_ADD
+        ;Jmp     EA_ADD
+        Jmp     EA_BIT_SHIFT
 
 ;]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]];  
 ;-------------------- Effective Address Sub Routines --------------------;
@@ -290,13 +302,86 @@ EA_SUB
 EA_CMP       
         Jmp     EA_ADD
 
-;============================================;
-;--------------- EA Bit Shift ---------------;
-;============================================;
-; If bits 6-7 are 11 (3 in decimal), dealing with memory shift 
-    ; Bit 5 specifies immediate shift or register shift count
-    
-; Else, dealing with a register shift
+;=========================================================;
+;--------------------- EA Bit Shift ----------------------;
+; Finds the EA for ASd, LSd, ROd. All of these OP codes
+; are combined because the EA for each code is exactly the
+; same.
+;=========================================================;
+EA_BIT_SHIFT
+        Jsr     GET6TO7
+        
+        Cmp.B   #%11, D0
+        Bne     EA_SHIFT_REGISTER
+        
+        Jsr     EA_SHIFT_MEMORY
+        
+        ; <Next instruction>
+                
+EA_SHIFT_MEMORY
+        Jsr     GET3TO5                 ; Get source mode
+        Move.B  D0, D5                  ; Move source mode to D5
+        Jsr     Get0TO2                 ; Get source register
+        
+        ; List of valid effective addresses        
+        Cmp.B   #An_Pntr_Mode, D5       ; (An)
+        Beq     EA_AN_PNTR
+        
+        Cmp.B   #An_Inc_Mode, D5        ; (An)+
+        Beq     EA_AN_INC
+        
+        Cmp.B   #An_Dec_Mode, D5        ; -(An)
+        Beq     EA_AN_DEC
+        
+        ; Comparing registers at this point because modes are the same
+        Cmp.B   #Word_Reg, D0           ; (xxx).W
+        Beq     EA_WORD_ADDR
+        
+        Cmp.B   #Long_Reg, D0           ; (xxx).L
+        Beq     EA_LONG_ADDR
+        
+        Rts
+        
+EA_SHIFT_REGISTER
+        Jsr     GETBIT5
+        
+        Cmp.B   #0, D0
+        Beq     EA_SHIFT_CHECK_8
+        
+        Jmp     EA_SHIFT_DN
+        
+EA_SHIFT_CHECK_8
+        Jsr     GET9TO11
+        
+        Cmp.B   #0, D0
+        Bgt     EA_SHIFT_IMMEDIATE
+        
+        Move.B  #8, D0
+                
+        Jmp     EA_SHIFT_IMMEDIATE
+        
+EA_SHIFT_IMMEDIATE        
+        Move.B  #'#', (A6)+
+        Add.B   #$30, D0
+        Move.B  D0, (A6)+
+
+        Jmp     EA_SHIFT_COMMA
+        
+EA_SHIFT_DN
+        Jsr     GET9TO11
+        
+        Jsr     EA_DN
+        
+        Jmp     EA_SHIFT_COMMA
+        
+EA_SHIFT_COMMA
+        Move.B  #',', (A6)+
+        
+        Jsr     GET0TO2
+        
+        Jsr     EA_DN
+        
+        ; <Next instruction>
        
 ;==========================================;        
 ;---------- General EA functions ----------;
@@ -644,8 +729,35 @@ GETBIT8
 		LSR	    D1, D0
 				
 		RTS 
+		
+GET6TO7
+        Clr.L   D0
+        Move.W  D4, D0
+        
+        Move.B  #8, D1
+        Lsl     D1, D0
+        
+        Move.B  #14, D1
+        Lsr     D1, D0
+        
+        Rts
+        
+GETBIT5
+        Clr.L   D0
+        Move.W  D4, D0
+        
+        Move.B  #10, D1
+        Lsl     D1, D0
+        
+        Move.B  #15, D1
+        Lsr     D1, D0
+        
+        Rts
+
 
     END    START        ; last line of source
+
+
 
 
 
