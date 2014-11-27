@@ -298,8 +298,6 @@ EA_AND
         
 ;=========================================================;        
 ;------------------------ EA Neg -------------------------;
-; Jumps to EA_ADD_SOURCE because the Neg only requires an
-; EA and EA_ADD_SOURCE has all of the addressing modes.
 ;=========================================================;
 EA_NEG
         Jsr     EA_0TO5
