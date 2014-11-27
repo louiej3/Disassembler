@@ -48,16 +48,20 @@ Imm_Test2           EQU     %0000010001111001   ; SubI.W #$Imm,$Long
 
 AddQ_Test1          EQU     %0101111000001001   ; AddQ.B #7,A1
 AddQ_Test2          EQU     %0101000000001001   ; AddQ.B #8,A1
+
+Muls_Test1          EQU     %1100111111111100   ; Muls.W #$Imm,D7
+Muls_Test2          EQU     %1100111111010010   ; Muls.W (A2),D7
+
         
     ORG    $1000
     
 START:                  ; first instruction of program
         Move.L  #$0000400, A3
         
-        ;Move.W  #$0034, (A3)
-        Move.W  #$4030, (A3)+
-        Move.L  #$12345678, (A3)
-        Sub.W   #2, A3
+        Move.W  #$0034, (A3)
+        ;Move.W  #$4030, (A3)+
+        ;Move.L  #$12345678, (A3)
+        ;Sub.W   #2, A3
         ;Move.L  #$12349999, (A3)
         ;Move.W  #$11, (A3)
         
@@ -82,16 +86,20 @@ START:                  ; first instruction of program
         ;Move.W  #Shift_Test5, D4
         
         ;Move.W  #Imm_Test1, D4
-        Move.W  #Imm_Test2, D4
+        ;Move.W  #Imm_Test2, D4
         
         ;Move.W  #AddQ_Test1, D4
         ;Move.W  #AddQ_Test2, D4
+        
+        ;Move.W  #Muls_Test1, D4
+        Move.W  #Muls_Test2, D4
                 
         ;Jmp     EA_MOVE     ; Branch to EA function for Move
         ;Jmp     EA_ADD
         ;Jmp     EA_BIT_SHIFT
-        Jmp     EA_IMMEDIATE
+        ;Jmp     EA_IMMEDIATE
         ;Jmp     EA_ADDQ
+        Jmp     EA_MULS
 
 ;]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]];  
 ;-------------------- Effective Address Sub Routines --------------------;
@@ -390,6 +398,23 @@ EA_IMMEDIATE_SIZE   ; Determines the size of the immediate data and adds it
         
 EA_IMMEDIATE_DEST   ; Determines the destination EA
         Jsr     EA_0TO5
+      
+;=================================================;  
+;-------------------- EA Muls --------------------;
+;=================================================;
+EA_MULS ; Determines the EA for Muls
+        Jsr     EA_MULS_ADDRESS         ; Get the EA
+        Move.B  #',', (A6)+             ; Add a comma
+        Jsr     GET9TO11                ; Get the register
+        Jsr     EA_DN                   ; Add Dn
+        
+EA_MULS_ADDRESS ; Determines the EA
+        Jsr     EA_0TO5                 ; Check for all EA except #<data>
+        
+        Cmp.B   #Imm_Reg, D0            ; Check for #<data>
+        Beq     EA_IMM_WORD
+        
+        Rts
                
 ;==========================================;        
 ;---------- General EA functions ----------;
