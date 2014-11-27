@@ -35,7 +35,7 @@ Test_Move8          EQU     %0010111100111100   ; Move.L #$Imm,-(A7)
 Add_Test1           EQU     %1101111011000001   ; AddA.W D1,A7
 Add_Test2           EQU     %1101100001111100   ; Add.W #$Imm,D4
 Add_Test3           EQU     %1101111101010111   ; Add.W D7,(A7)
-Add_Test4           EQU     %1101111111111001   ; AddA.L #$Imm,A7
+Add_Test4           EQU     %1101111111111001   ; AddA.L $Long,A7
 
 Shift_Test1         EQU     %1110000111010111   ; Asl (A7)
 Shift_Test2         EQU     %1110000111111000   ; Asl $Word
@@ -68,12 +68,12 @@ START:                  ; first instruction of program
         ;Move.W  #Test_Move5, D4
         ;Move.W  #Test_Move6, D4        
         ;Move.W  #Test_Move7, D4        
-        Move.W  #Test_Move8, D4
+        ;Move.W  #Test_Move8, D4
         
         ;Move.W  #Add_Test1, D4
         ;Move.W  #Add_Test2, D4
         ;Move.W  #Add_Test3, D4
-        ;Move.W  #Add_Test4, D4
+        Move.W  #Add_Test4, D4
         
         ;Move.W  #Shift_Test1, D4
         ;Move.W  #Shift_Test2, D4
@@ -87,8 +87,8 @@ START:                  ; first instruction of program
         ;Move.W  #AddQ_Test1, D4
         ;Move.W  #AddQ_Test2, D4
                 
-        Jmp     EA_MOVE     ; Branch to EA function for Move
-        ;Jmp     EA_ADD
+        ;Jmp     EA_MOVE     ; Branch to EA function for Move
+        Jmp     EA_ADD
         ;Jmp     EA_BIT_SHIFT
         ;Jmp     EA_IMMEDIATE
         ;Jmp     EA_ADDQ
@@ -185,7 +185,7 @@ EA_ADD  ; Figures out the EA for Add
         Jmp     EA_ADD_OPMODE_DEST      ; Must be an Add destination if none of the above
         
 EA_ADDA ; Figures out the EA for AddA
-        Jsr     EA_ADD_SOURCE           ; Get the source EA
+        Jsr     EA_ADD_ADDRESS          ; Get the source EA
         Move.B  #',', (A6)+             ; Add a comma
         Jsr     GET9TO11                ; Get the register
         Jsr     EA_AN                   ; Add An
@@ -193,7 +193,7 @@ EA_ADDA ; Figures out the EA for AddA
         ; <Next instruction>
         
 EA_ADD_OPMODE_SOURCE    ; Finds the EA for Add if it is for the source
-        Jsr     EA_ADD_SOURCE           ; Get the source EA
+        Jsr     EA_ADD_ADDRESS          ; Get the source EA
         Move.B  #',', (A6)+             ; Add a comma
         Jsr     GET9TO11                ; Get the register
         Jsr     EA_DN                   ; Add Dn
@@ -204,65 +204,16 @@ EA_ADD_OPMODE_DEST      ; Finds the EA for Add if it is for the destination
         Jsr     GET9TO11                ; Get the register
         Jsr     EA_DN                   ; Add Dn
         Move.B  #',', (A6)+             ; Add a comma
-        Jsr     EA_ADD_DEST             ; Get the destination EA 
+        Jsr     EA_ADD_ADDRESS          ; Get the destination EA 
         
         ; <Next instruction>
-
-EA_ADD_SOURCE   ; Find out Add source
-        Jsr     GET3TO5                 ; Get source mode
-        Move.B  D0, D5                  ; Move source mode to D5
-        Jsr     Get0TO2                 ; Get source register
         
-        ; List of valid effective addresses
-        Cmp.B   #Dn_Mode, D5            ; Dn
-        Beq     EA_DN
-        
-        Cmp.B   #An_Mode, D5            ; An
-        Beq     EA_AN
-        
-        Cmp.B   #An_Pntr_Mode, D5       ; (An)
-        Beq     EA_AN_PNTR
-        
-        Cmp.B   #An_Inc_Mode, D5        ; (An)+
-        Beq     EA_AN_INC
-        
-        Cmp.B   #An_Dec_Mode, D5        ; -(An)
-        Beq     EA_AN_DEC
-        
-        ; Comparing registers at this point because modes are the same
-        Cmp.B   #Word_Reg, D0           ; (xxx).W
-        Beq     EA_WORD_ADDR
-        
-        Cmp.B   #Long_Reg, D0           ; (xxx).L
-        Beq     EA_LONG_ADDR
+EA_ADD_ADDRESS
+        Jsr     EA_0TO5
         
         Cmp.B   #Imm_Reg, D0            ; #<data>
         Beq     EA_ADD_SIZE
-        
-        Rts
-        
-EA_ADD_DEST ; Find out Add destination
-        Jsr     GET3TO5                 ; Get destination mode
-        Move.B  D0, D5                  ; Move destination mode to D5
-        Jsr     Get0TO2                 ; Get destination register
-        
-        ; List of valid effective addresses
-        Cmp.B   #An_Pntr_Mode, D5       ; (An)
-        Beq     EA_AN_PNTR
-        
-        Cmp.B   #An_Inc_Mode, D5        ; (An)+
-        Beq     EA_AN_INC
-        
-        Cmp.B   #An_Dec_Mode, D5        ; -(An)
-        Beq     EA_AN_DEC
-        
-        ; Comparing registers at this point because modes are the same
-        Cmp.B   #Word_Reg, D0           ; (xxx).W
-        Beq     EA_WORD_ADDR
-        
-        Cmp.B   #Long_Reg, D0           ; (xxx).L
-        Beq     EA_LONG_ADDR
-                
+
         Rts
         
 EA_ADD_SIZE ; Find the size of immediate data being moved
@@ -376,7 +327,7 @@ EA_AND
 ; EA and EA_ADD_SOURCE has all of the addressing modes.
 ;=========================================================;
 EA_NEG
-        Jsr     EA_ADD_SOURCE
+        Jsr     EA_0TO5
         
         ; <Next instruction>
 
