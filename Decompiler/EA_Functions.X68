@@ -217,7 +217,7 @@ EA_ADD_OPMODE_DEST      ; Finds the EA for Add if it is for the destination
         ; <Next instruction>
         
 EA_ADD_ADDRESS
-        Jsr     EA_0TO5
+        Jsr     EA_0TO5                 ; Check for all EA except #<data>
         
         Cmp.B   #Imm_Reg, D0            ; #<data>
         Beq     EA_ADD_SIZE
@@ -270,7 +270,7 @@ EA_ADDQ_IMMEDIATE   ; Adds an immediate value before the comma
         Rts
         
 EA_ADDQ_DEST    ; Determines the destination       
-        Jsr     EA_0TO5
+        Jsr     EA_0TO5                 ; Check for all EA except #<data>
         
 ;=========================================================;        
 ;---------------------- EA Sub/SubA ----------------------;
@@ -308,7 +308,7 @@ EA_AND
 ;------------------------ EA Neg -------------------------;
 ;=========================================================;
 EA_NEG
-        Jsr     EA_0TO5
+        Jsr     EA_0TO5                 ; Check for all EA except #<data>
         
         ; <Next instruction>
 
@@ -329,7 +329,7 @@ EA_BIT_SHIFT    ; Figures out the EA for bit shift functions
         ; <Next instruction>
                 
 EA_SHIFT_MEMORY ; Adds the correct EA for a memory shift
-        Jsr     EA_0TO5
+        Jsr     EA_0TO5                 ; Check for all EA except #<data>
         
 EA_SHIFT_REGISTER   ; Figure out if we are shifting by #<data> or by the value in a data register
         Jsr     GETBIT5
@@ -397,7 +397,7 @@ EA_IMMEDIATE_SIZE   ; Determines the size of the immediate data and adds it
         Rts
         
 EA_IMMEDIATE_DEST   ; Determines the destination EA
-        Jsr     EA_0TO5
+        Jsr     EA_0TO5                 ; Check for all EA except #<data>
       
 ;=================================================;  
 ;-------------------- EA Muls --------------------;
