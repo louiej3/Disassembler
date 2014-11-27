@@ -374,6 +374,7 @@ EA_SHIFT_COMMA  ; Adds the comma and everything after it to the string
 
 ;============================================;        
 ;--------------- EA Immediate ---------------;
+; Provides EA for SubI, OrI, EorI, and CmpI.
 ;============================================;
 EA_IMMEDIATE    ; Figures out the EA for immediate data OP codes
         Jsr     EA_IMMEDIATE_SIZE       ; Get the size of the immediate data and add to string
