@@ -408,6 +408,8 @@ EA_MULS ; Determines the EA for Muls
         Jsr     GET9TO11                ; Get the register
         Jsr     EA_DN                   ; Add Dn
         
+        ; <Next instruction>
+        
 EA_MULS_ADDRESS ; Determines the EA
         Jsr     EA_0TO5                 ; Check for all EA except #<data>
         
@@ -415,6 +417,14 @@ EA_MULS_ADDRESS ; Determines the EA
         Beq     EA_IMM_WORD
         
         Rts
+        
+;=================================================;  
+;-------------------- EA DIVS --------------------;
+; Jumps straight to EA_DIVS because the EA for
+; both OP codes is exactly the same.
+;=================================================;
+EA_DIVS
+        Jmp     EA_MULS
                
 ;==========================================;        
 ;---------- General EA functions ----------;
