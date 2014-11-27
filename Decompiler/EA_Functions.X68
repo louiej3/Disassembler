@@ -55,9 +55,9 @@ START:                  ; first instruction of program
         Move.L  #$0000400, A3
         
         ;Move.W  #$0034, (A3)
-        Move.W  #$4030, (A3)+
+        ;Move.W  #$4030, (A3)+
         Move.L  #$12345678, (A3)
-        Sub.W   #2, A3
+        ;Sub.W   #2, A3
         ;Move.L  #$12349999, (A3)
         ;Move.W  #$11, (A3)
         
@@ -68,7 +68,7 @@ START:                  ; first instruction of program
         ;Move.W  #Test_Move5, D4
         ;Move.W  #Test_Move6, D4        
         ;Move.W  #Test_Move7, D4        
-        ;Move.W  #Test_Move8, D4
+        Move.W  #Test_Move8, D4
         
         ;Move.W  #Add_Test1, D4
         ;Move.W  #Add_Test2, D4
@@ -85,13 +85,13 @@ START:                  ; first instruction of program
         ;Move.W  #Imm_Test2, D4
         
         ;Move.W  #AddQ_Test1, D4
-        Move.W  #AddQ_Test2, D4
+        ;Move.W  #AddQ_Test2, D4
                 
-        ;Jmp     EA_MOVE     ; Branch to EA function for Move
+        Jmp     EA_MOVE     ; Branch to EA function for Move
         ;Jmp     EA_ADD
         ;Jmp     EA_BIT_SHIFT
         ;Jmp     EA_IMMEDIATE
-        Jmp     EA_ADDQ
+        ;Jmp     EA_ADDQ
 
 ;]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]];  
 ;-------------------- Effective Address Sub Routines --------------------;
@@ -110,32 +110,7 @@ EA_MOVE
         ; <Next instruction>
                 
 EA_MOVE_SOURCE  ; Find out Move's source
-        Jsr     GET3TO5                 ; Get source mode
-        Move.B  D0, D5                  ; Move source mode to D5
-        Jsr     Get0TO2                 ; Get source register
-        
-        ; List of valid effective addresses
-        Cmp.B   #Dn_Mode, D5            ; Dn
-        Beq     EA_DN
-        
-        Cmp.B   #An_Mode, D5            ; An
-        Beq     EA_AN
-        
-        Cmp.B   #An_Pntr_Mode, D5       ; (An)
-        Beq     EA_AN_PNTR
-        
-        Cmp.B   #An_Inc_Mode, D5        ; (An)+
-        Beq     EA_AN_INC
-        
-        Cmp.B   #An_Dec_Mode, D5        ; -(An)
-        Beq     EA_AN_DEC
-        
-        ; Comparing registers at this point because modes are the same
-        Cmp.B   #Word_Reg, D0           ; (xxx).W
-        Beq     EA_WORD_ADDR
-        
-        Cmp.B   #Long_Reg, D0           ; (xxx).L
-        Beq     EA_LONG_ADDR
+        Jsr     EA_0TO5                 ; Get the EA
         
         Cmp.B   #Imm_Reg, D0            ; #<data>
         Beq     EA_MOVE_SIZE
