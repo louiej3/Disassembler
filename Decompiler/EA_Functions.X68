@@ -52,6 +52,9 @@ AddQ_Test2          EQU     %0101000000001001   ; AddQ.B #8,A1
 Muls_Test1          EQU     %1100111111111100   ; Muls.W #$Imm,D7
 Muls_Test2          EQU     %1100111111010010   ; Muls.W (A2),D7
 
+Btst_Test1          EQU     %0000111100000111   ; Btst D7,D7
+Btst_Test2          EQU     %0000111100111100   ; Btst D7,#$Imm
+Btst_Test3          EQU     %0000100000000111   ; Btst #$Byte,D7
         
     ORG    $1000
     
@@ -64,6 +67,7 @@ START:                  ; first instruction of program
         ;Sub.W   #2, A3
         ;Move.L  #$12349999, (A3)
         ;Move.W  #$11, (A3)
+        ;Move.B  #$99, (A3)
         
         ;Move.W  #Test_Move1, D4
         ;Move.W  #Test_Move2, D4
@@ -92,14 +96,19 @@ START:                  ; first instruction of program
         ;Move.W  #AddQ_Test2, D4
         
         ;Move.W  #Muls_Test1, D4
-        Move.W  #Muls_Test2, D4
+        ;Move.W  #Muls_Test2, D4
+        
+        ;Move.W  #Btst_Test1, D4
+        ;Move.W  #Btst_Test2, D4
+        Move.W  #Btst_Test3, D4
                 
         ;Jmp     EA_MOVE     ; Branch to EA function for Move
         ;Jmp     EA_ADD
         ;Jmp     EA_BIT_SHIFT
         ;Jmp     EA_IMMEDIATE
         ;Jmp     EA_ADDQ
-        Jmp     EA_MULS
+        ;Jmp     EA_MULS
+        Jmp     EA_BTST
 
 ;]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]];  
 ;-------------------- Effective Address Sub Routines --------------------;
@@ -408,9 +417,9 @@ EA_IMMEDIATE_SIZE   ; Determines the size of the immediate data and adds it
         Cmp.B   #%10, D0                ; Immediate long
         Beq     EA_IMM_LONG
         
-        AddA.W  #1, A3                  ; Else, move the pointer forward by a byte get the next byte
+        AddA.W  #1, A3                  ; Else, move the pointer forward by a byte to get the next byte
         Jmp     EA_IMM_BYTE
-        
+
         Rts
         
 EA_IMMEDIATE_DEST   ; Determines the destination EA
@@ -442,6 +451,43 @@ EA_MULS_ADDRESS ; Determines the EA
 ;=================================================;
 EA_DIVS
         Jmp     EA_MULS
+        
+;=================================================;        
+;-------------------- EA BTST --------------------;
+;=================================================;
+EA_BTST ; Determines the EA for Btst
+        Jsr     GETBIT8                 ; Use bit 8 to determine if the bit number is immediate or a data register
+        
+        Cmp.B   #%1, D0                 ; 1 is a data register
+        Beq     EA_BTST_DN
+        
+        Jmp     EA_BTST_IMM             ; Else (0), the bit number is immediate data
+        
+EA_BTST_DN  ; Gets the register for the bit number
+        Jsr     GET9TO11                ; Get the register
+        Jsr     EA_DN                   ; Add the register to the string
+        
+        Jsr     EA_BTST_ADDRESS         ; Add the EA
+        
+        ; <Next instruction>
+
+EA_BTST_IMM ; Gets the immediate data for the bit number
+        AddA.W  #1, A3                  ; Move the pointer forward by a byte to get the next byte
+        Jsr     EA_IMM_BYTE             ; Add the bit number as an immediate hex byte
+        
+        Jsr     EA_BTST_ADDRESS         ; Add the register to the string
+        
+        ; <Next instruction>
+
+EA_BTST_ADDRESS ; Get the EA
+        Move.B  #',', (A6)+
+
+        Jsr     EA_0TO5                 ; Check the EA for everything but #<data>
+        
+        Cmp.B   #Imm_Reg, D0            ; Check if the EA is #<data>
+        Beq     EA_IMM_BYTE             ; Add immediate byte for EA
+        
+        Rts
                
 ;==========================================;        
 ;---------- General EA functions ----------;
