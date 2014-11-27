@@ -55,9 +55,9 @@ START:                  ; first instruction of program
         Move.L  #$0000400, A3
         
         ;Move.W  #$0034, (A3)
-        ;Move.W  #$4030, (A3)+
+        Move.W  #$4030, (A3)+
         Move.L  #$12345678, (A3)
-        ;Sub.W   #2, A3
+        Sub.W   #2, A3
         ;Move.L  #$12349999, (A3)
         ;Move.W  #$11, (A3)
         
@@ -79,18 +79,18 @@ START:                  ; first instruction of program
         ;Move.W  #Shift_Test2, D4
         ;Move.W  #Shift_Test3, D4
         ;Move.W  #Shift_Test4, D4
-        Move.W  #Shift_Test5, D4
+        ;Move.W  #Shift_Test5, D4
         
         ;Move.W  #Imm_Test1, D4
-        ;Move.W  #Imm_Test2, D4
+        Move.W  #Imm_Test2, D4
         
         ;Move.W  #AddQ_Test1, D4
         ;Move.W  #AddQ_Test2, D4
                 
         ;Jmp     EA_MOVE     ; Branch to EA function for Move
         ;Jmp     EA_ADD
-        Jmp     EA_BIT_SHIFT
-        ;Jmp     EA_IMMEDIATE
+        ;Jmp     EA_BIT_SHIFT
+        Jmp     EA_IMMEDIATE
         ;Jmp     EA_ADDQ
 
 ;]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]];  
@@ -389,29 +389,7 @@ EA_IMMEDIATE_SIZE   ; Determines the size of the immediate data and adds it
         Rts
         
 EA_IMMEDIATE_DEST   ; Determines the destination EA
-        Jsr     GET3TO5                 ; Get source mode
-        Move.B  D0, D5                  ; Move source mode to D5
-        Jsr     Get0TO2                 ; Get source register
-     
-        ; List of valid effective addresses
-        Cmp.B   #Dn_Mode, D5            ; Dn
-        Beq     EA_DN
-        
-        Cmp.B   #An_Pntr_Mode, D5       ; (An)
-        Beq     EA_AN_PNTR
-        
-        Cmp.B   #An_Inc_Mode, D5        ; (An)+
-        Beq     EA_AN_INC
-        
-        Cmp.B   #An_Dec_Mode, D5        ; -(An)
-        Beq     EA_AN_DEC
-        
-        ; Comparing registers at this point because modes are the same
-        Cmp.B   #Word_Reg, D0           ; (xxx).W
-        Beq     EA_WORD_ADDR
-        
-        Cmp.B   #Long_Reg, D0           ; (xxx).L
-        Beq     EA_LONG_ADDR
+        Jsr     EA_0TO5
                
 ;==========================================;        
 ;---------- General EA functions ----------;
