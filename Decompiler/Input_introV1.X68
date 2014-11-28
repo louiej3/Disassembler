@@ -41,7 +41,7 @@ valid_start     JSR     chk_bound           ; Check if the input has odd/even bo
                 MOVE.L  #begin,D6           ; Store minimum address in D6
                 CMP.L   D6,D3               ; If start address is lower than minimum address
                 BLT     start_error         ; Then, start address is too low
-                MOVEA.L D3,A5               ; store current address in A5                  
+                MOVEA.L D3,A3               ; store current address in A5                  
 
 *-----------Prompt for Ending Address-----------------------            
 prompt_end      LEA     end_address1,A1     ; Load prompt msg for ending address(1/2)
@@ -70,8 +70,51 @@ valid_end       JSR     chk_bound           ; Check if the input has odd/even bo
                 BGT     end_error           ; Input address is too high
                 CMP.L   A5,D3               ; Is input at or above minimum address
                 BLT     end_error           ; Input address is too low
-                MOVEA.L D3,A6               ; Load ending address into its register                
-                JMP     done                ; **PLACEHOLDER**
+                MOVEA.L D3,A4               ; Load ending address into its register                
+                JMP     disassemble         ; Go to disassembler
+                
+;-------------Disassembler-----------------------------------------------------
+;   - Reads the data from the specified memory locations
+;   - Passes the data over to OP-code to verify the instruction
+;------------------------------------------------------------------------------
+disassemble     CMP.L   A4,A3
+                BGT     done                ; Placeholder for printing out the instructions
+                MOVE.L  A3,D6               ; Store current address
+                MOVE.W  (A3)+,D4            ; Read data from current memory location                
+                JSR     OP_CODE_TREE        ; Go to OP code jump table                
+                BRA     disassemble
+                
+ILLEGAL         ; word data from memory is not a required instruction
+                LEA     illegal_input,A0    ; Load illegal input
+                MOVEA.L A0,A1               ; Store start of illegal address
+                JSR     hex_to_ASCII_L      ; Store illegal address to memory              
+                
+                ; Store TAB, print out DATA, TAB into memory
+                MOVE.B  #HT,(A0)+
+                MOVE.B  #'D',(A0)+
+                MOVE.B  #'A',(A0)+
+                MOVE.B  #'T',(A0)+
+                MOVE.B  #'A',(A0)+
+                MOVE.B  #HT,(A0)+
+                
+                ; Store 4 hex digits that represent the word into memory
+                CLR.L   D6
+                MOVE.W  D4,D6
+                JSR     hex_to_ASCII_W
+                
+                ; Store new line and null(0)
+                MOVE.B  #LF,(A0)+
+                MOVE.B  #CR,(A0)+
+                MOVE.B  #0,(A0)+
+                
+                ; print out address location that it was found
+                CLR.L   D0                  ; Clear for TASK TRAP
+                MOVE.B  #14,D0              ; Print out address
+                TRAP    #15   
+                ; Newline Character
+                RTS                         ; Done disassembling the word, next word
+OP_CODE_TREE    ; *PLACEHOLDER*
+                BRA     ILLEGAL    
                 
 ;-----------Verify/ConvertASCIItoHex-------------------------------------------
 verify_input    CLR.L   D3                  ; D3 will hold valid user input chars
@@ -112,6 +155,56 @@ invalid         MOVEQ   #$0,D4              ; Invalid address
                 
 return          MOVEQ   #$1,D4              ; Valid address
                 RTS                         ; Return to start/end prompt
+                
+;----------------------------------------------------------
+; Convert Hexidecimal to ASCII (Stores into Memory)
+;
+; -- At the moment, takes the Illegal data and stores 
+;    it into memory so that it can be printed later
+;----------------------------------------------------------
+hex_to_ASCII_L  CLR.L   D1                      ; Used for shifting right
+                CLR.L   D2                      ; Used for shifting left
+                CLR.L   D3                      ; Counter
+                MOVE.B  #28,D1                  ; Shift right by 7 hex digits                  
+hex_ASCII_loopL
+                CMP.B   #8,D3                   ; Done converting?
+                BEQ     done_converting         ; If equal to 8, done
+                MOVE.L  D6,D0                   ; Do calculations in D0
+                LSL.L   D2,D0                   ; Eliminate stuff to the left
+                LSR.L   D1,D0                   ; Isolate number
+                JSR     convert_hex
+                BRA     hex_ASCII_loopL
+                
+hex_to_ASCII_W  CLR.L   D1                      ; Used for shifting right
+                CLR.L   D2                      ; Used for shifting left
+                CLR.L   D3                      ; Counter
+                MOVE.B  #12,D1                  ; Shift right by 3 hex digits                  
+hex_ASCII_loopW
+                CMP.B   #4,D3                   ; Done converting?
+                BEQ     done_converting         ; If equal to 4, done
+                MOVE.L  D6,D0                   ; Do calculations in D0
+                LSL.W   D2,D0                   ; Eliminate stuff to the left
+                LSR.W   D1,D0                   ; Isolate number
+                JSR     convert_hex
+                BRA     hex_ASCII_loopW                
+
+convert_hex     CMP.B   #$A,D0                  ; What should I make this hex digit?
+                BLT     make_number             ; Make it a number, if lower than 10
+                BGE     make_letter             ; Make it a letter, if greater than or eqaul to 10
+                     
+make_number     ADD.B  #48,D0                   ; Convert to Ascii (0-9)
+                MOVE.B  D0,(A0)+                ; Store in memory
+                ADD.B   #1,D3                   ; Add to counter
+                ADD.B   #4,D2                   ; Shift left by one digit
+                RTS                             ; Check next number
+                
+make_letter     ADD.B   #55,D0                  ; Convert to Ascii (0-9)
+                MOVE.B  D0,(A0)+                ; Store to memory
+                ADD.B   #1,D3                   ; Add to counter
+                ADD.B   #4,D2                   ; Shift left by one digit                 
+                RTS                             ; Check next number
+                
+done_converting RTS     ; go back to disassembler
 
 ;-----------Error Messages ----------------------------------------------------
 start_error     JSR     load_bad_input      ; Print bad input error message
@@ -139,8 +232,9 @@ odd_err         LEA     odd_input,A1        ; Load odd input message
                 TRAP    #15                 ; Display odd input message
                 NOT.L   D5                  ; Change D5 to -1(FFFF) to return as bad address
                 MOVE.L  D5,D3               ; Load -1 to returned data register
-                RTS                         ; Return to valid_(start/end)
-                
+                RTS                         ; Return to valid_(start/end)          
+                         
+;------------End-of-Program----------------------------------------------------                
 done            LEA     ending,A1           ; Load ending message
                 MOVE.B  #13,D0              ; Load task code for display
                 TRAP    #15                 ; Display ending message
@@ -158,10 +252,14 @@ ending          DC.B    '... More work to be done ...',0
 bad_input       DC.B    HT,'Address entered is not within the specified range!',CR,LF,0
 odd_input       DC.B    HT,'You need to enter an even ending address',CR,LF,0
 
-start_input     DS.L    32              ; Allocates 2 long spaces for start address
-end_input       DS.L    32              ; Allocates 2 long spaces for end address
-
+start_input     DS.L    80              ; Allocates space for start address
+end_input       DS.L    80              ; Allocates space for end address
+illegal_input   DS.L    80              ; Allocates space for illegal input
                 END    START            ; End-of-program
+
+
+
+
 
 
 
