@@ -55,6 +55,9 @@ Muls_Test2          EQU     %1100111111010010   ; Muls.W (A2),D7
 Btst_Test1          EQU     %0000111100000111   ; Btst D7,D7
 Btst_Test2          EQU     %0000111100111100   ; Btst D7,#$Imm
 Btst_Test3          EQU     %0000100000000111   ; Btst #$Byte,D7
+
+Bra_Test1           EQU     %0110000000000111   ; Bra 7
+;Bra_Test2           EQU     %0110000000001011   ; Bra -5
         
     ORG    $1000
     
@@ -100,7 +103,10 @@ START:                  ; first instruction of program
         
         ;Move.W  #Btst_Test1, D4
         ;Move.W  #Btst_Test2, D4
-        Move.W  #Btst_Test3, D4
+        ;Move.W  #Btst_Test3, D4
+        
+        Move.W  #Bra_Test1, D4
+        ;Move.W  #Bra_Test2, D4
                 
         ;Jmp     EA_MOVE     ; Branch to EA function for Move
         ;Jmp     EA_ADD
@@ -108,7 +114,8 @@ START:                  ; first instruction of program
         ;Jmp     EA_IMMEDIATE
         ;Jmp     EA_ADDQ
         ;Jmp     EA_MULS
-        Jmp     EA_BTST
+        ;Jmp     EA_BTST
+        Jmp     EA_BRA
 
 ;]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]];  
 ;-------------------- Effective Address Sub Routines --------------------;
@@ -336,6 +343,14 @@ EA_NEG
 ;=========================================================;
 EA_NOT
         Jmp     EA_NEG 
+        
+;=========================================================;        
+;------------------------ EA Jsr -------------------------;
+; Jumps straight to EA_NEG because Neg and Jsr have the
+; exact same EAs. 
+;=========================================================;
+EA_Jsr
+        Jmp     EA_NEG 
 
 ;=========================================================;
 ;--------------------- EA Bit Shift ----------------------;
@@ -488,6 +503,30 @@ EA_BTST_ADDRESS ; Get the EA
         Beq     EA_IMM_BYTE             ; Add immediate byte for EA
         
         Rts
+        
+;================================================;        
+;-------------------- EA Bra --------------------;
+;================================================;
+EA_BRA
+        Jsr     GET0TO7
+        
+        Cmp.B   #0, D0
+        Beq     EA_BRA_16_BIT
+        
+        Neg.B   D0
+        ;Add.B   #$30, D0
+        Move.B  D0, (A6)+
+
+        ; <Next instruction>
+
+EA_BRA_16_BIT
+        Move.W  (A3)+, D0
+    
+        Add.W   #$30, D0
+
+        Move.W  D0, (A6)+
+
+        ; <Next instruction>   
                
 ;==========================================;        
 ;---------- General EA functions ----------;
@@ -890,8 +929,19 @@ GETBIT5
         
         Rts
 
+GET0TO7
+        Clr.L   D0
+        Move.W  D4, D0
+        
+        Move.B  #8, D1
+        Lsl     D1, D0
+        
+        Lsr     D1, D0
+        
+        Rts
 
     END    START        ; last line of source
+
 
 
 
