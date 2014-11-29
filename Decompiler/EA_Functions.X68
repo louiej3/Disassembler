@@ -62,6 +62,7 @@ Branch_Test2        EQU     %0110000000000000   ; Bra Word
 MoveM_Test1         EQU     %0100100010010111   ; MoveM.W List,(A7)
 MoveM_Test2         EQU     %0100100010111000   ; MoveM.W List,$Word
 MoveM_Test3         EQU     %0100110010111000   ; MoveM.W $Word,List
+MoveM_Test4         EQU     %0100100010100111   ; MoveM.W List,-(A7)
       
     ORG    $1000
     
@@ -79,10 +80,12 @@ START:                  ; first instruction of program
         ;Move.W  #%0000011111000000, (A3)
         ;Move.W  #%1111000000000000, (A3)
         ;Move.W  #%0000000000001111, (A3)
-        Move.W  #%1111010000000000, (A3)
+        ;Move.W  #%1111010000000000, (A3)
         ;Move.W  #%0000000000101111, (A3)
         ;Move.W  #%0101010101010101, (A3)
         ;Move.W  #%1010101010101010, (A3)
+        ;Move.W  #%1111011100000000, (A3)
+        Move.W  #%0000000011101111, (A3)
 
         Add.W   #2, A3       
 
@@ -131,7 +134,8 @@ START:                  ; first instruction of program
         
         ;Move.W  #MoveM_Test1, D4
         ;Move.W  #MoveM_Test2, D4
-        Move.W  #MoveM_Test3, D4
+        ;Move.W  #MoveM_Test3, D4
+        Move.W  #MoveM_Test4, D4
                 
         ;Jmp     EA_MOVE     ; Branch to EA function for Move
         ;Jmp     EA_ADD
@@ -226,16 +230,16 @@ EA_MOVE_SIZE    ; Find the size of immediate data being moved
 ; D7 stores the loop counter
 ;=================================================================;
 EA_MOVEM
-        MoveM.L D2-D7, -(A4)
+        MoveM.L D2-D7, -(A4)            ; Save D2-D7 at address A4 so we can use them for MoveM 
         
-        Clr.L   D2
+        Clr.L   D2                      ; Clear out the data registers
         Clr.L   D3
         Clr.L   D5
         Clr.L   D6
         Clr.L   D7
         
-        Add.B   #1, D3
-        Move.W  (A3)+, D5
+        Add.B   #1, D3                  ; Set D3 to 1 to specify the first register
+        Move.W  (A3)+, D5               ; Store the register list mask
         
         Jsr     GETBIT10
         
@@ -250,9 +254,7 @@ EA_MOVEM_REG_TO_MEM
         Jsr     EA_0TO5
         
         MoveM.L (A4)+, D2-D7
-        
-        Jmp     DONE
-        
+                
         ; <Next instruction>
         
 EA_MOVEM_MEM_TO_REG
@@ -264,15 +266,9 @@ EA_MOVEM_MEM_TO_REG
         Jsr     EA_MOVEM_LIST_LOOP
         
         MoveM.L (A4)+, D2-D7
-        
-        Jmp     DONE
-        
+                
         ; <Next instruction>
-        
-DONE
-        Move.B  #9, D0
-        Trap    #15
-        
+                
 EA_MOVEM_LIST_LOOP ; Determines if the list is in predecrement order or post increment order
         Cmp.B   #16, D7
         Bge     EA_MOVEM_LIST_END ; Beq
