@@ -184,6 +184,44 @@ EA_MOVE_SIZE    ; Find the size of immediate data being moved
         Beq     EA_IMM_LONG
         
         Rts
+        
+;=============================================;
+;------------------ EA MoveM -----------------;
+;=============================================;
+EA_MOVEM
+        Jsr     GETBIT10
+        
+        Clr.L   D1
+        
+        Move.W  (A3)+, D5
+        
+        Cmp.B   #%0, D0
+        Beq     EA_MOVEM_REG_TO_MEM
+        
+        Jmp     EA_MOVEM_MEM_TO_REG
+        
+EA_MOVEM_REG_TO_MEM
+        Jsr     EA_MOVEM_LIST
+        
+EA_MOVEM_LIST
+        Jsr     GET3TO5
+        
+        Cmp.B   #%100, D0
+        Beq     EA_MOVEM_PRE_DEC
+        
+        Jmp     EA_MOVEM_POST_INC
+        
+EA_MOVEM_PRE_DEC
+        Ror.W   #1, D5
+        
+        Bcs     EA_MOVEM_CARRY_SET
+        
+        Bcc     EA_MOVEM_CARRY_CLEAR
+        
+EA_MOVEM_CARRY_SET
+        ; Add Dn
+        
+EA_MOVEM_CARRY_CLEAR
 
 ;===========================================;        
 ;--------------- EA Add/AddA ---------------;
@@ -510,24 +548,27 @@ EA_BTST_ADDRESS ; Get the EA
 EA_BRA
         Jsr     GET0TO7
         
+        Move.L  A3, D6
+        
         Cmp.B   #0, D0
         Beq     EA_BRA_16_BIT
         
-        Neg.B   D0
-        ;Add.B   #$30, D0
-        Move.B  D0, (A6)+
-
-        ; <Next instruction>
+        Jmp     EA_BRA_ADD_DIS
 
 EA_BRA_16_BIT
         Move.W  (A3)+, D0
+
+        Jmp     EA_BRA_ADD_DIS       
+        
+EA_BRA_ADD_DIS
+        Add.L   D0, D6
     
-        Add.W   #$30, D0
+        Move.B  #'$', (A6)+
+        
+        Jsr     EA_LONG_TO_STRING 
 
-        Move.W  D0, (A6)+
-
-        ; <Next instruction>   
-               
+        ; <Next instruction>
+                       
 ;==========================================;        
 ;---------- General EA functions ----------;
 ;==========================================;
@@ -939,8 +980,22 @@ GET0TO7
         Lsr     D1, D0
         
         Rts
+        
+GETBIT10
+        Clr.L   D0
+        Move.W  D4, D0
+        
+        Move.B  #5, D1
+        Lsl     D1, D0
+        
+        Move.B  #15, D1
+        Lsr     D1, D0
+        
+        Rts
+
 
     END    START        ; last line of source
+
 
 
 
