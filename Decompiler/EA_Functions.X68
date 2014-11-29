@@ -56,15 +56,15 @@ Btst_Test1          EQU     %0000111100000111   ; Btst D7,D7
 Btst_Test2          EQU     %0000111100111100   ; Btst D7,#$Imm
 Btst_Test3          EQU     %0000100000000111   ; Btst #$Byte,D7
 
-Bra_Test1           EQU     %0110000000000111   ; Bra 7
-;Bra_Test2           EQU     %0110000000001011   ; Bra -5
+Branch_Test1        EQU     %0110000000000111   ; Bra 7
+Branch_Test2        EQU     %0110000000000000   ; Bra Word
         
     ORG    $1000
     
 START:                  ; first instruction of program
         Move.L  #$0000400, A3
         
-        Move.W  #$0034, (A3)
+        Move.W  #%0000000000000101, (A3)
         ;Move.W  #$4030, (A3)+
         ;Move.L  #$12345678, (A3)
         ;Sub.W   #2, A3
@@ -105,8 +105,8 @@ START:                  ; first instruction of program
         ;Move.W  #Btst_Test2, D4
         ;Move.W  #Btst_Test3, D4
         
-        Move.W  #Bra_Test1, D4
-        ;Move.W  #Bra_Test2, D4
+        ;Move.W  #Branch_Test1, D4
+        Move.W  #Branch_Test2, D4
                 
         ;Jmp     EA_MOVE     ; Branch to EA function for Move
         ;Jmp     EA_ADD
@@ -115,7 +115,7 @@ START:                  ; first instruction of program
         ;Jmp     EA_ADDQ
         ;Jmp     EA_MULS
         ;Jmp     EA_BTST
-        Jmp     EA_BRA
+        Jmp     EA_BRANCH
 
 ;]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]];  
 ;-------------------- Effective Address Sub Routines --------------------;
@@ -198,7 +198,7 @@ EA_MOVEM
         Cmp.B   #%0, D0
         Beq     EA_MOVEM_REG_TO_MEM
         
-        Jmp     EA_MOVEM_MEM_TO_REG
+        ;Jmp     EA_MOVEM_MEM_TO_REG
         
 EA_MOVEM_REG_TO_MEM
         Jsr     EA_MOVEM_LIST
@@ -209,7 +209,7 @@ EA_MOVEM_LIST
         Cmp.B   #%100, D0
         Beq     EA_MOVEM_PRE_DEC
         
-        Jmp     EA_MOVEM_POST_INC
+        ;Jmp     EA_MOVEM_POST_INC
         
 EA_MOVEM_PRE_DEC
         Ror.W   #1, D5
@@ -542,30 +542,31 @@ EA_BTST_ADDRESS ; Get the EA
         
         Rts
         
-;================================================;        
-;-------------------- EA Bra --------------------;
-;================================================;
-EA_BRA
-        Jsr     GET0TO7
+;==================================================;        
+;------------------- EA Branch --------------------;
+; Determines the EA for Bra, Beq, Bne, Blt, and Bhi.
+;==================================================;
+EA_BRANCH  ; Determines the EA for Branch codes
+        Jsr     GET0TO7                 ; Get the 8 displacement bits
         
-        Move.L  A3, D6
+        Move.L  A3, D6                  ; Move address after the Bra word to D6
         
-        Cmp.B   #0, D0
-        Beq     EA_BRA_16_BIT
+        Cmp.B   #0, D0                  ; If the displacement bits are 0 then get the next word
+        Beq     EA_BRANCH_16_BIT
         
-        Jmp     EA_BRA_ADD_DIS
+        Jmp     EA_BRANCH_ADD_DIS       ; Else, add the displacement to D6
 
-EA_BRA_16_BIT
-        Move.W  (A3)+, D0
+EA_BRANCH_16_BIT   ; Gets the next word
+        Move.W  (A3)+, D0               ; Stores the word in D0
 
-        Jmp     EA_BRA_ADD_DIS       
+        Jmp     EA_BRANCH_ADD_DIS       ; Add the word to D6
         
-EA_BRA_ADD_DIS
-        Add.L   D0, D6
+EA_BRANCH_ADD_DIS   ; Adds the displacement to the long word address in D6
+        Add.L   D0, D6                  ; Add the displacement to D6
     
-        Move.B  #'$', (A6)+
+        Move.B  #'$', (A6)+             ; Add '$' to the string
         
-        Jsr     EA_LONG_TO_STRING 
+        Jsr     EA_LONG_TO_STRING       ; Add the long word sum to the string
 
         ; <Next instruction>
                        
