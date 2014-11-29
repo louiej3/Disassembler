@@ -58,16 +58,37 @@ Btst_Test3          EQU     %0000100000000111   ; Btst #$Byte,D7
 
 Branch_Test1        EQU     %0110000000000111   ; Bra 7
 Branch_Test2        EQU     %0110000000000000   ; Bra Word
-        
+
+MoveM_Test1         EQU     %0100100010010111   ; MoveM.W List,(A7)
+MoveM_Test2         EQU     %0100100010111000   ; MoveM.W List,$Word
+MoveM_Test3         EQU     %0100110010111000   ; MoveM.W $Word,List
+      
     ORG    $1000
     
 START:                  ; first instruction of program
-        Move.L  #$0000400, A3
+        Move.L  #$00000400, A3
+        Move.L  #$00000600, A4  ; Save register values here with MoveM
         
-        Move.W  #%0000000000000101, (A3)
-        ;Move.W  #$4030, (A3)+
+        ; EA_BRANCH displacements
+        ;Move.W  #%0000000000000101, (A3)
+        
+        ; EA_MOVEM register list masks
+        ;Move.W  #%0010000000000000, (A3)
+        ;Move.W  #%1000000000000000, (A3)
+        ;Move.W  #%0000000000000001, (A3)
+        ;Move.W  #%0000011111000000, (A3)
+        ;Move.W  #%1111000000000000, (A3)
+        ;Move.W  #%0000000000001111, (A3)
+        Move.W  #%1111010000000000, (A3)
+        ;Move.W  #%0000000000101111, (A3)
+        ;Move.W  #%0101010101010101, (A3)
+        ;Move.W  #%1010101010101010, (A3)
+
+        Add.W   #2, A3       
+
+        Move.W  #$4030, (A3)
         ;Move.L  #$12345678, (A3)
-        ;Sub.W   #2, A3
+        Sub.W   #2, A3
         ;Move.L  #$12349999, (A3)
         ;Move.W  #$11, (A3)
         ;Move.B  #$99, (A3)
@@ -106,7 +127,11 @@ START:                  ; first instruction of program
         ;Move.W  #Btst_Test3, D4
         
         ;Move.W  #Branch_Test1, D4
-        Move.W  #Branch_Test2, D4
+        ;Move.W  #Branch_Test2, D4
+        
+        ;Move.W  #MoveM_Test1, D4
+        ;Move.W  #MoveM_Test2, D4
+        Move.W  #MoveM_Test3, D4
                 
         ;Jmp     EA_MOVE     ; Branch to EA function for Move
         ;Jmp     EA_ADD
@@ -115,7 +140,8 @@ START:                  ; first instruction of program
         ;Jmp     EA_ADDQ
         ;Jmp     EA_MULS
         ;Jmp     EA_BTST
-        Jmp     EA_BRANCH
+        ;Jmp     EA_BRANCH
+        Jmp     EA_MOVEM
 
 ;]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]];  
 ;-------------------- Effective Address Sub Routines --------------------;
@@ -185,33 +211,90 @@ EA_MOVE_SIZE    ; Find the size of immediate data being moved
         
         Rts
         
-;=============================================;
-;------------------ EA MoveM -----------------;
-;=============================================;
+;=================================================================;
+;---------------------------- EA MoveM ---------------------------;
+; D2 stores the counter for the number of consecutive ones in the
+; register list mask
+;
+; D3 stores a 1 if the register being added is the first register, 
+; or 0 if the register is not the first register being added
+;
+; D5 stores the register list mask
+;
+; D6 stores any expansion words
+;
+; D7 stores the loop counter
+;=================================================================;
 EA_MOVEM
-        Jsr     GETBIT10
+        MoveM.L D2-D7, -(A4)
         
-        Clr.L   D1
+        Clr.L   D2
+        Clr.L   D3
+        Clr.L   D5
+        Clr.L   D6
+        Clr.L   D7
         
+        Add.B   #1, D3
         Move.W  (A3)+, D5
+        
+        Jsr     GETBIT10
         
         Cmp.B   #%0, D0
         Beq     EA_MOVEM_REG_TO_MEM
         
-        ;Jmp     EA_MOVEM_MEM_TO_REG
+        Jmp     EA_MOVEM_MEM_TO_REG
         
 EA_MOVEM_REG_TO_MEM
-        Jsr     EA_MOVEM_LIST
+        Jsr     EA_MOVEM_LIST_LOOP
+        Move.B  #',', (A6)+
+        Jsr     EA_0TO5
         
-EA_MOVEM_LIST
+        MoveM.L (A4)+, D2-D7
+        
+        Jmp     DONE
+        
+        ; <Next instruction>
+        
+EA_MOVEM_MEM_TO_REG
+        Move.W  D5, D7
+        Jsr     EA_0TO5
+        Move.B  #',', (A6)+
+        Move.W  D7, D5
+        Clr.L   D7
+        Jsr     EA_MOVEM_LIST_LOOP
+        
+        MoveM.L (A4)+, D2-D7
+        
+        Jmp     DONE
+        
+        ; <Next instruction>
+        
+DONE
+        Move.B  #9, D0
+        Trap    #15
+        
+EA_MOVEM_LIST_LOOP ; Determines if the list is in predecrement order or post increment order
+        Cmp.B   #16, D7
+        Bge     EA_MOVEM_LIST_END ; Beq
+
         Jsr     GET3TO5
         
         Cmp.B   #%100, D0
         Beq     EA_MOVEM_PRE_DEC
         
-        ;Jmp     EA_MOVEM_POST_INC
+        Jmp     EA_MOVEM_POST_INC
+        
+EA_MOVEM_LIST_END
+        Rts
         
 EA_MOVEM_PRE_DEC
+        Rol.W   #1, D5
+        
+        Bcs     EA_MOVEM_CARRY_SET
+        
+        Bcc     EA_MOVEM_CARRY_CLEAR
+        
+EA_MOVEM_POST_INC
         Ror.W   #1, D5
         
         Bcs     EA_MOVEM_CARRY_SET
@@ -219,9 +302,135 @@ EA_MOVEM_PRE_DEC
         Bcc     EA_MOVEM_CARRY_CLEAR
         
 EA_MOVEM_CARRY_SET
-        ; Add Dn
+        Cmp.B   #1, D3
+        Beq     EA_MOVEM_FIRST_REG
+        
+        Cmp.B   #0, D2
+        Beq     EA_MOVEM_ADD_SINGLE_REG
+        
+        Add.B   #1, D7
+        Add.B   #1, D2
+        
+        Cmp.B   #16, D7
+        Beq     EA_MOVEM_LAST_REG
+        
+        Jmp     EA_MOVEM_LIST_LOOP
         
 EA_MOVEM_CARRY_CLEAR
+        Cmp.B   #1, D2
+        Bgt     EA_MOVEM_ADD_LAST_REG
+        
+        Add.B   #1, D7
+        
+        Clr.L   D2
+        
+        Jmp     EA_MOVEM_LIST_LOOP
+
+EA_MOVEM_FIRST_REG
+        Jsr     EA_MOVEM_REG
+        
+        Clr.L   D3
+        
+        Add.B   #1, D7
+        Add.B   #1, D2
+        
+        Jmp     EA_MOVEM_LIST_LOOP
+        
+EA_MOVEM_ADD_SINGLE_REG
+        Move.B  #'/', (A6)+
+        
+        Jsr     EA_MOVEM_REG
+        
+        Add.B   #1, D7
+        Add.B   #1, D2
+        
+        Jmp     EA_MOVEM_LIST_LOOP
+        
+EA_MOVEM_LAST_REG
+        Cmp.B   #1, D2
+        Bgt     EA_MOVEM_ADD_LAST_REG
+        
+        Add.B   #1, D7
+        
+        Jmp     EA_MOVEM_LIST_LOOP
+        
+EA_MOVEM_ADD_LAST_REG
+        Move.B  #'-', (A6)+
+        
+        Sub.B   #1, D7
+        
+        Jsr     EA_MOVEM_REG
+        
+        Add.B   #2, D7
+        
+        Clr.L   D2
+        
+        Jmp     EA_MOVEM_LIST_LOOP
+        
+EA_MOVEM_REG
+        Clr.L   D0
+        Cmp.B   #0, D7
+        Beq     EA_DN
+        
+        Move.B  #1, D0
+        Cmp.B   #1, D7
+        Beq     EA_DN
+        
+        Move.B  #2, D0
+        Cmp.B   #2, D7
+        Beq     EA_DN
+
+        Move.B  #3, D0
+        Cmp.B   #3, D7
+        Beq     EA_DN
+
+        Move.B  #4, D0
+        Cmp.B   #4, D7
+        Beq     EA_DN
+
+        Move.B  #5, D0
+        Cmp.B   #5, D7
+        Beq     EA_DN
+
+        Move.B  #6, D0
+        Cmp.B   #6, D7
+        Beq     EA_DN
+        
+        Move.B  #7, D0
+        Cmp.B   #7, D7
+        Beq     EA_DN
+        
+        Clr.L   D0
+        Cmp.B   #8, D7
+        Beq     EA_AN
+
+        Move.B  #1, D0
+        Cmp.B   #9, D7
+        Beq     EA_AN
+
+        Move.B  #2, D0
+        Cmp.B   #10, D7
+        Beq     EA_AN
+        
+        Move.B  #3, D0
+        Cmp.B   #11, D7
+        Beq     EA_AN
+        
+        Move.B  #4, D0
+        Cmp.B   #12, D7
+        Beq     EA_AN
+        
+        Move.B  #5, D0
+        Cmp.B   #13, D7
+        Beq     EA_AN
+        
+        Move.B  #6, D0
+        Cmp.B   #14, D7
+        Beq     EA_AN
+        
+        Move.B  #7, D0
+        Cmp.B   #15, D7
+        Beq     EA_AN
 
 ;===========================================;        
 ;--------------- EA Add/AddA ---------------;
@@ -996,6 +1205,7 @@ GETBIT10
 
 
     END    START        ; last line of source
+
 
 
 
