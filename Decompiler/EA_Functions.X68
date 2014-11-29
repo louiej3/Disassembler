@@ -229,7 +229,7 @@ EA_MOVE_SIZE    ; Find the size of immediate data being moved
 ;
 ; D7 stores the loop counter
 ;=================================================================;
-EA_MOVEM
+EA_MOVEM    ; Determines the EA for MoveM
         MoveM.L D2-D7, -(A4)            ; Save D2-D7 at address A4 so we can use them for MoveM 
         
         Clr.L   D2                      ; Clear out the data registers
@@ -241,135 +241,135 @@ EA_MOVEM
         Add.B   #1, D3                  ; Set D3 to 1 to specify the first register
         Move.W  (A3)+, D5               ; Store the register list mask
         
-        Jsr     GETBIT10
+        Jsr     GETBIT10                ; Get the direction bit
         
-        Cmp.B   #%0, D0
+        Cmp.B   #%0, D0                 ; If direction bit is 0, register to memory
         Beq     EA_MOVEM_REG_TO_MEM
         
-        Jmp     EA_MOVEM_MEM_TO_REG
+        Jmp     EA_MOVEM_MEM_TO_REG     ; Else, memory to register
         
-EA_MOVEM_REG_TO_MEM
-        Jsr     EA_MOVEM_LIST_LOOP
-        Move.B  #',', (A6)+
-        Jsr     EA_0TO5
+EA_MOVEM_REG_TO_MEM ; Determines EA for register to memory transfer direction
+        Jsr     EA_MOVEM_LIST_LOOP      ; Get the list of registers
+        Move.B  #',', (A6)+             ; Add a comma
+        Jsr     EA_0TO5                 ; Get the EA
         
-        MoveM.L (A4)+, D2-D7
+        MoveM.L (A4)+, D2-D7            ; Restore the saved data registers
                 
         ; <Next instruction>
         
-EA_MOVEM_MEM_TO_REG
-        Move.W  D5, D7
-        Jsr     EA_0TO5
-        Move.B  #',', (A6)+
-        Move.W  D7, D5
-        Clr.L   D7
-        Jsr     EA_MOVEM_LIST_LOOP
+EA_MOVEM_MEM_TO_REG ; Determines EA for memory to register transfer direction 
+        Move.W  D5, D7                  ; Store the register list mask in D7 temporarily
+        Jsr     EA_0TO5                 ; Get the EA
+        Move.B  #',', (A6)+             ; Add a comma
+        Move.W  D7, D5                  ; Move the register list mask back to D5
+        Clr.L   D7                      ; Clear D7
+        Jsr     EA_MOVEM_LIST_LOOP      ; Get the list of registers
         
-        MoveM.L (A4)+, D2-D7
+        MoveM.L (A4)+, D2-D7            ; Restore the saved data registers
                 
         ; <Next instruction>
                 
 EA_MOVEM_LIST_LOOP ; Determines if the list is in predecrement order or post increment order
-        Cmp.B   #16, D7
-        Bge     EA_MOVEM_LIST_END ; Beq
+        Cmp.B   #16, D7                 ; If the loop counter is greater than or equal to 16, end
+        Bge     EA_MOVEM_LIST_END
 
-        Jsr     GET3TO5
+        Jsr     GET3TO5                 ; Get the EA mode
         
-        Cmp.B   #%100, D0
+        Cmp.B   #%100, D0               ; Predecrement mode
         Beq     EA_MOVEM_PRE_DEC
         
-        Jmp     EA_MOVEM_POST_INC
+        Jmp     EA_MOVEM_POST_INC       ; Post increment and control modes
         
-EA_MOVEM_LIST_END
+EA_MOVEM_LIST_END   ; Ends the list loop
         Rts
         
-EA_MOVEM_PRE_DEC
-        Rol.W   #1, D5
+EA_MOVEM_PRE_DEC    ; Predecrement mode
+        Rol.W   #1, D5                  ; Rotate the register list mask to the left by 1
         
-        Bcs     EA_MOVEM_CARRY_SET
+        Bcs     EA_MOVEM_CARRY_SET      ; Branch if the bit rotated out was 1
         
-        Bcc     EA_MOVEM_CARRY_CLEAR
+        Bcc     EA_MOVEM_CARRY_CLEAR    ; Branch if the bit rotated out was 0
         
-EA_MOVEM_POST_INC
-        Ror.W   #1, D5
+EA_MOVEM_POST_INC   ; Post increment mode
+        Ror.W   #1, D5                  ; Rotate the register list mask to the right by 1
         
-        Bcs     EA_MOVEM_CARRY_SET
+        Bcs     EA_MOVEM_CARRY_SET      ; Branch if the bit rotated out was 1
         
-        Bcc     EA_MOVEM_CARRY_CLEAR
+        Bcc     EA_MOVEM_CARRY_CLEAR    ; Branch if the bit rotated out was 0
         
-EA_MOVEM_CARRY_SET
-        Cmp.B   #1, D3
-        Beq     EA_MOVEM_FIRST_REG
+EA_MOVEM_CARRY_SET  ; The bit rotated out was 1
+        Cmp.B   #1, D3                  ; Check to see if this is the first register being added to the list
+        Beq     EA_MOVEM_FIRST_REG      ; Add the first register to the list
         
-        Cmp.B   #0, D2
+        Cmp.B   #0, D2                  ; If this bit is not in the middle of a list of consecutive ones, add a '/' and register
         Beq     EA_MOVEM_ADD_SINGLE_REG
         
-        Add.B   #1, D7
-        Add.B   #1, D2
+        Add.B   #1, D7                  ; Increment the loop counter
+        Add.B   #1, D2                  ; Increment the consecutive ones counter
         
-        Cmp.B   #16, D7
+        Cmp.B   #16, D7                 ; If this bit is the last bit, check to see if it is the last bit of a consecutive list
         Beq     EA_MOVEM_LAST_REG
         
-        Jmp     EA_MOVEM_LIST_LOOP
+        Jmp     EA_MOVEM_LIST_LOOP      ; Loop again
         
-EA_MOVEM_CARRY_CLEAR
-        Cmp.B   #1, D2
+EA_MOVEM_CARRY_CLEAR    ; The bit rotated out was a 0
+        Cmp.B   #1, D2                  ; If the bit was at the end of a consecutive list of ones, add a '-' and register
         Bgt     EA_MOVEM_ADD_LAST_REG
         
-        Add.B   #1, D7
+        Add.B   #1, D7                  ; Increment the loop counter
         
-        Clr.L   D2
+        Clr.L   D2                      ; Clear the counter for consecutive ones
         
-        Jmp     EA_MOVEM_LIST_LOOP
+        Jmp     EA_MOVEM_LIST_LOOP      ; Loop again
 
-EA_MOVEM_FIRST_REG
-        Jsr     EA_MOVEM_REG
+EA_MOVEM_FIRST_REG  ; The very first register being added to the list
+        Jsr     EA_MOVEM_REG            ; Add a register without the '/' in front
         
-        Clr.L   D3
+        Clr.L   D3                      ; Clear D3 because the very first register has been placed
         
-        Add.B   #1, D7
-        Add.B   #1, D2
+        Add.B   #1, D7                  ; Increment the loop counter
+        Add.B   #1, D2                  ; Increment the consecutive ones counter
         
-        Jmp     EA_MOVEM_LIST_LOOP
+        Jmp     EA_MOVEM_LIST_LOOP      ; Loop again
         
-EA_MOVEM_ADD_SINGLE_REG
+EA_MOVEM_ADD_SINGLE_REG ; Adds a '/' and a register
         Move.B  #'/', (A6)+
         
-        Jsr     EA_MOVEM_REG
+        Jsr     EA_MOVEM_REG            ; Add a register
         
-        Add.B   #1, D7
-        Add.B   #1, D2
+        Add.B   #1, D7                  ; Increment the loop counter 
+        Add.B   #1, D2                  ; Increment the consecutive ones counter
         
-        Jmp     EA_MOVEM_LIST_LOOP
+        Jmp     EA_MOVEM_LIST_LOOP      ; Loop again
         
-EA_MOVEM_LAST_REG
-        Cmp.B   #1, D2
+EA_MOVEM_LAST_REG   ; Adds the last register if it was the last bit being rotated out and it was part of a consecutive list
+        Cmp.B   #1, D2                  ; Check to see if the bit was part of a consecutive list of ones
         Bgt     EA_MOVEM_ADD_LAST_REG
         
-        Add.B   #1, D7
+        Add.B   #1, D7                  ; Increment the loop counter
         
-        Jmp     EA_MOVEM_LIST_LOOP
+        Jmp     EA_MOVEM_LIST_LOOP      ; Loop again
         
-EA_MOVEM_ADD_LAST_REG
+EA_MOVEM_ADD_LAST_REG   ; Adds a '-' and the register, adds the last register in a consecutive list of ones
         Move.B  #'-', (A6)+
         
-        Sub.B   #1, D7
+        Sub.B   #1, D7                  ; Move back to the previous register
         
-        Jsr     EA_MOVEM_REG
+        Jsr     EA_MOVEM_REG            ; Add the previous register as the last register in a consecutive list of ones
         
-        Add.B   #2, D7
+        Add.B   #2, D7                  ; Add 2 to the loop counter to make up for the 1 subtracted earlier and to move forward
         
-        Clr.L   D2
+        Clr.L   D2                      ; Clear the consecutive ones counter
         
-        Jmp     EA_MOVEM_LIST_LOOP
+        Jmp     EA_MOVEM_LIST_LOOP      ; Loop again
         
-EA_MOVEM_REG
-        Clr.L   D0
-        Cmp.B   #0, D7
+EA_MOVEM_REG    ; Determines the correct register to add based on the value of the loop counter
+        Clr.L   D0                      ; Clear D0
+        Cmp.B   #0, D7                  ; If the loop counter is 0, add D0
         Beq     EA_DN
         
-        Move.B  #1, D0
-        Cmp.B   #1, D7
+        Move.B  #1, D0                  ; Move a 1 into D0
+        Cmp.B   #1, D7                  ; If the loop counter is 1, add D1
         Beq     EA_DN
         
         Move.B  #2, D0
