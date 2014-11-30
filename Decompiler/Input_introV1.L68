@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.02
-Created On: 11/28/2014 12:18:40 AM
+Created On: 11/28/2014 9:45:15 PM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      : Disassembler - I/O Part
@@ -15,251 +15,277 @@ Created On: 11/28/2014 12:18:40 AM
 00000000  =00000000                 11  begin           EQU     $00000000           ; Lowest starting address
 00000000  =00FFFFFE                 12  end             EQU     $00FFFFFE           ; Highest ending address
 00000000                            13  
-00001000                            14                  ORG    $1000
+00001000                            14                  ORG     $1000
 00001000                            15  START       
 00001000                            16  *-----------Introduction Message----------------------------
-00001000  43F9 00001234             17                  LEA     INTRO, A1           ; Load introduction
+00001000  43F9 00001264             17                  LEA     INTRO, A1           ; Load introduction
 00001006  103C 000D                 18                  MOVE.B  #13, D0             ; Load task code for display
 0000100A  4E4F                      19                  TRAP    #15                 ; Display introduction
 0000100C                            20  
 0000100C                            21  *-----------Prompt For Starting Address---------------------                  
-0000100C  43F9 000012A5             22  prompt_start    LEA     start_address,A1    ; Load prompt message for starting address
+0000100C  43F9 000012D5             22  prompt_start    LEA     start_address,A1    ; Load prompt message for starting address
 00001012  103C 000E                 23                  MOVE.B  #14,D0              ; Load task code for display
 00001016  4E4F                      24                  TRAP    #15                 ; Display prompt message
 00001018                            25                  
-00001018  43F9 00001394             26                  LEA     start_input,A1      ; Load address to store user's input
+00001018  43F9 000013C2             26                  LEA     start_input,A1      ; Load address to store user's input
 0000101E  7002                      27                  MOVE.L  #2,D0               ; Load task code for user input
 00001020  4E4F                      28                  TRAP    #15                 ; Ask for user input
-00001022  4EB9 00001118             29                  JSR     verify_input        ; Verifies user input string
+00001022  4EB9 00001138             29                  JSR     verify_input        ; Verifies user input string
 00001028  B83C 0001                 30                  CMP.B   #1,D4               ; If equal to 1, then that input is valid
 0000102C  6700 0010                 31                  BEQ     valid_start         ; Go to valid start if equal 
 00001030                            32                  
-00001030  43F9 00001332             33                  LEA     bad_input,A1        ; Not equal to 1, its a bad input, start over
+00001030  43F9 0000135F             33                  LEA     bad_input,A1        ; Not equal to 1, its a bad input, start over
 00001036  103C 000E                 34                  MOVE.B  #14,D0              ; Load task code for display
 0000103A  4E4F                      35                  TRAP    #15                 ; Display bad input message
 0000103C  60CE                      36                  BRA     prompt_start        ; Go back beginning, asking for start address
 0000103E                            37  
-0000103E  4EB9 000011FE             38  valid_start     JSR     chk_bound           ; Check if the input has odd/even bounds
+0000103E  4EB9 0000123E             38  valid_start     JSR     chk_bound           ; Check if the input has odd/even bounds
 00001044  B67C FFFF                 39                  CMP.W   #-1,D3              ; If -1 in D3, then input was odd
 00001048  67C2                      40                  BEQ     prompt_start        ; Go back and ask for correct input
 0000104A  7C00                      41                  MOVE.L  #begin,D6           ; Store minimum address in D6
 0000104C  B686                      42                  CMP.L   D6,D3               ; If start address is lower than minimum address
-0000104E  6D00 018C                 43                  BLT     start_error         ; Then, start address is too low
-00001052  2643                      44                  MOVEA.L D3,A3               ; store current address in A5                  
-00001054                            45  
-00001054                            46  *-----------Prompt for Ending Address-----------------------            
-00001054  43F9 000012DE             47  prompt_end      LEA     end_address1,A1     ; Load prompt msg for ending address(1/2)
-0000105A  103C 000E                 48                  MOVE.B  #14,D0              ; Load task code for display
-0000105E  4E4F                      49                  TRAP    #15                 ; Display prompt message
-00001060  43F9 00001394             50                  LEA     start_input,A1      ; Load starting address
-00001066  4E4F                      51                  TRAP    #15                 ; Display starting address
-00001068  43F9 00001305             52                  LEA     end_address2,A1     ; Load prompt msg for ending address(2/2)
-0000106E  4E4F                      53                  TRAP    #15                 ; Display prompt message
-00001070  43F9 000014D4             54                  LEA     end_input,A1        ; Ask for ending address
-00001076  103C 0002                 55                  MOVE.B  #2,D0               ; Load task code for input
-0000107A  4E4F                      56                  TRAP    #15                 ; Prompt for input
-0000107C  4EB9 00001118             57                  JSR     verify_input        ; Verifies user input string
-00001082  B83C 0001                 58                  CMP.B   #1,D4               ; If 1 in D4, then its valid
-00001086  6700 0010                 59                  BEQ     valid_end           ; Now validate the ending address
-0000108A  43F9 00001332             60                  LEA     bad_input,A1        ; Else, bad input
-00001090  103C 000E                 61                  MOVE.B  #14,D0              ; Load task code for display
-00001094  4E4F                      62                  TRAP    #15                 ; Display bad input message
-00001096  60BC                      63                  BRA     prompt_end          ; Restart process
-00001098                            64  
-00001098  4EB9 000011FE             65  valid_end       JSR     chk_bound           ; Check if the input has odd/even bounds
-0000109E  B67C FFFF                 66                  CMP.W   #-1,D3              ; If -1(FFFF), then it has odd bounds
-000010A2  67B0                      67                  BEQ     prompt_end          ; Go back and ask for correct input
-000010A4  2C3C 00FFFFFE             68                  MOVE.L  #end,D6             ; Move max address to compare with input
-000010AA  B686                      69                  CMP.L   D6,D3               ; Is input higher than max
-000010AC  6E00 0138                 70                  BGT     end_error           ; Input address is too high
-000010B0  B68D                      71                  CMP.L   A5,D3               ; Is input at or above minimum address
-000010B2  6D00 0132                 72                  BLT     end_error           ; Input address is too low
-000010B6  2843                      73                  MOVEA.L D3,A4               ; Load ending address into its register                
-000010B8  4EF9 000010BE             74                  JMP     disassemble         ; Go to disassembler
-000010BE                            75                  
-000010BE                            76  ;-------------Disassembler-----------------------------------------------------
-000010BE                            77  ;   - Reads the data from the specified memory locations
-000010BE                            78  ;   - Passes the data over to OP-code to verify the instruction
-000010BE                            79  ;------------------------------------------------------------------------------
-000010BE  B7CC                      80  disassemble     CMP.L   A4,A3
-000010C0  6E00 0162                 81                  BGT     done                ; Placeholder for printing out the instructions
-000010C4  2C0B                      82                  MOVE.L  A3,D6               ; Store current address
-000010C6  381B                      83                  MOVE.W  (A3)+,D4            ; Read data from current memory location                
-000010C8  4EB9 00001116             84                  JSR     OP_CODE_TREE        ; Go to OP code jump table                
-000010CE  60EE                      85                  BRA     disassemble
-000010D0                            86                  
-000010D0                            87  ILLEGAL         ; word data from memory is not a required instruction
-000010D0  41F9 00001614             88                  LEA     illegal_input,A0    ; Load illegal input
-000010D6  2248                      89                  MOVEA.L A0,A1               ; Store start of illegal address
-000010D8  4EB9 00001176             90                  JSR     hex_to_ASCII_L      ; Store illegal address to memory              
-000010DE                            91                  
-000010DE                            92                  ; Store TAB, print out DATA, TAB into memory
-000010DE  10FC 0009                 93                  MOVE.B  #HT,(A0)+
-000010E2  10FC 0044                 94                  MOVE.B  #'D',(A0)+
-000010E6  10FC 0041                 95                  MOVE.B  #'A',(A0)+
-000010EA  10FC 0054                 96                  MOVE.B  #'T',(A0)+
-000010EE  10FC 0041                 97                  MOVE.B  #'A',(A0)+
-000010F2  10FC 0009                 98                  MOVE.B  #HT,(A0)+
-000010F6                            99                  
-000010F6                           100                  ; Store 4 hex digits that represent the word into memory
-000010F6  4286                     101                  CLR.L   D6
-000010F8  3C04                     102                  MOVE.W  D4,D6
-000010FA  4EB9 00001196            103                  JSR     hex_to_ASCII_W
-00001100                           104                  
-00001100                           105                  ; Store new line and null(0)
-00001100  10FC 000A                106                  MOVE.B  #LF,(A0)+
-00001104  10FC 000D                107                  MOVE.B  #CR,(A0)+
-00001108  10FC 0000                108                  MOVE.B  #0,(A0)+
-0000110C                           109                  
-0000110C                           110                  ; print out address location that it was found
-0000110C  4280                     111                  CLR.L   D0                  ; Clear for TASK TRAP
-0000110E  103C 000E                112                  MOVE.B  #14,D0              ; Print out address
-00001112  4E4F                     113                  TRAP    #15   
-00001114                           114                  ; Newline Character
-00001114  4E75                     115                  RTS                         ; Done disassembling the word, next word
-00001116                           116  OP_CODE_TREE    ; *PLACEHOLDER*
-00001116  60B8                     117                  BRA     ILLEGAL    
-00001118                           118                  
-00001118                           119  ;-----------Verify/ConvertASCIItoHex-------------------------------------------
-00001118  4283                     120  verify_input    CLR.L   D3                  ; D3 will hold valid user input chars
-0000111A  4285                     121                  CLR.L   D5                  ; D5 will be used as a NULL comparison
-0000111C  B205                     122                  CMP.B   D5,D1               ; Check input length, if lower than one
-0000111E  6700 004E                123                  BEQ     invalid             ; Its an invalid input
-00001122  0C41 0008                124                  CMPI    #$8,D1              ; Check input length, if higher than 8
-00001126  6E00 0046                125                  BGT     invalid             ; Its an invalid input
-0000112A                           126                  
-0000112A  4282                     127  check_input     CLR.L   D2                  ; Clear D2 to store chars from user input
-0000112C  1419                     128                  MOVE.B  (A1)+,D2            ; Move next char to D2 to validate
-0000112E  B405                     129                  CMP.B   D5,D2               ; Check to see if next char is null(0)
-00001130  6700 0040                130                  BEQ     return              ; Character is null, end of input
-00001134                           131                  
-00001134  B43C 0046                132                  CMP.B   #70,D2              ; Invalid character if decimal value
-00001138  6E00 0034                133                  BGT     invalid             ; is higher than 70.
-0000113C  B43C 0040                134                  CMP.B   #64,D2              ; Is a letter if decimal value is 
-00001140  6E00 001E                135                  BGT     is_letter           ; between 65 - 70.
-00001144                           136                  
-00001144  B43C 0039                137                  CMP.B   #57,D2              ; Invalid character if decimal value is
-00001148  6E00 0024                138                  BGT     invalid             ; between 58 - 64
-0000114C  B43C 002F                139                  CMP.B   #47,D2              ; Is a number if decimal value is 
-00001150  6E00 0006                140                  BGT     is_number           ; between 48 - 57.
-00001154  6000 0018                141                  BRA     invalid             ; Decimal values below 48 are invalid 
-00001158                           142                               
-00001158  0402 0030                143  is_number       SUBI.B  #48,D2              ; Convert ASCII to Hex, 0-9
-0000115C  6000 000A                144                  BRA     verified            ; Put character into a register
-00001160                           145                               
-00001160  0402 0037                146  is_letter       SUBI.B  #55,D2              ; Convert ASCII to HEX, A-F
-00001164  6000 0002                147                  BRA     verified            ; Put character into a register
-00001168                           148                 
-00001168  E983                     149  verified        ASL.L   #4,D3               ; Shift hex bit left one
-0000116A  D602                     150                  ADD.B   D2,D3               ; Add to verified register
-0000116C  60BC                     151                  BRA     check_input         ; Check the rest of the input                       
-0000116E                           152                  
-0000116E  7800                     153  invalid         MOVEQ   #$0,D4              ; Invalid address
-00001170  4E75                     154                  RTS                         ; Return to start/end prompt
-00001172                           155                  
-00001172  7801                     156  return          MOVEQ   #$1,D4              ; Valid address
-00001174  4E75                     157                  RTS                         ; Return to start/end prompt
-00001176                           158                  
-00001176                           159  ;----------------------------------------------------------
-00001176                           160  ; Convert Hexidecimal to ASCII (Stores into Memory)
-00001176                           161  ;
-00001176                           162  ; -- At the moment, takes the Illegal data and stores 
-00001176                           163  ;    it into memory so that it can be printed later
-00001176                           164  ;----------------------------------------------------------
-00001176  4281                     165  hex_to_ASCII_L  CLR.L   D1                      ; Used for shifting right
-00001178  4282                     166                  CLR.L   D2                      ; Used for shifting left
-0000117A  4283                     167                  CLR.L   D3                      ; Counter
-0000117C  123C 001C                168                  MOVE.B  #28,D1                  ; Shift right by 7 hex digits                  
-00001180                           169  hex_ASCII_loopL
-00001180  B63C 0008                170                  CMP.B   #8,D3                   ; Done converting?
-00001184  6700 0054                171                  BEQ     done_converting         ; If equal to 8, done
-00001188  2006                     172                  MOVE.L  D6,D0                   ; Do calculations in D0
-0000118A  E5A8                     173                  LSL.L   D2,D0                   ; Eliminate stuff to the left
-0000118C  E2A8                     174                  LSR.L   D1,D0                   ; Isolate number
-0000118E  4EB9 000011B6            175                  JSR     convert_hex
-00001194  60EA                     176                  BRA     hex_ASCII_loopL
-00001196                           177                  
-00001196  4281                     178  hex_to_ASCII_W  CLR.L   D1                      ; Used for shifting right
-00001198  4282                     179                  CLR.L   D2                      ; Used for shifting left
-0000119A  4283                     180                  CLR.L   D3                      ; Counter
-0000119C  123C 000C                181                  MOVE.B  #12,D1                  ; Shift right by 3 hex digits                  
-000011A0                           182  hex_ASCII_loopW
-000011A0  B63C 0004                183                  CMP.B   #4,D3                   ; Done converting?
-000011A4  6700 0034                184                  BEQ     done_converting         ; If equal to 4, done
-000011A8  2006                     185                  MOVE.L  D6,D0                   ; Do calculations in D0
-000011AA  E568                     186                  LSL.W   D2,D0                   ; Eliminate stuff to the left
-000011AC  E268                     187                  LSR.W   D1,D0                   ; Isolate number
-000011AE  4EB9 000011B6            188                  JSR     convert_hex
-000011B4  60EA                     189                  BRA     hex_ASCII_loopW                
-000011B6                           190  
-000011B6  B03C 000A                191  convert_hex     CMP.B   #$A,D0                  ; What should I make this hex digit?
-000011BA  6D00 0006                192                  BLT     make_number             ; Make it a number, if lower than 10
-000011BE  6C00 000E                193                  BGE     make_letter             ; Make it a letter, if greater than or eqaul to 10
-000011C2                           194                       
-000011C2  0600 0030                195  make_number     ADD.B  #48,D0                   ; Convert to Ascii (0-9)
-000011C6  10C0                     196                  MOVE.B  D0,(A0)+                ; Store in memory
-000011C8  5203                     197                  ADD.B   #1,D3                   ; Add to counter
-000011CA  5802                     198                  ADD.B   #4,D2                   ; Shift left by one digit
-000011CC  4E75                     199                  RTS                             ; Check next number
-000011CE                           200                  
-000011CE  0600 0037                201  make_letter     ADD.B   #55,D0                  ; Convert to Ascii (0-9)
-000011D2  10C0                     202                  MOVE.B  D0,(A0)+                ; Store to memory
-000011D4  5203                     203                  ADD.B   #1,D3                   ; Add to counter
-000011D6  5802                     204                  ADD.B   #4,D2                   ; Shift left by one digit                 
-000011D8  4E75                     205                  RTS                             ; Check next number
-000011DA                           206                  
-000011DA  4E75                     207  done_converting RTS     ; go back to disassembler
-000011DC                           208  
-000011DC                           209  ;-----------Error Messages ----------------------------------------------------
-000011DC  4EB9 000011F0            210  start_error     JSR     load_bad_input      ; Print bad input error message
-000011E2  4EF8 100C                211                  JMP     prompt_start        ; Return to prompt for start address
-000011E6                           212                  
-000011E6  4EB9 000011F0            213  end_error       JSR     load_bad_input      ; Print bad input error message
-000011EC  4EF8 1054                214                  JMP     prompt_end          ; Return to prompt for end address
-000011F0                           215  
-000011F0  43F9 00001332            216  load_bad_input  LEA     bad_input,A1        ; Load bad input message
-000011F6  103C 000D                217                  MOVE.B  #13,D0              ; Load task code for display
-000011FA  4E4F                     218                  TRAP    #15                 ; Display bad input message
-000011FC  4E75                     219                  RTS                         ; Return to (start/end)_error
-000011FE                           220  
-000011FE  4282                     221  chk_bound       CLR.L   D2                  ; Clear buffer before usage
-00001200  3403                     222                  MOVE.W  D3,D2               ; Put address in D2 for calulation
-00001202  7202                     223                  MOVE.L  #2,D1               ; Load 2 into D1 for division
-00001204  84C1                     224                  DIVU    D1,D2               ; Divide address by 2
-00001206  4842                     225                  SWAP    D2                  ; Swap contents of D2 to get remainder
-00001208  B43C 0001                226                  CMP.B   #$01,D2             ; Check remainder, if one then address is odd
-0000120C  6700 0004                227                  BEQ     odd_err             ; Go to print out odd bound error message
-00001210  4E75                     228                  RTS                         ; Return to valid_(start/end)
-00001212                           229                  
-00001212  43F9 00001368            230  odd_err         LEA     odd_input,A1        ; Load odd input message
-00001218  103C 000E                231                  MOVE.B  #14,D0              ; Load task code for display
-0000121C  4E4F                     232                  TRAP    #15                 ; Display odd input message
-0000121E  4685                     233                  NOT.L   D5                  ; Change D5 to -1(FFFF) to return as bad address
-00001220  2605                     234                  MOVE.L  D5,D3               ; Load -1 to returned data register
-00001222  4E75                     235                  RTS                         ; Return to valid_(start/end)          
-00001224                           236                           
-00001224                           237  ;------------End-of-Program----------------------------------------------------                
-00001224  43F9 00001315            238  done            LEA     ending,A1           ; Load ending message
-0000122A  103C 000D                239                  MOVE.B  #13,D0              ; Load task code for display
-0000122E  4E4F                     240                  TRAP    #15                 ; Display ending message
-00001230  4E72 2700                241                  STOP    #$00002700          ; End of program
-00001234                           242                  
-00001234                           243  ;-----------Constants/Messages-------------------------------------------------
-00001234= 20 57 65 6C 63 6F ...    244  INTRO           DC.B    ' Welcome to the Motorola 68K Instruction Dis-assembler!',CR,LF
-0000126D= 20 43 72 65 61 74 ...    245                  DC.B    ' Created By: Blong Thao, Curtis Andersson, John Louie',CR,LF,0
-000012A5                           246         
-000012A5= 50 6C 65 61 73 65 ...    247  start_address   DC.B    'Please enter the starting address from $0 to $00FFFFFE: ',0
-000012DE= 50 6C 65 61 73 65 ...    248  end_address1    DC.B    'Please enter the ending address from $',0
-00001305= 20 74 6F 20 24 30 ...    249  end_address2    DC.B    ' to $00FFFFFE: ',0
-00001315= 2E 2E 2E 20 4D 6F ...    250  ending          DC.B    '... More work to be done ...',0
-00001332                           251  
-00001332= 09 41 64 64 72 65 ...    252  bad_input       DC.B    HT,'Address entered is not within the specified range!',CR,LF,0
-00001368= 09 59 6F 75 20 6E ...    253  odd_input       DC.B    HT,'You need to enter an even ending address',CR,LF,0
-00001394                           254  
-00001394                           255  start_input     DS.L    80              ; Allocates space for start address
-000014D4                           256  end_input       DS.L    80              ; Allocates space for end address
-00001614                           257  illegal_input   DS.L    80              ; Allocates space for illegal input
-00001754                           258                  END    START            ; End-of-program
+0000104E  6D00 01CC                 43                  BLT     start_error         ; Then, start address is too low
+00001052  2C3C 00FFFFFE             44                  MOVE.L  #end,D6             ; Store max end address for comparison
+00001058  B686                      45                  CMP.L   D6,D3               ; If start address is lower than minimum address
+0000105A  6E00 01C0                 46                  BGT     start_error         ; Then, start address is too high
+0000105E  2643                      47                  MOVEA.L D3,A3               ; Load starting address                 
+00001060                            48  
+00001060                            49  *-----------Prompt for Ending Address-----------------------            
+00001060  43F9 0000130E             50  prompt_end      LEA     end_address1,A1     ; Load prompt msg for ending address(1/2)
+00001066  103C 000E                 51                  MOVE.B  #14,D0              ; Load task code for display
+0000106A  4E4F                      52                  TRAP    #15                 ; Display prompt message
+0000106C  43F9 000013C2             53                  LEA     start_input,A1      ; Load starting address
+00001072  4E4F                      54                  TRAP    #15                 ; Display starting address
+00001074  43F9 00001335             55                  LEA     end_address2,A1     ; Load prompt msg for ending address(2/2)
+0000107A  4E4F                      56                  TRAP    #15                 ; Display prompt message
+0000107C  43F9 00001502             57                  LEA     end_input,A1        ; Ask for ending address
+00001082  103C 0002                 58                  MOVE.B  #2,D0               ; Load task code for input
+00001086  4E4F                      59                  TRAP    #15                 ; Prompt for input
+00001088  4EB9 00001138             60                  JSR     verify_input        ; Verifies user input string
+0000108E  B83C 0001                 61                  CMP.B   #1,D4               ; If 1 in D4, then its valid
+00001092  6700 0010                 62                  BEQ     valid_end           ; Now validate the ending address
+00001096  43F9 0000135F             63                  LEA     bad_input,A1        ; Else, bad input
+0000109C  103C 000E                 64                  MOVE.B  #14,D0              ; Load task code for display
+000010A0  4E4F                      65                  TRAP    #15                 ; Display bad input message
+000010A2  60BC                      66                  BRA     prompt_end          ; Restart process
+000010A4                            67  
+000010A4  4EB9 0000123E             68  valid_end       JSR     chk_bound           ; Check if the input has odd/even bounds
+000010AA  B67C FFFF                 69                  CMP.W   #-1,D3              ; If -1(FFFF), then it has odd bounds
+000010AE  67B0                      70                  BEQ     prompt_end          ; Go back and ask for correct input
+000010B0  2C3C 00FFFFFE             71                  MOVE.L  #end,D6             ; Move max address to compare with input
+000010B6  B686                      72                  CMP.L   D6,D3               ; Is input higher than max
+000010B8  6E00 016C                 73                  BGT     end_error           ; Input address is too high
+000010BC  B68B                      74                  CMP.L   A3,D3               ; Is input at or above minimum address
+000010BE  6D00 0166                 75                  BLT     end_error           ; Input address is too low
+000010C2  2843                      76                  MOVEA.L D3,A4               ; Load ending address                
+000010C4  4EF9 000010CA             77                  JMP     disassemble         ; Go to disassembler
+000010CA                            78                  
+000010CA                            79  ;-------------Disassembler-----------------------------------------------------
+000010CA                            80  ;   - Reads the data from the specified memory locations
+000010CA                            81  ;   - Passes the data over to OP-code to verify the instruction
+000010CA                            82  ;------------------------------------------------------------------------------
+000010CA  B7CC                      83  disassemble     CMP.L   A4,A3
+000010CC  6E00 005A                 84                  BGT     done                ; Placeholder for printing out the instructions
+000010D0  2C0B                      85                  MOVE.L  A3,D6               ; Store current address
+000010D2  381B                      86                  MOVE.W  (A3)+,D4            ; Read data from current memory location                
+000010D4  4EB9 00001126             87                  JSR     OP_CODE_TREE        ; Go to OP code jump table                
+000010DA  60EE                      88                  BRA     disassemble
+000010DC                            89                  
+000010DC                            90  ILLEGAL         ; word data from memory is not a required instruction
+000010DC  41F9 00001642             91                  LEA     illegal_data,A0     ; Load illegal data's address
+000010E2  2248                      92                  MOVEA.L A0,A1               ; Store start of illegal address
+000010E4  6000 0002                 93                  BRA     main_loop           ; Store info to memory as string
+000010E8                            94  
+000010E8                            95  ;VALID           MOVEA.L A6,A0               ; Load string pointer
+000010E8                            96  ;                MOVEA.L A0,A1               ; Store start of string
+000010E8                            97  
+000010E8  4EB9 00001196             98  main_loop       JSR     hex_to_ASCII_L      ; Store address to memory for display              
+000010EE                            99                  
+000010EE                           100                  ; Store TAB, print out DATA, TAB into memory
+000010EE  10FC 0009                101                  MOVE.B  #HT,(A0)+
+000010F2  10FC 0044                102                  MOVE.B  #'D',(A0)+
+000010F6  10FC 0041                103                  MOVE.B  #'A',(A0)+
+000010FA  10FC 0054                104                  MOVE.B  #'T',(A0)+
+000010FE  10FC 0041                105                  MOVE.B  #'A',(A0)+
+00001102  10FC 0009                106                  MOVE.B  #HT,(A0)+
+00001106                           107                  
+00001106                           108                  ; Store 4 hex digits that represent the word into memory
+00001106  4286                     109                  CLR.L   D6
+00001108  3C04                     110                  MOVE.W  D4,D6
+0000110A  4EB9 000011B6            111                  JSR     hex_to_ASCII_W
+00001110                           112                  
+00001110                           113                  ;Store byte into memory, TEST
+00001110                           114                  ;CLR.L   D6
+00001110                           115                  ;MOVE.B  D4,D6
+00001110                           116                  ;JSR     hex_to_ASCII_B
+00001110                           117                  
+00001110                           118                  ; Store new line and null(0)
+00001110  10FC 000A                119                  MOVE.B  #LF,(A0)+
+00001114  10FC 000D                120                  MOVE.B  #CR,(A0)+
+00001118  10FC 0000                121                  MOVE.B  #0,(A0)+
+0000111C                           122                  
+0000111C                           123                  ; print out address location that it was found
+0000111C  4280                     124                  CLR.L   D0                  ; Clear for TASK TRAP
+0000111E  103C 000E                125                  MOVE.B  #14,D0              ; Print out address
+00001122  4E4F                     126                  TRAP    #15   
+00001124  4E75                     127                  RTS                         ; Done disassembling the word, next word
+00001126                           128  OP_CODE_TREE    ; *PLACEHOLDER*
+00001126  60B4                     129                  BRA     ILLEGAL
+00001128                           130                  ;BRA     VALID               ; Has been validated by OP and EA    
+00001128                           131  ;------------End-of-Program----------------------------------------------------                
+00001128  43F9 00001345            132  done            LEA     ending,A1           ; Load ending message
+0000112E  103C 000D                133                  MOVE.B  #13,D0              ; Load task code for display
+00001132  4E4F                     134                  TRAP    #15                 ; Display ending message
+00001134  4E72 2700                135                  STOP    #$00002700          ; End of program
+00001138                           136                  
+00001138                           137  ;-----------Verify/ConvertASCIItoHex-------------------------------------------
+00001138  4283                     138  verify_input    CLR.L   D3                  ; D3 will hold valid user input chars
+0000113A  4285                     139                  CLR.L   D5                  ; D5 will be used as a NULL comparison
+0000113C  B205                     140                  CMP.B   D5,D1               ; Check input length, if lower than one
+0000113E  6700 004E                141                  BEQ     invalid             ; Its an invalid input
+00001142  0C41 0008                142                  CMPI    #$8,D1              ; Check input length, if higher than 8
+00001146  6E00 0046                143                  BGT     invalid             ; Its an invalid input
+0000114A                           144                  
+0000114A  4282                     145  check_input     CLR.L   D2                  ; Clear D2 to store chars from user input
+0000114C  1419                     146                  MOVE.B  (A1)+,D2            ; Move next char to D2 to validate
+0000114E  B405                     147                  CMP.B   D5,D2               ; Check to see if next char is null(0)
+00001150  6700 0040                148                  BEQ     return              ; Character is null, end of input
+00001154                           149                  
+00001154  B43C 0046                150                  CMP.B   #70,D2              ; Invalid character if decimal value
+00001158  6E00 0034                151                  BGT     invalid             ; is higher than 70.
+0000115C  B43C 0040                152                  CMP.B   #64,D2              ; Is a letter if decimal value is 
+00001160  6E00 001E                153                  BGT     is_letter           ; between 65 - 70.
+00001164                           154                  
+00001164  B43C 0039                155                  CMP.B   #57,D2              ; Invalid character if decimal value is
+00001168  6E00 0024                156                  BGT     invalid             ; between 58 - 64
+0000116C  B43C 002F                157                  CMP.B   #47,D2              ; Is a number if decimal value is 
+00001170  6E00 0006                158                  BGT     is_number           ; between 48 - 57.
+00001174  6000 0018                159                  BRA     invalid             ; Decimal values below 48 are invalid 
+00001178                           160                               
+00001178  0402 0030                161  is_number       SUBI.B  #48,D2              ; Convert ASCII to Hex, 0-9
+0000117C  6000 000A                162                  BRA     verified            ; Put character into a register
+00001180                           163                               
+00001180  0402 0037                164  is_letter       SUBI.B  #55,D2              ; Convert ASCII to HEX, A-F
+00001184  6000 0002                165                  BRA     verified            ; Put character into a register
+00001188                           166                 
+00001188  E983                     167  verified        ASL.L   #4,D3               ; Shift hex bit left one
+0000118A  D602                     168                  ADD.B   D2,D3               ; Add to verified register
+0000118C  60BC                     169                  BRA     check_input         ; Check the rest of the input                       
+0000118E                           170                  
+0000118E  7800                     171  invalid         MOVEQ   #0,D4               ; Invalid address
+00001190  4E75                     172                  RTS                         ; Return to start/end prompt
+00001192                           173                  
+00001192  7801                     174  return          MOVEQ   #1,D4               ; Valid address
+00001194  4E75                     175                  RTS                         ; Return to start/end prompt
+00001196                           176                  
+00001196                           177  ;----------------------------------------------------------
+00001196                           178  ; Convert Hexidecimal to ASCII (Stores into Memory)
+00001196                           179  ;
+00001196                           180  ; -- At the moment, takes the Illegal data and stores 
+00001196                           181  ;    it into memory so that it can be printed later
+00001196                           182  ;----------------------------------------------------------
+00001196  4281                     183  hex_to_ASCII_L  CLR.L   D1                      ; Used for shifting right
+00001198  4282                     184                  CLR.L   D2                      ; Used for shifting left
+0000119A  4283                     185                  CLR.L   D3                      ; Counter
+0000119C  123C 001C                186                  MOVE.B  #28,D1                  ; Shift right by 7 hex digits                  
+000011A0                           187  hex_ASCII_loopL
+000011A0  B63C 0008                188                  CMP.B   #8,D3                   ; Done converting?
+000011A4  6700 0074                189                  BEQ     done_converting         ; If equal to 8, done
+000011A8  2006                     190                  MOVE.L  D6,D0                   ; Do calculations in D0
+000011AA  E5A8                     191                  LSL.L   D2,D0                   ; Eliminate stuff to the left
+000011AC  E2A8                     192                  LSR.L   D1,D0                   ; Isolate number
+000011AE  4EB9 000011F6            193                  JSR     convert_hex
+000011B4  60EA                     194                  BRA     hex_ASCII_loopL
+000011B6                           195                  
+000011B6  4281                     196  hex_to_ASCII_W  CLR.L   D1                      ; Used for shifting right
+000011B8  4282                     197                  CLR.L   D2                      ; Used for shifting left
+000011BA  4283                     198                  CLR.L   D3                      ; Counter
+000011BC  123C 000C                199                  MOVE.B  #12,D1                  ; Shift right by 3 hex digits                  
+000011C0                           200  hex_ASCII_loopW
+000011C0  B63C 0004                201                  CMP.B   #4,D3                   ; Done converting?
+000011C4  6700 0054                202                  BEQ     done_converting         ; If equal to 4, done
+000011C8  2006                     203                  MOVE.L  D6,D0                   ; Do calculations in D0
+000011CA  E568                     204                  LSL.W   D2,D0                   ; Eliminate stuff to the left
+000011CC  E268                     205                  LSR.W   D1,D0                   ; Isolate number
+000011CE  4EB9 000011F6            206                  JSR     convert_hex
+000011D4  60EA                     207                  BRA     hex_ASCII_loopW
+000011D6                           208  
+000011D6  4281                     209  hex_to_ASCII_B  CLR.L   D1                      ; Used for shifting right
+000011D8  4282                     210                  CLR.L   D2                      ; Used for shifting left
+000011DA  4283                     211                  CLR.L   D3                      ; Counter
+000011DC  123C 0004                212                  MOVE.B  #4,D1                   ; Shift right by 1 hex digits                  
+000011E0                           213  hex_ASCII_loopB
+000011E0  B63C 0002                214                  CMP.B   #2,D3                   ; Done converting?
+000011E4  6700 0034                215                  BEQ     done_converting         ; If equal to 2, done
+000011E8  2006                     216                  MOVE.L  D6,D0                   ; Do calculations in D0
+000011EA  E528                     217                  LSL.B   D2,D0                   ; Eliminate stuff to the left
+000011EC  E228                     218                  LSR.B   D1,D0                   ; Isolate number
+000011EE  4EB9 000011F6            219                  JSR     convert_hex
+000011F4  60EA                     220                  BRA     hex_ASCII_loopB                  
+000011F6                           221  
+000011F6  B03C 000A                222  convert_hex     CMP.B   #$A,D0                  ; What should I make this hex digit?
+000011FA  6D00 0006                223                  BLT     make_number             ; Make it a number, if lower than 10
+000011FE  6C00 000E                224                  BGE     make_letter             ; Make it a letter, if greater than or eqaul to 10
+00001202                           225                       
+00001202  0600 0030                226  make_number     ADD.B   #48,D0                  ; Convert to Ascii (0-9)
+00001206  10C0                     227                  MOVE.B  D0,(A0)+                ; Store in memory
+00001208  5203                     228                  ADD.B   #1,D3                   ; Add to counter
+0000120A  5802                     229                  ADD.B   #4,D2                   ; Shift left by one digit
+0000120C  4E75                     230                  RTS                             ; Check next number
+0000120E                           231                  
+0000120E  0600 0037                232  make_letter     ADD.B   #55,D0                  ; Convert to Ascii (0-9)
+00001212  10C0                     233                  MOVE.B  D0,(A0)+                ; Store to memory
+00001214  5203                     234                  ADD.B   #1,D3                   ; Add to counter
+00001216  5802                     235                  ADD.B   #4,D2                   ; Shift left by one digit                 
+00001218  4E75                     236                  RTS                             ; Check next number
+0000121A                           237                  
+0000121A  4E75                     238  done_converting RTS     ; go back to disassembler
+0000121C                           239  
+0000121C                           240  ;-----------Error Messages ----------------------------------------------------
+0000121C  4EB9 00001230            241  start_error     JSR     load_bad_input      ; Print bad input error message
+00001222  4EF8 100C                242                  JMP     prompt_start        ; Return to prompt for start address
+00001226                           243                  
+00001226  4EB9 00001230            244  end_error       JSR     load_bad_input      ; Print bad input error message
+0000122C  4EF8 1060                245                  JMP     prompt_end          ; Return to prompt for end address
+00001230                           246  
+00001230  43F9 0000135F            247  load_bad_input  LEA     bad_input,A1        ; Load bad input message
+00001236  103C 000D                248                  MOVE.B  #13,D0              ; Load task code for display
+0000123A  4E4F                     249                  TRAP    #15                 ; Display bad input message
+0000123C  4E75                     250                  RTS                         ; Return to (start/end)_error
+0000123E                           251  
+0000123E  4282                     252  chk_bound       CLR.L   D2                  ; Clear buffer before usage
+00001240  3403                     253                  MOVE.W  D3,D2               ; Put address in D2 for calulation
+00001242  7202                     254                  MOVE.L  #2,D1               ; Load 2 into D1 for division
+00001244  84C1                     255                  DIVU    D1,D2               ; Divide address by 2
+00001246  4842                     256                  SWAP    D2                  ; Swap contents of D2 to get remainder
+00001248  B43C 0001                257                  CMP.B   #$01,D2             ; Check remainder, if one then address is odd
+0000124C  6700 0004                258                  BEQ     odd_err             ; Go to print out odd bound error message
+00001250  4E75                     259                  RTS                         ; Return to valid_(start/end)
+00001252                           260                  
+00001252  43F9 00001395            261  odd_err         LEA     odd_input,A1        ; Load odd input message
+00001258  103C 000E                262                  MOVE.B  #14,D0              ; Load task code for display
+0000125C  4E4F                     263                  TRAP    #15                 ; Display odd input message
+0000125E  4685                     264                  NOT.L   D5                  ; Change D5 to -1(FFFF) to return as bad address
+00001260  2605                     265                  MOVE.L  D5,D3               ; Load -1 to returned data register
+00001262  4E75                     266                  RTS                         ; Return to valid_(start/end)
+00001264                           267                  
+00001264                           268  ;-----------Constants/Messages-------------------------------------------------
+00001264= 20 57 65 6C 63 6F ...    269  INTRO           DC.B    ' Welcome to the Motorola 68K Instruction Dis-assembler!',CR,LF
+0000129D= 20 43 72 65 61 74 ...    270                  DC.B    ' Created By: Blong Thao, Curtis Andersson, John Louie',CR,LF,0
+000012D5                           271         
+000012D5= 50 6C 65 61 73 65 ...    272  start_address   DC.B    'Please enter the starting address from $0 to $00FFFFFE: ',0
+0000130E= 50 6C 65 61 73 65 ...    273  end_address1    DC.B    'Please enter the ending address from $',0
+00001335= 20 74 6F 20 24 30 ...    274  end_address2    DC.B    ' to $00FFFFFE: ',0
+00001345= 2E 2E 2E 20 41 20 ...    275  ending          DC.B    '... A Graceful Ending ...',0
+0000135F                           276  
+0000135F= 09 41 64 64 72 65 ...    277  bad_input       DC.B    HT,'Address entered is not within the specified range!',CR,LF,0
+00001395= 09 59 6F 75 20 6E ...    278  odd_input       DC.B    HT,'You need to enter an even ending address',CR,LF,0
+000013C1                           279  
+000013C2                           280  start_input     DS.L    80              ; Allocates space for start address
+00001502                           281  end_input       DS.L    80              ; Allocates space for end address
+00001642                           282  illegal_data    DS.L    80              ; Allocates space for illegal data
+00001782                           283  valid_data     
+00001782                           284                  END    START            ; End-of-program
 
 No errors detected
 No warnings generated
@@ -268,47 +294,51 @@ No warnings generated
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-BAD_INPUT           1332
+BAD_INPUT           135F
 BEGIN               0
-CHECK_INPUT         112A
-CHK_BOUND           11FE
-CONVERT_HEX         11B6
+CHECK_INPUT         114A
+CHK_BOUND           123E
+CONVERT_HEX         11F6
 CR                  D
-DISASSEMBLE         10BE
-DONE                1224
-DONE_CONVERTING     11DA
+DISASSEMBLE         10CA
+DONE                1128
+DONE_CONVERTING     121A
 END                 FFFFFE
-ENDING              1315
-END_ADDRESS1        12DE
-END_ADDRESS2        1305
-END_ERROR           11E6
-END_INPUT           14D4
-HEX_ASCII_LOOPL     1180
-HEX_ASCII_LOOPW     11A0
-HEX_TO_ASCII_L      1176
-HEX_TO_ASCII_W      1196
+ENDING              1345
+END_ADDRESS1        130E
+END_ADDRESS2        1335
+END_ERROR           1226
+END_INPUT           1502
+HEX_ASCII_LOOPB     11E0
+HEX_ASCII_LOOPL     11A0
+HEX_ASCII_LOOPW     11C0
+HEX_TO_ASCII_B      11D6
+HEX_TO_ASCII_L      1196
+HEX_TO_ASCII_W      11B6
 HT                  9
-ILLEGAL             10D0
-ILLEGAL_INPUT       1614
-INTRO               1234
-INVALID             116E
-IS_LETTER           1160
-IS_NUMBER           1158
+ILLEGAL             10DC
+ILLEGAL_DATA        1642
+INTRO               1264
+INVALID             118E
+IS_LETTER           1180
+IS_NUMBER           1178
 LF                  A
-LOAD_BAD_INPUT      11F0
-MAKE_LETTER         11CE
-MAKE_NUMBER         11C2
-ODD_ERR             1212
-ODD_INPUT           1368
-OP_CODE_TREE        1116
-PROMPT_END          1054
+LOAD_BAD_INPUT      1230
+MAIN_LOOP           10E8
+MAKE_LETTER         120E
+MAKE_NUMBER         1202
+ODD_ERR             1252
+ODD_INPUT           1395
+OP_CODE_TREE        1126
+PROMPT_END          1060
 PROMPT_START        100C
-RETURN              1172
+RETURN              1192
 START               1000
-START_ADDRESS       12A5
-START_ERROR         11DC
-START_INPUT         1394
-VALID_END           1098
+START_ADDRESS       12D5
+START_ERROR         121C
+START_INPUT         13C2
+VALID_DATA          1782
+VALID_END           10A4
 VALID_START         103E
-VERIFIED            1168
-VERIFY_INPUT        1118
+VERIFIED            1188
+VERIFY_INPUT        1138

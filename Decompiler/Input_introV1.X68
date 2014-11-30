@@ -11,7 +11,7 @@ HT              EQU     $09                 ; Tab (horizontal 5 characters)
 begin           EQU     $00000000           ; Lowest starting address
 end             EQU     $00FFFFFE           ; Highest ending address
 
-                ORG    $1000
+                ORG     $1000
 START       
 *-----------Introduction Message----------------------------
                 LEA     INTRO, A1           ; Load introduction
@@ -41,7 +41,10 @@ valid_start     JSR     chk_bound           ; Check if the input has odd/even bo
                 MOVE.L  #begin,D6           ; Store minimum address in D6
                 CMP.L   D6,D3               ; If start address is lower than minimum address
                 BLT     start_error         ; Then, start address is too low
-                MOVEA.L D3,A3               ; store current address in A5                  
+                MOVE.L  #end,D6             ; Store max end address for comparison
+                CMP.L   D6,D3               ; If start address is lower than minimum address
+                BGT     start_error         ; Then, start address is too high
+                MOVEA.L D3,A3               ; Load starting address                 
 
 *-----------Prompt for Ending Address-----------------------            
 prompt_end      LEA     end_address1,A1     ; Load prompt msg for ending address(1/2)
@@ -68,9 +71,9 @@ valid_end       JSR     chk_bound           ; Check if the input has odd/even bo
                 MOVE.L  #end,D6             ; Move max address to compare with input
                 CMP.L   D6,D3               ; Is input higher than max
                 BGT     end_error           ; Input address is too high
-                CMP.L   A5,D3               ; Is input at or above minimum address
+                CMP.L   A3,D3               ; Is input at or above minimum address
                 BLT     end_error           ; Input address is too low
-                MOVEA.L D3,A4               ; Load ending address into its register                
+                MOVEA.L D3,A4               ; Load ending address                
                 JMP     disassemble         ; Go to disassembler
                 
 ;-------------Disassembler-----------------------------------------------------
@@ -85,9 +88,14 @@ disassemble     CMP.L   A4,A3
                 BRA     disassemble
                 
 ILLEGAL         ; word data from memory is not a required instruction
-                LEA     illegal_input,A0    ; Load illegal input
+                LEA     illegal_data,A0     ; Load illegal data's address
                 MOVEA.L A0,A1               ; Store start of illegal address
-                JSR     hex_to_ASCII_L      ; Store illegal address to memory              
+                BRA     main_loop           ; Store info to memory as string
+; Find out what function EA has to call to convert hex to string
+;VALID           MOVEA.L A6,A0               ; Load string pointer
+;                MOVEA.L A0,A1               ; Store start of string
+
+main_loop       JSR     hex_to_ASCII_L      ; Store address to memory for display              
                 
                 ; Store TAB, print out DATA, TAB into memory
                 MOVE.B  #HT,(A0)+
@@ -102,6 +110,11 @@ ILLEGAL         ; word data from memory is not a required instruction
                 MOVE.W  D4,D6
                 JSR     hex_to_ASCII_W
                 
+                ;Store byte into memory, TEST
+                ;CLR.L   D6
+                ;MOVE.B  D4,D6
+                ;JSR     hex_to_ASCII_B
+                
                 ; Store new line and null(0)
                 MOVE.B  #LF,(A0)+
                 MOVE.B  #CR,(A0)+
@@ -111,10 +124,15 @@ ILLEGAL         ; word data from memory is not a required instruction
                 CLR.L   D0                  ; Clear for TASK TRAP
                 MOVE.B  #14,D0              ; Print out address
                 TRAP    #15   
-                ; Newline Character
                 RTS                         ; Done disassembling the word, next word
 OP_CODE_TREE    ; *PLACEHOLDER*
-                BRA     ILLEGAL    
+                BRA     ILLEGAL
+                ;BRA     VALID               ; Has been validated by OP and EA    
+;------------End-of-Program----------------------------------------------------                
+done            LEA     ending,A1           ; Load ending message
+                MOVE.B  #13,D0              ; Load task code for display
+                TRAP    #15                 ; Display ending message
+                STOP    #$00002700          ; End of program
                 
 ;-----------Verify/ConvertASCIItoHex-------------------------------------------
 verify_input    CLR.L   D3                  ; D3 will hold valid user input chars
@@ -150,10 +168,10 @@ verified        ASL.L   #4,D3               ; Shift hex bit left one
                 ADD.B   D2,D3               ; Add to verified register
                 BRA     check_input         ; Check the rest of the input                       
                 
-invalid         MOVEQ   #$0,D4              ; Invalid address
+invalid         MOVEQ   #0,D4               ; Invalid address
                 RTS                         ; Return to start/end prompt
                 
-return          MOVEQ   #$1,D4              ; Valid address
+return          MOVEQ   #1,D4               ; Valid address
                 RTS                         ; Return to start/end prompt
                 
 ;----------------------------------------------------------
@@ -186,13 +204,26 @@ hex_ASCII_loopW
                 LSL.W   D2,D0                   ; Eliminate stuff to the left
                 LSR.W   D1,D0                   ; Isolate number
                 JSR     convert_hex
-                BRA     hex_ASCII_loopW                
+                BRA     hex_ASCII_loopW
+
+hex_to_ASCII_B  CLR.L   D1                      ; Used for shifting right
+                CLR.L   D2                      ; Used for shifting left
+                CLR.L   D3                      ; Counter
+                MOVE.B  #4,D1                   ; Shift right by 1 hex digits                  
+hex_ASCII_loopB
+                CMP.B   #2,D3                   ; Done converting?
+                BEQ     done_converting         ; If equal to 2, done
+                MOVE.L  D6,D0                   ; Do calculations in D0
+                LSL.B   D2,D0                   ; Eliminate stuff to the left
+                LSR.B   D1,D0                   ; Isolate number
+                JSR     convert_hex
+                BRA     hex_ASCII_loopB                  
 
 convert_hex     CMP.B   #$A,D0                  ; What should I make this hex digit?
                 BLT     make_number             ; Make it a number, if lower than 10
                 BGE     make_letter             ; Make it a letter, if greater than or eqaul to 10
                      
-make_number     ADD.B  #48,D0                   ; Convert to Ascii (0-9)
+make_number     ADD.B   #48,D0                  ; Convert to Ascii (0-9)
                 MOVE.B  D0,(A0)+                ; Store in memory
                 ADD.B   #1,D3                   ; Add to counter
                 ADD.B   #4,D2                   ; Shift left by one digit
@@ -232,13 +263,7 @@ odd_err         LEA     odd_input,A1        ; Load odd input message
                 TRAP    #15                 ; Display odd input message
                 NOT.L   D5                  ; Change D5 to -1(FFFF) to return as bad address
                 MOVE.L  D5,D3               ; Load -1 to returned data register
-                RTS                         ; Return to valid_(start/end)          
-                         
-;------------End-of-Program----------------------------------------------------                
-done            LEA     ending,A1           ; Load ending message
-                MOVE.B  #13,D0              ; Load task code for display
-                TRAP    #15                 ; Display ending message
-                STOP    #$00002700          ; End of program
+                RTS                         ; Return to valid_(start/end)
                 
 ;-----------Constants/Messages-------------------------------------------------
 INTRO           DC.B    ' Welcome to the Motorola 68K Instruction Dis-assembler!',CR,LF
@@ -247,15 +272,17 @@ INTRO           DC.B    ' Welcome to the Motorola 68K Instruction Dis-assembler!
 start_address   DC.B    'Please enter the starting address from $0 to $00FFFFFE: ',0
 end_address1    DC.B    'Please enter the ending address from $',0
 end_address2    DC.B    ' to $00FFFFFE: ',0
-ending          DC.B    '... More work to be done ...',0
+ending          DC.B    '... A Graceful Ending ...',0
 
 bad_input       DC.B    HT,'Address entered is not within the specified range!',CR,LF,0
 odd_input       DC.B    HT,'You need to enter an even ending address',CR,LF,0
 
 start_input     DS.L    80              ; Allocates space for start address
 end_input       DS.L    80              ; Allocates space for end address
-illegal_input   DS.L    80              ; Allocates space for illegal input
+illegal_data    DS.L    80              ; Allocates space for illegal data
+valid_data     
                 END    START            ; End-of-program
+
 
 
 
