@@ -56,18 +56,42 @@ Btst_Test1          EQU     %0000111100000111   ; Btst D7,D7
 Btst_Test2          EQU     %0000111100111100   ; Btst D7,#$Imm
 Btst_Test3          EQU     %0000100000000111   ; Btst #$Byte,D7
 
-Bra_Test1           EQU     %0110000000000111   ; Bra 7
-;Bra_Test2           EQU     %0110000000001011   ; Bra -5
-        
+Branch_Test1        EQU     %0110000000000111   ; Bra 7
+Branch_Test2        EQU     %0110000000000000   ; Bra Word
+
+MoveM_Test1         EQU     %0100100010010111   ; MoveM.W List,(A7)
+MoveM_Test2         EQU     %0100100010111000   ; MoveM.W List,$Word
+MoveM_Test3         EQU     %0100110010111000   ; MoveM.W $Word,List
+MoveM_Test4         EQU     %0100100010100111   ; MoveM.W List,-(A7)
+      
     ORG    $1000
     
 START:                  ; first instruction of program
-        Move.L  #$0000400, A3
+        Move.L  #$00000400, A3
+        Move.L  #$00000600, A4  ; Save register values here with MoveM
         
-        Move.W  #$0034, (A3)
-        ;Move.W  #$4030, (A3)+
+        ; EA_BRANCH displacements
+        ;Move.W  #%0000000000000101, (A3)
+        
+        ; EA_MOVEM register list masks
+        ;Move.W  #%0010000000000000, (A3)
+        ;Move.W  #%1000000000000000, (A3)
+        ;Move.W  #%0000000000000001, (A3)
+        ;Move.W  #%0000011111000000, (A3)
+        ;Move.W  #%1111000000000000, (A3)
+        ;Move.W  #%0000000000001111, (A3)
+        ;Move.W  #%1111010000000000, (A3)
+        ;Move.W  #%0000000000101111, (A3)
+        ;Move.W  #%0101010101010101, (A3)
+        ;Move.W  #%1010101010101010, (A3)
+        ;Move.W  #%1111011100000000, (A3)
+        Move.W  #%0000000011101111, (A3)
+
+        Add.W   #2, A3       
+
+        Move.W  #$4030, (A3)
         ;Move.L  #$12345678, (A3)
-        ;Sub.W   #2, A3
+        Sub.W   #2, A3
         ;Move.L  #$12349999, (A3)
         ;Move.W  #$11, (A3)
         ;Move.B  #$99, (A3)
@@ -105,8 +129,13 @@ START:                  ; first instruction of program
         ;Move.W  #Btst_Test2, D4
         ;Move.W  #Btst_Test3, D4
         
-        Move.W  #Bra_Test1, D4
-        ;Move.W  #Bra_Test2, D4
+        ;Move.W  #Branch_Test1, D4
+        ;Move.W  #Branch_Test2, D4
+        
+        ;Move.W  #MoveM_Test1, D4
+        ;Move.W  #MoveM_Test2, D4
+        ;Move.W  #MoveM_Test3, D4
+        Move.W  #MoveM_Test4, D4
                 
         ;Jmp     EA_MOVE     ; Branch to EA function for Move
         ;Jmp     EA_ADD
@@ -115,7 +144,8 @@ START:                  ; first instruction of program
         ;Jmp     EA_ADDQ
         ;Jmp     EA_MULS
         ;Jmp     EA_BTST
-        Jmp     EA_BRA
+        ;Jmp     EA_BRANCH
+        Jmp     EA_MOVEM
 
 ;]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]];  
 ;-------------------- Effective Address Sub Routines --------------------;
@@ -184,6 +214,219 @@ EA_MOVE_SIZE    ; Find the size of immediate data being moved
         Beq     EA_IMM_LONG
         
         Rts
+        
+;=================================================================;
+;---------------------------- EA MoveM ---------------------------;
+; D2 stores the counter for the number of consecutive ones in the
+; register list mask
+;
+; D3 stores a 1 if the register being added is the first register, 
+; or 0 if the register is not the first register being added
+;
+; D5 stores the register list mask
+;
+; D6 stores any expansion words
+;
+; D7 stores the loop counter
+;=================================================================;
+EA_MOVEM    ; Determines the EA for MoveM
+        MoveM.L D2-D7, -(A4)            ; Save D2-D7 at address A4 so we can use them for MoveM 
+        
+        Clr.L   D2                      ; Clear out the data registers
+        Clr.L   D3
+        Clr.L   D5
+        Clr.L   D6
+        Clr.L   D7
+        
+        Add.B   #1, D3                  ; Set D3 to 1 to specify the first register
+        Move.W  (A3)+, D5               ; Store the register list mask
+        
+        Jsr     GETBIT10                ; Get the direction bit
+        
+        Cmp.B   #%0, D0                 ; If direction bit is 0, register to memory
+        Beq     EA_MOVEM_REG_TO_MEM
+        
+        Jmp     EA_MOVEM_MEM_TO_REG     ; Else, memory to register
+        
+EA_MOVEM_REG_TO_MEM ; Determines EA for register to memory transfer direction
+        Jsr     EA_MOVEM_LIST_LOOP      ; Get the list of registers
+        Move.B  #',', (A6)+             ; Add a comma
+        Jsr     EA_0TO5                 ; Get the EA
+        
+        MoveM.L (A4)+, D2-D7            ; Restore the saved data registers
+                
+        ; <Next instruction>
+        
+EA_MOVEM_MEM_TO_REG ; Determines EA for memory to register transfer direction 
+        Move.W  D5, D7                  ; Store the register list mask in D7 temporarily
+        Jsr     EA_0TO5                 ; Get the EA
+        Move.B  #',', (A6)+             ; Add a comma
+        Move.W  D7, D5                  ; Move the register list mask back to D5
+        Clr.L   D7                      ; Clear D7
+        Jsr     EA_MOVEM_LIST_LOOP      ; Get the list of registers
+        
+        MoveM.L (A4)+, D2-D7            ; Restore the saved data registers
+                
+        ; <Next instruction>
+                
+EA_MOVEM_LIST_LOOP ; Determines if the list is in predecrement order or post increment order
+        Cmp.B   #16, D7                 ; If the loop counter is greater than or equal to 16, end
+        Bge     EA_MOVEM_LIST_END
+
+        Jsr     GET3TO5                 ; Get the EA mode
+        
+        Cmp.B   #%100, D0               ; Predecrement mode
+        Beq     EA_MOVEM_PRE_DEC
+        
+        Jmp     EA_MOVEM_POST_INC       ; Post increment and control modes
+        
+EA_MOVEM_LIST_END   ; Ends the list loop
+        Rts
+        
+EA_MOVEM_PRE_DEC    ; Predecrement mode
+        Rol.W   #1, D5                  ; Rotate the register list mask to the left by 1
+        
+        Bcs     EA_MOVEM_CARRY_SET      ; Branch if the bit rotated out was 1
+        
+        Bcc     EA_MOVEM_CARRY_CLEAR    ; Branch if the bit rotated out was 0
+        
+EA_MOVEM_POST_INC   ; Post increment mode
+        Ror.W   #1, D5                  ; Rotate the register list mask to the right by 1
+        
+        Bcs     EA_MOVEM_CARRY_SET      ; Branch if the bit rotated out was 1
+        
+        Bcc     EA_MOVEM_CARRY_CLEAR    ; Branch if the bit rotated out was 0
+        
+EA_MOVEM_CARRY_SET  ; The bit rotated out was 1
+        Cmp.B   #1, D3                  ; Check to see if this is the first register being added to the list
+        Beq     EA_MOVEM_FIRST_REG      ; Add the first register to the list
+        
+        Cmp.B   #0, D2                  ; If this bit is not in the middle of a list of consecutive ones, add a '/' and register
+        Beq     EA_MOVEM_ADD_SINGLE_REG
+        
+        Add.B   #1, D7                  ; Increment the loop counter
+        Add.B   #1, D2                  ; Increment the consecutive ones counter
+        
+        Cmp.B   #16, D7                 ; If this bit is the last bit, check to see if it is the last bit of a consecutive list
+        Beq     EA_MOVEM_LAST_REG
+        
+        Jmp     EA_MOVEM_LIST_LOOP      ; Loop again
+        
+EA_MOVEM_CARRY_CLEAR    ; The bit rotated out was a 0
+        Cmp.B   #1, D2                  ; If the bit was at the end of a consecutive list of ones, add a '-' and register
+        Bgt     EA_MOVEM_ADD_LAST_REG
+        
+        Add.B   #1, D7                  ; Increment the loop counter
+        
+        Clr.L   D2                      ; Clear the counter for consecutive ones
+        
+        Jmp     EA_MOVEM_LIST_LOOP      ; Loop again
+
+EA_MOVEM_FIRST_REG  ; The very first register being added to the list
+        Jsr     EA_MOVEM_REG            ; Add a register without the '/' in front
+        
+        Clr.L   D3                      ; Clear D3 because the very first register has been placed
+        
+        Add.B   #1, D7                  ; Increment the loop counter
+        Add.B   #1, D2                  ; Increment the consecutive ones counter
+        
+        Jmp     EA_MOVEM_LIST_LOOP      ; Loop again
+        
+EA_MOVEM_ADD_SINGLE_REG ; Adds a '/' and a register
+        Move.B  #'/', (A6)+
+        
+        Jsr     EA_MOVEM_REG            ; Add a register
+        
+        Add.B   #1, D7                  ; Increment the loop counter 
+        Add.B   #1, D2                  ; Increment the consecutive ones counter
+        
+        Jmp     EA_MOVEM_LIST_LOOP      ; Loop again
+        
+EA_MOVEM_LAST_REG   ; Adds the last register if it was the last bit being rotated out and it was part of a consecutive list
+        Cmp.B   #1, D2                  ; Check to see if the bit was part of a consecutive list of ones
+        Bgt     EA_MOVEM_ADD_LAST_REG
+        
+        Add.B   #1, D7                  ; Increment the loop counter
+        
+        Jmp     EA_MOVEM_LIST_LOOP      ; Loop again
+        
+EA_MOVEM_ADD_LAST_REG   ; Adds a '-' and the register, adds the last register in a consecutive list of ones
+        Move.B  #'-', (A6)+
+        
+        Sub.B   #1, D7                  ; Move back to the previous register
+        
+        Jsr     EA_MOVEM_REG            ; Add the previous register as the last register in a consecutive list of ones
+        
+        Add.B   #2, D7                  ; Add 2 to the loop counter to make up for the 1 subtracted earlier and to move forward
+        
+        Clr.L   D2                      ; Clear the consecutive ones counter
+        
+        Jmp     EA_MOVEM_LIST_LOOP      ; Loop again
+        
+EA_MOVEM_REG    ; Determines the correct register to add based on the value of the loop counter
+        Clr.L   D0                      ; Clear D0
+        Cmp.B   #0, D7                  ; If the loop counter is 0, add D0
+        Beq     EA_DN
+        
+        Move.B  #1, D0                  ; Move a 1 into D0
+        Cmp.B   #1, D7                  ; If the loop counter is 1, add D1
+        Beq     EA_DN
+        
+        Move.B  #2, D0
+        Cmp.B   #2, D7
+        Beq     EA_DN
+
+        Move.B  #3, D0
+        Cmp.B   #3, D7
+        Beq     EA_DN
+
+        Move.B  #4, D0
+        Cmp.B   #4, D7
+        Beq     EA_DN
+
+        Move.B  #5, D0
+        Cmp.B   #5, D7
+        Beq     EA_DN
+
+        Move.B  #6, D0
+        Cmp.B   #6, D7
+        Beq     EA_DN
+        
+        Move.B  #7, D0
+        Cmp.B   #7, D7
+        Beq     EA_DN
+        
+        Clr.L   D0
+        Cmp.B   #8, D7
+        Beq     EA_AN
+
+        Move.B  #1, D0
+        Cmp.B   #9, D7
+        Beq     EA_AN
+
+        Move.B  #2, D0
+        Cmp.B   #10, D7
+        Beq     EA_AN
+        
+        Move.B  #3, D0
+        Cmp.B   #11, D7
+        Beq     EA_AN
+        
+        Move.B  #4, D0
+        Cmp.B   #12, D7
+        Beq     EA_AN
+        
+        Move.B  #5, D0
+        Cmp.B   #13, D7
+        Beq     EA_AN
+        
+        Move.B  #6, D0
+        Cmp.B   #14, D7
+        Beq     EA_AN
+        
+        Move.B  #7, D0
+        Cmp.B   #15, D7
+        Beq     EA_AN
 
 ;===========================================;        
 ;--------------- EA Add/AddA ---------------;
@@ -504,30 +747,34 @@ EA_BTST_ADDRESS ; Get the EA
         
         Rts
         
-;================================================;        
-;-------------------- EA Bra --------------------;
-;================================================;
-EA_BRA
-        Jsr     GET0TO7
+;==================================================;        
+;------------------- EA Branch --------------------;
+; Determines the EA for Bra, Beq, Bne, Blt, and Bhi.
+;==================================================;
+EA_BRANCH  ; Determines the EA for Branch codes
+        Jsr     GET0TO7                 ; Get the 8 displacement bits
         
-        Cmp.B   #0, D0
-        Beq     EA_BRA_16_BIT
+        Move.L  A3, D6                  ; Move address after the Bra word to D6
         
-        Neg.B   D0
-        ;Add.B   #$30, D0
-        Move.B  D0, (A6)+
+        Cmp.B   #0, D0                  ; If the displacement bits are 0 then get the next word
+        Beq     EA_BRANCH_16_BIT
+        
+        Jmp     EA_BRANCH_ADD_DIS       ; Else, add the displacement to D6
+
+EA_BRANCH_16_BIT   ; Gets the next word
+        Move.W  (A3)+, D0               ; Stores the word in D0
+
+        Jmp     EA_BRANCH_ADD_DIS       ; Add the word to D6
+        
+EA_BRANCH_ADD_DIS   ; Adds the displacement to the long word address in D6
+        Add.L   D0, D6                  ; Add the displacement to D6
+    
+        Move.B  #'$', (A6)+             ; Add '$' to the string
+        
+        Jsr     EA_LONG_TO_STRING       ; Add the long word sum to the string
 
         ; <Next instruction>
-
-EA_BRA_16_BIT
-        Move.W  (A3)+, D0
-    
-        Add.W   #$30, D0
-
-        Move.W  D0, (A6)+
-
-        ; <Next instruction>   
-               
+                       
 ;==========================================;        
 ;---------- General EA functions ----------;
 ;==========================================;
@@ -939,8 +1186,23 @@ GET0TO7
         Lsr     D1, D0
         
         Rts
+        
+GETBIT10
+        Clr.L   D0
+        Move.W  D4, D0
+        
+        Move.B  #5, D1
+        Lsl     D1, D0
+        
+        Move.B  #15, D1
+        Lsr     D1, D0
+        
+        Rts
+
 
     END    START        ; last line of source
+
+
 
 
 
