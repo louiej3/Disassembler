@@ -3,7 +3,9 @@
 * Written by : Blong Thao
 * Date       : 11/16/14
 * Description: This program asks for the starting address
-*               and the ending address.
+*               and the ending address, then reads the data
+*               in the specified range and disassembles the
+*               data in the memory to instructions.
 *-----------------------------------------------------------
 CR              EQU     $0D                 ; Carriage return
 LF              EQU     $0A                 ; Line Feed
@@ -30,7 +32,7 @@ prompt_start    LEA     start_address,A1    ; Load prompt message for starting a
                 CMP.B   #1,D4               ; If equal to 1, then that input is valid
                 BEQ     valid_start         ; Go to valid start if equal 
                 
-                LEA     bad_input,A1        ; Not equal to 1, its a bad input, start over
+                LEA     badAddr_input,A1        ; Not equal to 1, its a bad input, start over
                 MOVE.B  #14,D0              ; Load task code for display
                 TRAP    #15                 ; Display bad input message
                 BRA     prompt_start        ; Go back beginning, asking for start address
@@ -60,7 +62,7 @@ prompt_end      LEA     end_address1,A1     ; Load prompt msg for ending address
                 JSR     verify_input        ; Verifies user input string
                 CMP.B   #1,D4               ; If 1 in D4, then its valid
                 BEQ     valid_end           ; Now validate the ending address
-                LEA     bad_input,A1        ; Else, bad input
+                LEA     badAddr_input,A1        ; Else, bad input
                 MOVE.B  #14,D0              ; Load task code for display
                 TRAP    #15                 ; Display bad input message
                 BRA     prompt_end          ; Restart process
@@ -73,61 +75,114 @@ valid_end       JSR     chk_bound           ; Check if the input has odd/even bo
                 BGT     end_error           ; Input address is too high
                 CMP.L   A3,D3               ; Is input at or above minimum address
                 BLT     end_error           ; Input address is too low
-                MOVEA.L D3,A4               ; Load ending address                
-                JMP     disassemble         ; Go to disassembler
+                MOVEA.L D3,A4               ; Load ending address
+                CLR.L   D3                  ; Clear for IO usage
+                CLR.L   D4                  ; Clear for OP Code usage
+                ;LEA     valid_data,A6       ; Load valid instruction into memory
                 
 ;-------------Disassembler-----------------------------------------------------
 ;   - Reads the data from the specified memory locations
 ;   - Passes the data over to OP-code to verify the instruction
 ;------------------------------------------------------------------------------
-disassemble     CMP.L   A4,A3
-                BGT     done                ; Placeholder for printing out the instructions
+disassemble                   
+                CMP.L   A4,A3               ; At the end address?
+                BGT     prompt_to_rerun     ; Placeholder for printing out the instructions
+                JSR     check_10_lines      ; Prompt user to see more at 10 lines of data
                 MOVE.L  A3,D6               ; Store current address
+                LEA     valid_data,A0       ; A0 will convert current addr to memory
+                JSR     hex_to_ASCII_L      ; Store current address to memory as string
+                ADD.B   #1,D7               ; Counter for amt of displays
                 MOVE.W  (A3)+,D4            ; Read data from current memory location                
                 JSR     OP_CODE_TREE        ; Go to OP code jump table                
                 BRA     disassemble
                 
 ILLEGAL         ; word data from memory is not a required instruction
                 LEA     illegal_data,A0     ; Load illegal data's address
-                MOVEA.L A0,A1               ; Store start of illegal address
-                BRA     main_loop           ; Store info to memory as string
-; Find out what function EA has to call to convert hex to string
-;VALID           MOVEA.L A6,A0               ; Load string pointer
-;                MOVEA.L A0,A1               ; Store start of string
-
-main_loop       JSR     hex_to_ASCII_L      ; Store address to memory for display              
-                
-                ; Store TAB, print out DATA, TAB into memory
-                MOVE.B  #HT,(A0)+
-                MOVE.B  #'D',(A0)+
+                JSR     hex_to_ASCII_L      ; Store address to memory for display
+                MOVE.B  #HT,(A0)+           ; Store TAB 
+                MOVE.B  #'D',(A0)+          ; Store DATA
                 MOVE.B  #'A',(A0)+
                 MOVE.B  #'T',(A0)+
                 MOVE.B  #'A',(A0)+
-                MOVE.B  #HT,(A0)+
+                MOVE.B  #HT,(A0)+           ; Store TAB
+                MOVE.B  #'$',(A0)+
                 
                 ; Store 4 hex digits that represent the word into memory
                 CLR.L   D6
-                MOVE.W  D4,D6
-                JSR     hex_to_ASCII_W
-                
-                ;Store byte into memory, TEST
-                ;CLR.L   D6
-                ;MOVE.B  D4,D6
-                ;JSR     hex_to_ASCII_B
-                
-                ; Store new line and null(0)
+                MOVE.W  D4,D6               ; Move the word data into D6 for conversion
+                JSR     hex_to_ASCII_W      ; Converts hex to ascii for the word data 
+                CLR.L   D0                  ; Clear D0 to set bad buffer
+                MOVE.B  #0,D0               ; Zero indicates its going to bad buffer
+                BRA     main_loop           ; Store info to memory as string
+
+VALID           ; word data from memory is valid 
+                ;MOVEA.L A6,A0              ; Have A0 point to good buffer
+                MOVE.B  #HT,(A0)+           ; Store TAB
+                CLR.L   D0                  ; Clear D0 to set good buffer
+                MOVE.B  #1,D0               ; One indicates its going to good buffer
+
+main_loop
+                ; Store new line
                 MOVE.B  #LF,(A0)+
                 MOVE.B  #CR,(A0)+
-                MOVE.B  #0,(A0)+
+                CMP.B   #1,D0               ; Go to bad/good buffer
+                BEQ     good_buff           ; Good Buffer, go prep for display
                 
-                ; print out address location that it was found
-                CLR.L   D0                  ; Clear for TASK TRAP
-                MOVE.B  #14,D0              ; Print out address
-                TRAP    #15   
+bad_buff        MOVE.B  #00,(A0)+           ; Add null terminator
+                LEA     illegal_data,A1     ; Load the illegal data for display
+                BRA     display_data        ; Go to display data
+                
+good_buff       MOVE.B  #00,(A0)+           ; Add null terminator
+                LEA     valid_data,A1       ; Load the valid data for display
+                
+display_data    CLR.L   D0                  ; Clear for TASK TRAP
+                MOVE.B  #14,D0              ; Display the data that A1 is pointing
+                TRAP    #15                 ; to in memory.
                 RTS                         ; Done disassembling the word, next word
-OP_CODE_TREE    ; *PLACEHOLDER*
-                BRA     ILLEGAL
-                ;BRA     VALID               ; Has been validated by OP and EA    
+;OP_CODE_TREE    ; *PLACEHOLDER*
+                ;BRA     ILLEGAL             ; OP validated that its illegal
+                ;BRA     VALID               ; Has been validated by OP and EA
+check_10_lines
+                CMP.B   #10,D7              ; Prompt user if they want to see more data
+                BEQ     prompt_for_data     ; At 10 lines, prompt user
+                RTS                         ; Return to disassemble
+
+prompt_for_data LEA     hit_enter_msg,A1    ; Ask user to hit enter
+                MOVE.B  #14,D0              ; Display message
+                TRAP    #15
+                LEA     hit_enter,A1        ; Take user input
+                MOVE.B  #2,D0               
+                TRAP    #15
+                CLR.L   D7                  ; Reset counter
+                RTS                         ; Return to disassemble
+
+prompt_to_rerun LEA     ask_user,A1         ; Load ask user message to rerun 
+                MOVE.B  #14,D0
+                TRAP    #15
+                LEA     ask_input,A1        ; Take user input
+                MOVE.B  #2,D0
+                TRAP    #15
+                CMP.B   #1,D1               ; User input must be the length of 1
+                BGT     rerun_err_msg       ; Otherwise, will prompt msg again
+                BLT     rerun_err_msg       ; until the user inputs correctly.
+                CLR     D0                  ; Clear D0 for comparison
+                MOVE.B  ask_input,D0        ; Load user input for comparison
+                CMP.B   #'N',D0             ; User input is N
+                BEQ     done                ; End of program if N
+                CMP.B   #'n',D0             ; User input is n
+                BEQ     done                ; End of program if n
+                CMP.B   #'Y',D0             ; User input is Y
+                BEQ     prompt_start        ; Run the program again
+                CMP.B   #'y',D0             ; User input is y
+                BEQ     prompt_start        ; Run the program again
+                BRA     rerun_err_msg       ; Bad input, prompt user
+                
+rerun_err_msg   LEA     ask_error,A1        ; Bad input, display error message
+                MOVE.B  #14,D0
+                TRAP    #15
+                BRA     prompt_to_rerun     ; Prompt user for rerun           
+                
+    
 ;------------End-of-Program----------------------------------------------------                
 done            LEA     ending,A1           ; Load ending message
                 MOVE.B  #13,D0              ; Load task code for display
@@ -233,9 +288,7 @@ make_letter     ADD.B   #55,D0                  ; Convert to Ascii (0-9)
                 MOVE.B  D0,(A0)+                ; Store to memory
                 ADD.B   #1,D3                   ; Add to counter
                 ADD.B   #4,D2                   ; Shift left by one digit                 
-                RTS                             ; Check next number
-                
-done_converting RTS     ; go back to disassembler
+done_converting RTS                             ; Check next number              
 
 ;-----------Error Messages ----------------------------------------------------
 start_error     JSR     load_bad_input      ; Print bad input error message
@@ -244,7 +297,7 @@ start_error     JSR     load_bad_input      ; Print bad input error message
 end_error       JSR     load_bad_input      ; Print bad input error message
                 JMP     prompt_end          ; Return to prompt for end address
 
-load_bad_input  LEA     bad_input,A1        ; Load bad input message
+load_bad_input  LEA     badAddr_input,A1    ; Load bad input message
                 MOVE.B  #13,D0              ; Load task code for display
                 TRAP    #15                 ; Display bad input message
                 RTS                         ; Return to (start/end)_error
@@ -273,15 +326,23 @@ start_address   DC.B    'Please enter the starting address from $0 to $00FFFFFE:
 end_address1    DC.B    'Please enter the ending address from $',0
 end_address2    DC.B    ' to $00FFFFFE: ',0
 ending          DC.B    '... A Graceful Ending ...',0
+ask_user        DC.B    'Would you like to run the program again? (Y/N) ',0
+hit_enter_msg   DC.B    'Hit enter if you would like to see more data.',0
 
-bad_input       DC.B    HT,'Address entered is not within the specified range!',CR,LF,0
+badAddr_input   DC.B    HT,'Address entered is not within the specified range!',CR,LF,0
 odd_input       DC.B    HT,'You need to enter an even ending address',CR,LF,0
+ask_error       DC.B    HT,'Please try again, on next line please input a Y or N', CR,LF,0
 
-start_input     DS.L    80              ; Allocates space for start address
-end_input       DS.L    80              ; Allocates space for end address
-illegal_data    DS.L    80              ; Allocates space for illegal data
-valid_data     
-                END    START            ; End-of-program
+start_input     DS.L    2               ; Allocates space for start address
+end_input       DS.L    2               ; Allocates space for end address
+ask_input       DS.L    2               ; User input for Y and N, pre-end of program
+hit_enter       DS.L    2               ; User input to hit enter
+illegal_data    DS.L    80              ; Data/Instructions that we do not convert
+valid_data      DS.L    80              ; Instructions that we converted
+                
+                END     START
+
+
 
 
 
