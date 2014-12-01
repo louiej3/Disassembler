@@ -55,10 +55,15 @@ OP_CODE_TREE    ; Parses the Op-Code to find what it is
         
 IMMEDIATE_BTST  ; Continue through Op-code Tree, first 4 are 0000
         
-        Jsr     GETBIT8         ; Change out test bits
+        Jsr     GET6TO8         ; Change out test bits
         
-        Cmp.B     #%1, D0          ; Bit test
-        Beq     OP_BSTS
+        Cmp.B     #%100, D0          ; Bit test
+        Beq     OP_BTST
+        
+        Jsr     GET6TO11
+        
+        Cmp.B   #%100000,D0     ;BTST
+        Beq     OP_BTST
         
         Jsr     GET9TO11        ; Change out test bits
         
@@ -92,10 +97,10 @@ SINGLE_OPERATOR_CODES   ; Continue through Op-code Tree, first 4 are 0100
         Beq     OP_NOT
         
         Cmp.B     #%100, D0    ; Move multiple registers Registers -> Memory
-        Beq     OP_MOVEM
+        Beq     OP_MOVEM_RTOM
         
         Cmp.B     #%110, D0    ; Move multiple registers Memory -> Registers
-        Beq     OP_MOVEM
+        Beq     OP_MOVEM_MTOR
         
         Cmp.B     #%111, D0    ; Not enough info, call JSR_RTS
         Beq     JSR_RTS
@@ -166,6 +171,23 @@ BRANCH_CONDITIONALS     ; All Branch conditionals, and BRA. first 4 are 0110
         Bra     ILLEGAL     ; Not including False* because it makes no sense
 
 AND_MULS        ; Continue through the Op-code Tree, The first four bits are 1100
+
+        Jsr     Get3TO8
+        
+        Cmp.B     #%100001, D0   ; ABCD
+        Beq     ILLEGAL
+        
+        Cmp.B     #%100000,D0    ; ABCD
+        Beq     ILLEGAL
+        
+        Cmp.B     #%101000,D0    ; EXG
+        Beq     ILLEGAL
+
+        Cmp.B     #%101001,D0    ; EXG
+        Beq     ILLEGAL
+
+        Cmp.B     #%110001,D0    ; EXG
+        Beq     ILLEGAL        
 
         Jsr     GET6TO8        ; Change out test bits        
 
@@ -274,6 +296,15 @@ OP_MOVE_DATA
 ;-----------------------  ADDQ  -----------------------------;
         
 OP_ADDQ
+    ; Check fringe cases
+        Jsr     GETBIT8
+        Cmp.B   #%1,D0
+        Beq     ILLEGAL
+        
+        Jsr     GET6AND7
+        Cmp.B   #%11
+        Bne     ILLEGAL
+
     ; start string
     
         Move.B  #'A', (A6)+
@@ -294,6 +325,12 @@ OP_ADDQ
 ;------------------  DIVIDE SINGED  -------------------------;
     
 OP_DIVS
+    ; One last check to make sure I have the right stuff
+    
+        Jsr     GET6TO8
+        Cmp     #%111,D0
+        Beq     ILLEGAL
+
     ; start string
     
         Move.B  #'D', (A6)+
@@ -392,7 +429,7 @@ OP_ADD_ADDR
 
 ;------------------------  BTST -----------------------------;
 
-OP_BSTS
+OP_BTST
     ; start string
     
         Move.B  #'B', (A6)+
@@ -1276,6 +1313,31 @@ GET6AND7    ; 0000 0000 1100 0000 -> 11
 				
 				RTS
 				
+GET3TO8    ; 0000 0000 1100 0000 -> 11
+                CLR.L	D0
+				Move.W 	D4, D0
+				
+				Move.B	#7, D1
+				LSL.W 	D1, D0
+				
+				Move.B	#10, D1
+				LSR.W	D1, D0
+				
+				RTS
+
+GET6TO11    ; 0000 0000 1100 0000 -> 11
+                CLR.L	D0
+				Move.W 	D4, D0
+				
+				Move.B	#4, D1
+				LSL.W 	D1, D0
+				
+				Move.B	#10, D1
+				LSR.W	D1, D0
+				
+				RTS
+				
+				
 GET3AND4    ; 0000 0000 0001 1000 -> 11
                 CLR.L	D0
 				Move.W 	D4, D0
@@ -1287,6 +1349,8 @@ GET3AND4    ; 0000 0000 0001 1000 -> 11
 				LSR.W	D1, D0
 				
 				RTS
+				
+				
 
 DONE       ; Close out the program
         Move.B #9, D0

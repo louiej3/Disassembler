@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.02
-Created On: 11/26/2014 1:39:52 PM
+Created On: 11/18/2014 1:50:30 PM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      : Dissassembler Op-code Tree
@@ -14,1291 +14,1017 @@ Created On: 11/26/2014 1:39:52 PM
 00001000  6000 0002                 10          Bra     OP_CODE_TREE
 00001004                            11  
 00001004                            12  OP_CODE_TREE    ; Parses the Op-Code to find what it is
-00001004  4EB9 000016BE             13          Jsr     GET12TO15
+00001004  4EB9 00001554             13          Jsr     GET12TO15
 0000100A                            14          
 0000100A  B03C 0000                 15          Cmp.B     #%0000, D0       ; first 4 is 0000, not enough info Immediates
 0000100E  6700 0066                 16          Beq     IMMEDIATE_BTST
 00001012                            17          
 00001012  B03C 0001                 18          Cmp.B     #%0001, D0       ; Move.B & MoveA.B
-00001016  6700 01EC                 19          Beq     OP_MOVE
+00001016  6700 01E4                 19          Beq     OP_MOVE
 0000101A                            20          
 0000101A  B03C 0003                 21          Cmp.B     #%0011, D0       ; Move.W & MoveA.W
-0000101E  6700 01E4                 22          Beq     OP_MOVE
+0000101E  6700 01DC                 22          Beq     OP_MOVE
 00001022                            23  
 00001022  B03C 0002                 24          Cmp.B     #%0010, D0       ; Move.L & MoveA.L
-00001026  6700 01DC                 25          Beq     OP_MOVE
+00001026  6700 01D4                 25          Beq     OP_MOVE
 0000102A                            26          
 0000102A  B03C 0004                 27          Cmp.B     #%0100, D0       ; not enough info, Single OPs
-0000102E  6700 007E                 28          Beq     SINGLE_OPERATOR_CODES
+0000102E  6700 0076                 28          Beq     SINGLE_OPERATOR_CODES
 00001032                            29      
 00001032  B03C 0006                 30          Cmp.B     #%0110, D0       ; Beqnch conditionals
-00001036  6700 00D0                 31          Beq     BRANCH_CONDITIONALS
+00001036  6700 00C8                 31          Beq     BRANCH_CONDITIONALS
 0000103A                            32          
 0000103A  B03C 000C                 33          Cmp.B     #%1100, D0       ; not enough info, AND or MULS
-0000103E  6700 014A                 34          Beq     AND_MULS
+0000103E  6700 0142                 34          Beq     AND_MULS
 00001042                            35          
 00001042  B03C 000E                 36          Cmp.B     #%1110, D0       ; not enough info, bit shifts
-00001046  6700 0154                 37          Beq     BIT_SHIFT
+00001046  6700 014C                 37          Beq     BIT_SHIFT
 0000104A                            38          
 0000104A  B03C 0005                 39          Cmp.B     #%0101, D0       ; Add Quick
-0000104E  6700 01FC                 40          Beq     OP_ADDQ
+0000104E  6700 01F4                 40          Beq     OP_ADDQ
 00001052                            41          
 00001052  B03C 0008                 42          Cmp.B     #%1000, D0       ; Signed Divide
-00001056  6700 0210                 43          Beq     OP_DIVS
+00001056  6700 01F0                 43          Beq     OP_DIVS
 0000105A                            44          
 0000105A  B03C 0009                 45          Cmp.B     #%1001, D0       ; Sub & SubA
-0000105E  6700 0226                 46          Beq     OP_SUB
+0000105E  6700 01EC                 46          Beq     OP_SUB
 00001062                            47          
 00001062  B03C 000B                 48          Cmp.B     #%1011, D0       ; Cmp.B & Cmp.BA & Eor
-00001066  6700 018A                 49          Beq     CMP_EOR
+00001066  6700 0182                 49          Beq     CMP_EOR
 0000106A                            50          
 0000106A  B03C 000D                 51          Cmp.B     #%1101, D0       ; Add & AddA
-0000106E  6700 024C                 52          Beq     OP_ADD
+0000106E  6700 0212                 52          Beq     OP_ADD
 00001072                            53          
-00001072  6000 06FE                 54          Bra     ILLEGAL         ; If the first 4 has not been covered, then the code is illegal
+00001072  6000 0594                 54          Bra     ILLEGAL         ; If the first 4 has not been covered, then the code is illegal
 00001076                            55          
 00001076                            56  IMMEDIATE_BTST  ; Continue through Op-code Tree, first 4 are 0000
 00001076                            57          
-00001076  4EB9 00001724             58          Jsr     GETBIT8         ; Change out test bits
+00001076  4EB9 000015BA             58          Jsr     GETBIT8         ; Change out test bits
 0000107C                            59          
 0000107C  B03C 0001                 60          Cmp.B     #%1, D0          ; Bit test
-00001080  6700 0270                 61          Beq     OP_BSTS
+00001080  6700 0236                 61          Beq     OP_BSTS
 00001084                            62          
-00001084  4EB9 000016DC             63          Jsr     GET9TO11        ; Change out test bits
+00001084  4EB9 00001572             63          Jsr     GET9TO11        ; Change out test bits
 0000108A                            64          
 0000108A  B03C 0000                 65          Cmp.B     #%000, D0        ; Or I
-0000108E  6700 0278                 66          Beq     OP_ORI
+0000108E  6700 022C                 66          Beq     OP_ORI
 00001092                            67          
 00001092  B03C 0002                 68          Cmp.B     #%010, D0        ; Subtract I
-00001096  6700 0288                 69          Beq     OP_SUBI
+00001096  6700 0228                 69          Beq     OP_SUBI
 0000109A                            70          
 0000109A  B03C 0005                 71          Cmp.B     #%101, D0        ; Exclusive or, I
-0000109E  6700 029C                 72          Beq     OP_EORI
+0000109E  6700 0224                 72          Beq     OP_EORI
 000010A2                            73          
-000010A2  B03C 0006                 74          Cmp.B     #%110, D0        ; Compare I
-000010A6  6700 02B0                 75          Beq     OP_CMPI
-000010AA                            76          
-000010AA  6000 06C6                 77          Bra     ILLEGAL         ; Everything else is uncovered
-000010AE                            78          
-000010AE                            79  SINGLE_OPERATOR_CODES   ; Continue through Op-code Tree, first 4 are 0100
-000010AE                            80  
-000010AE  4EB9 00001724             81          Jsr     GETBIT8         ; Change out test bits
+000010A2  6000 0564                 74          Bra     ILLEGAL         ; Everything else is uncovered
+000010A6                            75          
+000010A6                            76  SINGLE_OPERATOR_CODES   ; Continue through Op-code Tree, first 4 are 0100
+000010A6                            77  
+000010A6  4EB9 000015BA             78          Jsr     GETBIT8         ; Change out test bits
+000010AC                            79          
+000010AC  B03C 0001                 80          Cmp.B     #%1, D0      ; Load effetive address
+000010B0  6700 0216                 81          Beq     OP_LEA
 000010B4                            82          
-000010B4  B03C 0001                 83          Cmp.B     #%1, D0      ; Load effetive address
-000010B8  6700 02BA                 84          Beq     OP_LEA
-000010BC                            85          
-000010BC  4EB9 000016DC             86          Jsr     GET9TO11        ; Change out test bits        
-000010C2                            87  
-000010C2  B03C 0002                 88          Cmp.B     #%010, D0    ; Negate
-000010C6  6700 02BE                 89          Beq     OP_NEG
-000010CA                            90         
-000010CA  B03C 0003                 91          Cmp.B     #%011, D0    ; Not
-000010CE  6700 02CE                 92          Beq     OP_NOT
+000010B4  4EB9 00001572             83          Jsr     GET9TO11        ; Change out test bits        
+000010BA                            84  
+000010BA  B03C 0002                 85          Cmp.B     #%010, D0    ; Negate
+000010BE  6700 020C                 86          Beq     OP_NEG
+000010C2                            87         
+000010C2  B03C 0003                 88          Cmp.B     #%011, D0    ; Not
+000010C6  6700 0208                 89          Beq     OP_NOT
+000010CA                            90          
+000010CA  B03C 0004                 91          Cmp.B     #%100, D0    ; Move multiple registers Registers -> Memory
+000010CE  6700 0204                 92          Beq     OP_MOVEM_RTOM
 000010D2                            93          
-000010D2  B03C 0004                 94          Cmp.B     #%100, D0    ; Move multiple registers Registers -> Memory
-000010D6  6700 02DE                 95          Beq     OP_MOVEM
+000010D2  B03C 0006                 94          Cmp.B     #%110, D0    ; Move multiple registers Memory -> Registers
+000010D6  6700 0200                 95          Beq     OP_MOVEM_MTOR
 000010DA                            96          
-000010DA  B03C 0006                 97          Cmp.B     #%110, D0    ; Move multiple registers Memory -> Registers
-000010DE  6700 02D6                 98          Beq     OP_MOVEM
+000010DA  B03C 0007                 97          Cmp.B     #%111, D0    ; Not enough info, call JSR_RTS
+000010DE  6700 0006                 98          Beq     JSR_RTS
 000010E2                            99          
-000010E2  B03C 0007                100          Cmp.B     #%111, D0    ; Not enough info, call JSR_RTS
-000010E6  6700 0006                101          Beq     JSR_RTS
-000010EA                           102          
-000010EA  6000 0686                103          Bra     ILLEGAL     ; Everything else is uncovered
-000010EE                           104  
-000010EE                           105  JSR_RTS     ; Continue through OP tree, first 4 are 0100, 8-11 are 1110
-000010EE                           106  
-000010EE  4EB9 000016EE            107          Jsr     GET6TO8        ; Change out test bits        
-000010F4                           108  
-000010F4  B03C 0001                109          Cmp.B     #%001, D0    ; Return from subroutine
-000010F8  6700 02EE                110          Beq     OP_RTS
+000010E2  6000 0524                100          Bra     ILLEGAL     ; Everything else is uncovered
+000010E6                           101  
+000010E6                           102  JSR_RTS     ; Continue through OP tree, first 4 are 0100, 8-11 are 1110
+000010E6                           103  
+000010E6  4EB9 00001584            104          Jsr     GET6TO8        ; Change out test bits        
+000010EC                           105  
+000010EC  B03C 0001                106          Cmp.B     #%001, D0    ; Return from subroutine
+000010F0  6700 01EA                107          Beq     OP_RTS
+000010F4                           108          
+000010F4  B03C 0002                109          Cmp.B     #%010, D0    ; Jump to Subroutine
+000010F8  6700 01E6                110          Beq     OP_JSR
 000010FC                           111          
-000010FC  B03C 0002                112          Cmp.B     #%010, D0    ; Jump to Subroutine
-00001100  6700 02F8                113          Beq     OP_JSR
-00001104                           114          
-00001104  6000 066C                115          Bra     ILLEGAL     ; Everything else is uncovered
-00001108                           116  
-00001108                           117  BRANCH_CONDITIONALS     ; All Branch conditionals, and BRA. first 4 are 0110
-00001108                           118  
-00001108  4EB9 000016CA            119          Jsr     GET8TO11    ; Change out test bits        
-0000110E                           120  
-0000110E  B03C 0000                121          Cmp.B     #%0000, D0   ; Branch
-00001112  6700 02F8                122          Beq     OP_BRANCH      
+000010FC  6000 050A                112          Bra     ILLEGAL     ; Everything else is uncovered
+00001100                           113  
+00001100                           114  BRANCH_CONDITIONALS     ; All Branch conditionals, and BRA. first 4 are 0110
+00001100                           115  
+00001100  4EB9 00001560            116          Jsr     GET8TO11    ; Change out test bits        
+00001106                           117  
+00001106  B03C 0000                118          Cmp.B     #%0000, D0   ; Branch
+0000110A  6700 01D8                119          Beq     OP_BRANCH      
+0000110E                           120          
+0000110E  B03C 0002                121          Cmp.B     #%0010, D0   ; High
+00001112  6700 01E2                122          Beq     OP_BRA_HIGH
 00001116                           123          
-00001116  B03C 0002                124          Cmp.B     #%0010, D0   ; High
-0000111A  6700 0302                125          Beq     OP_BRA_HIGH
+00001116  B03C 0003                124          Cmp.B     #%0011, D0   ; Low/same
+0000111A  6700 01EC                125          Beq     OP_BRA_LOW
 0000111E                           126          
-0000111E  B03C 0003                127          Cmp.B     #%0011, D0   ; Low/same
-00001122  6700 030C                128          Beq     OP_BRA_LOW
+0000111E  B03C 0004                127          Cmp.B     #%0100, D0   ; Carry Clear
+00001122  6700 01F6                128          Beq     OP_BRA_CC
 00001126                           129          
-00001126  B03C 0004                130          Cmp.B     #%0100, D0   ; Carry Clear
-0000112A  6700 0316                131          Beq     OP_BRA_CC
+00001126  B03C 0005                130          Cmp.B     #%0101, D0   ; Carry Set
+0000112A  6700 0200                131          Beq     OP_BRA_CS
 0000112E                           132          
-0000112E  B03C 0005                133          Cmp.B     #%0101, D0   ; Carry Set
-00001132  6700 0320                134          Beq     OP_BRA_CS
+0000112E  B03C 0006                133          Cmp.B     #%0110, D0   ; Not Equal
+00001132  6700 020A                134          Beq     OP_BRA_NE
 00001136                           135          
-00001136  B03C 0006                136          Cmp.B     #%0110, D0   ; Not Equal
-0000113A  6700 032A                137          Beq     OP_BRA_NE
+00001136  B03C 0007                136          Cmp.B     #%0111, D0   ; Equal
+0000113A  6700 0214                137          Beq     OP_BRA_EQ
 0000113E                           138          
-0000113E  B03C 0007                139          Cmp.B     #%0111, D0   ; Equal
-00001142  6700 0334                140          Beq     OP_BRA_EQ
+0000113E  B03C 0008                139          Cmp.B     #%1000, D0   ; Overflow Clear
+00001142  6700 021E                140          Beq     OP_BRA_VC
 00001146                           141          
-00001146  B03C 0008                142          Cmp.B     #%1000, D0   ; Overflow Clear
-0000114A  6700 033E                143          Beq     OP_BRA_VC
+00001146  B03C 0009                142          Cmp.B     #%1001, D0   ; Overflow Set
+0000114A  6700 0228                143          Beq     OP_BRA_VS
 0000114E                           144          
-0000114E  B03C 0009                145          Cmp.B     #%1001, D0   ; Overflow Set
-00001152  6700 0348                146          Beq     OP_BRA_VS
+0000114E  B03C 000A                145          Cmp.B     #%1010, D0   ; Plus
+00001152  6700 0232                146          Beq     OP_BRA_PL
 00001156                           147          
-00001156  B03C 000A                148          Cmp.B     #%1010, D0   ; Plus
-0000115A  6700 0352                149          Beq     OP_BRA_PL
+00001156  B03C 000B                148          Cmp.B     #%1011, D0   ; Minus
+0000115A  6700 023C                149          Beq     OP_BRA_MI
 0000115E                           150          
-0000115E  B03C 000B                151          Cmp.B     #%1011, D0   ; Minus
-00001162  6700 035C                152          Beq     OP_BRA_MI
+0000115E  B03C 000C                151          Cmp.B     #%1100, D0   ; Greater than or Equal
+00001162  6700 0246                152          Beq     OP_BRA_GE
 00001166                           153          
-00001166  B03C 000C                154          Cmp.B     #%1100, D0   ; Greater than or Equal
-0000116A  6700 0366                155          Beq     OP_BRA_GE
+00001166  B03C 000D                154          Cmp.B     #%1101, D0   ; Less Than
+0000116A  6700 0250                155          Beq     OP_BRA_LT
 0000116E                           156          
-0000116E  B03C 000D                157          Cmp.B     #%1101, D0   ; Less Than
-00001172  6700 0370                158          Beq     OP_BRA_LT
+0000116E  B03C 000E                157          Cmp.B     #%1110, D0   ; Greater Than
+00001172  6700 025A                158          Beq     OP_BRA_GT
 00001176                           159          
-00001176  B03C 000E                160          Cmp.B     #%1110, D0   ; Greater Than
-0000117A  6700 037A                161          Beq     OP_BRA_GT
+00001176  B03C 000F                160          Cmp.B     #%1111, D0   ; Less than or Equal
+0000117A  6700 0264                161          Beq     OP_BRA_LE
 0000117E                           162          
-0000117E  B03C 000F                163          Cmp.B     #%1111, D0   ; Less than or Equal
-00001182  6700 0384                164          Beq     OP_BRA_LE
-00001186                           165          
-00001186  6000 05EA                166          Bra     ILLEGAL     ; Not including False* because it makes no sense
-0000118A                           167  
-0000118A                           168  AND_MULS        ; Continue through the Op-code Tree, The first four bits are 1100
-0000118A                           169  
-0000118A  4EB9 000016EE            170          Jsr     GET6TO8        ; Change out test bits        
-00001190                           171  
-00001190  B03C 0007                172          Cmp.B     #%111, D0    ; Multiply signed
-00001194  6700 0384                173          Beq     OP_MULS
-00001198                           174          
-00001198  6000 039E                175          Bra     OP_AND      ; Probably AND, check more in OP_AND
-0000119C                           176          
-0000119C                           177  BIT_SHIFT        ; Continue through the Op-code Tree, The first four bits are 1110
-0000119C                           178          
-0000119C                           179          ; Determine if the shift is Register or Memory shifting
-0000119C                           180          
-0000119C  4EB9 00001748            181          Jsr     GET6AND7
-000011A2                           182          
-000011A2  B03C 0003                183          Cmp.B   #%11, D0        ; If the data size field is 11, its Memory
-000011A6  6700 0006                184          Beq     BIT_SHIFT_MEM
-000011AA                           185  
-000011AA  6000 0024                186          Bra     BIT_SHIFT_REG   ; In all other cases, its register shift
-000011AE                           187  
-000011AE                           188  BIT_SHIFT_MEM
-000011AE                           189          
-000011AE  4EB9 00001736            190          Jsr     GET9AND10         ; Change out test bits
+0000117E  6000 0488                163          Bra     ILLEGAL     ; Not including False* because it makes no sense
+00001182                           164  
+00001182                           165  AND_MULS        ; Continue through the Op-code Tree, The first four bits are 1100
+00001182                           166  
+00001182  4EB9 00001584            167          Jsr     GET6TO8        ; Change out test bits        
+00001188                           168  
+00001188  B03C 0007                169          Cmp.B     #%111, D0    ; Multiply signed
+0000118C  6700 0264                170          Beq     OP_MULS
+00001190                           171          
+00001190  6000 0264                172          Bra     OP_AND      ; Probably AND, check more in OP_AND
+00001194                           173          
+00001194                           174  BIT_SHIFT        ; Continue through the Op-code Tree, The first four bits are 1110
+00001194                           175          
+00001194                           176          ; Determine if the shift is Register or Memory shifting
+00001194                           177          
+00001194  4EB9 000015DE            178          Jsr     GET6AND7
+0000119A                           179          
+0000119A  B03C 0003                180          Cmp.B   #%11, D0        ; If the data size field is 11, its Memory
+0000119E  6700 0006                181          Beq     BIT_SHIFT_MEM
+000011A2                           182  
+000011A2  6000 0024                183          Bra     BIT_SHIFT_REG   ; In all other cases, its register shift
+000011A6                           184  
+000011A6                           185  BIT_SHIFT_MEM
+000011A6                           186          
+000011A6  4EB9 000015CC            187          Jsr     GET9AND10         ; Change out test bits
+000011AC                           188          
+000011AC  B03C 0000                189          Cmp.B     #%00, D0        ; Arithmetic Shifts (Left or Right)
+000011B0  6700 0262                190          Beq     OP_AS_MEM
 000011B4                           191          
-000011B4  B03C 0000                192          Cmp.B     #%00, D0        ; Arithmetic Shifts (Left or Right)
-000011B8  6700 03B0                193          Beq     OP_AS_MEM
+000011B4  B03C 0001                192          Cmp.B     #%01, D0        ; Logical Shift (Left or Right)
+000011B8  6700 0288                193          Beq     OP_LS_MEM
 000011BC                           194          
-000011BC  B03C 0001                195          Cmp.B     #%01, D0        ; Logical Shift (Left or Right)
-000011C0  6700 03D6                196          Beq     OP_LS_MEM
+000011BC  B03C 0003                195          Cmp.B     #%11, D0        ; Rotate (Left or Right)
+000011C0  6700 02AE                196          Beq     OP_RO_MEM
 000011C4                           197          
-000011C4  B03C 0003                198          Cmp.B     #%11, D0        ; Rotate (Left or Right)
-000011C8  6700 03FC                199          Beq     OP_RO_MEM
-000011CC                           200          
-000011CC  6000 05A4                201          Bra     ILLEGAL         ; Otherwise it is not an accepted command
-000011D0                           202  
-000011D0                           203  BIT_SHIFT_REG
-000011D0                           204          
-000011D0  4EB9 0000175A            205          Jsr     GET3AND4        ; Change out test bits
+000011C4  6000 0442                198          Bra     ILLEGAL         ; Otherwise it is not an accepted command
+000011C8                           199  
+000011C8                           200  BIT_SHIFT_REG
+000011C8                           201          
+000011C8  4EB9 000015F0            202          Jsr     GET3AND4        ; Change out test bits
+000011CE                           203          
+000011CE  B03C 0000                204          Cmp.B     #%00, D0        ; Arithmetic Shifts (Left or Right)
+000011D2  6700 0226                205          Beq     OP_AS_REG
 000011D6                           206          
-000011D6  B03C 0000                207          Cmp.B     #%00, D0        ; Arithmetic Shifts (Left or Right)
-000011DA  6700 0374                208          Beq     OP_AS_REG
+000011D6  B03C 0001                207          Cmp.B     #%01, D0        ; Logical Shift (Left or Right)
+000011DA  6700 024C                208          Beq     OP_LS_REG
 000011DE                           209          
-000011DE  B03C 0001                210          Cmp.B     #%01, D0        ; Logical Shift (Left or Right)
-000011E2  6700 039A                211          Beq     OP_LS_REG
+000011DE  B03C 0003                210          Cmp.B     #%11, D0        ; Rotate (Left or Right)
+000011E2  6700 0272                211          Beq     OP_RO_REG
 000011E6                           212          
-000011E6  B03C 0003                213          Cmp.B     #%11, D0        ; Rotate (Left or Right)
-000011EA  6700 03C0                214          Beq     OP_RO_REG
-000011EE                           215          
-000011EE  6000 0582                216          Bra     ILLEGAL         ; Otherwise it is not an accepted command
-000011F2                           217  CMP_EOR     ; Continue through the Op-code Tree, The first four bits are 1011     
-000011F2                           218          
-000011F2  4EB9 00001724            219          Jsr     GETBIT8         ; Change out test bits
+000011E6  6000 0420                213          Bra     ILLEGAL         ; Otherwise it is not an accepted command
+000011EA                           214  CMP_EOR     ; Continue through the Op-code Tree, The first four bits are 1011     
+000011EA                           215          
+000011EA  4EB9 000015BA            216          Jsr     GETBIT8         ; Change out test bits
+000011F0                           217          
+000011F0  B03C 0001                218          Cmp.B     #%1, D0         ; If bit 8 is 1, It much be EOR
+000011F4  6700 02C4                219          Beq     OP_EOR
 000011F8                           220          
-000011F8  B03C 0001                221          Cmp.B     #%1, D0         ; If bit 8 is 1, It much be EOR
-000011FC  6700 0412                222          Beq     OP_EOR
-00001200                           223          
-00001200  6000 03D8                224          Bra     OP_CMP          ; Otherwise, it must be Cmp.B or Cmp.BA
-00001204                           225  
-00001204                           226  ;---------------------OP_CODE Functions---------------------;
-00001204                           227  ; These Functions have all determined what Op-code or group
-00001204                           228  ; of op-codes I have. The next goal is to Add to the string
-00001204                           229  ; and call the accompying EA function to get the rest of the
-00001204                           230  ; String
-00001204                           231  
-00001204                           232  ; REGISTERS USED: D0, D4 (const), A6
-00001204                           233  
-00001204                           234  ;-----------------------  MOVE  -----------------------------;
-00001204                           235  OP_MOVE
-00001204                           236      ; start string
-00001204                           237      
-00001204  1CFC 004D                238          Move.B  #'M', (A6)+
-00001208  1CFC 004F                239          Move.B  #'O', (A6)+
-0000120C  1CFC 0056                240          Move.B  #'V', (A6)+
-00001210  1CFC 0045                241          Move.B  #'E', (A6)+
-00001214                           242      
-00001214                           243      ; is it an address move?
-00001214  4EB9 000016EE            244          Jsr     GET6TO8     ; Get the mode
-0000121A  4EB9 00001640            245          Jsr     OP_CHECK_ADDRESS_VERSION ; Check for A version
-00001220                           246          
-00001220                           247      ; Check data size, Normally i would call OP_CHECK_DATA_SIZE
-00001220                           248      ; But move does not use the Op-mode bits, so i'll do it manually
-00001220                           249      
-00001220  4EB9 000016BE            250          Jsr     GET12TO15
-00001226                           251  
-00001226                           252          ; Jump to a sub routine to get the data, so it returns back correctly
-00001226  4EB9 00001232            253          Jsr     OP_MOVE_DATA
-0000122C                           254          
-0000122C                           255          ; Put in tabs
-0000122C  4EB9 0000162E            256          Jsr     OP_TAB
-00001232                           257          
-00001232                           258          ; Hand the function off to John
-00001232                           259          ;Bra     EA_MOVE        
-00001232                           260  
-00001232                           261  OP_MOVE_DATA
+000011F8  6000 028A                221          Bra     OP_CMP          ; Otherwise, it must be Cmp.B or Cmp.BA
+000011FC                           222  
+000011FC                           223  ;---------------------OP_CODE Functions---------------------;
+000011FC                           224  ; These Functions have all determined what Op-code or group
+000011FC                           225  ; of op-codes I have. The next goal is to Add to the string
+000011FC                           226  ; and call the accompying EA function to get the rest of the
+000011FC                           227  ; String
+000011FC                           228  
+000011FC                           229  ; REGISTERS USED: D0, D4 (const), A6
+000011FC                           230  
+000011FC                           231  ;-----------------------  MOVE  -----------------------------;
+000011FC                           232  OP_MOVE
+000011FC                           233      ; start string
+000011FC                           234      
+000011FC  1CFC 004D                235          Move.B  #'M', (A6)+
+00001200  1CFC 004F                236          Move.B  #'O', (A6)+
+00001204  1CFC 0056                237          Move.B  #'V', (A6)+
+00001208  1CFC 0045                238          Move.B  #'E', (A6)+
+0000120C                           239      
+0000120C                           240      ; is it an address move?
+0000120C  4EB9 00001584            241          Jsr     GET6TO8     ; Get the mode
+00001212  4EB9 000014D6            242          Jsr     OP_CHECK_ADDRESS_VERSION ; Check for A version
+00001218                           243          
+00001218                           244      ; Check data size, Normally i would call OP_CHECK_DATA_SIZE
+00001218                           245      ; But move does not use the Op-mode bits, so i'll do it manually
+00001218                           246      
+00001218  4EB9 00001554            247          Jsr     GET12TO15
+0000121E                           248  
+0000121E                           249          ; Jump to a sub routine to get the data, so it returns back correctly
+0000121E  4EB9 0000122A            250          Jsr     OP_MOVE_DATA
+00001224                           251          
+00001224                           252          ; Put in tabs
+00001224  4EB9 000014C4            253          Jsr     OP_TAB
+0000122A                           254          
+0000122A                           255          ; Hand the function off to John
+0000122A                           256          ;Bra     EA_MOVE        
+0000122A                           257  
+0000122A                           258  OP_MOVE_DATA
+0000122A                           259          
+0000122A  B07C 0001                260          Cmp     #%0001, D0
+0000122E  6700 02E8                261          Beq     OP_SET_DATA_BYTE
 00001232                           262          
-00001232  B07C 0001                263          Cmp     #%0001, D0
-00001236  6700 044A                264          Beq     OP_SET_DATA_BYTE
+00001232  B07C 0002                263          Cmp     #%0010, D0
+00001236  6700 02F4                264          Beq     OP_SET_DATA_LONG
 0000123A                           265          
-0000123A  B07C 0002                266          Cmp     #%0010, D0
-0000123E  6700 0456                267          Beq     OP_SET_DATA_LONG
+0000123A  B07C 0003                266          Cmp     #%0011, D0
+0000123E  6700 02E2                267          Beq     OP_SET_DATA_WORD
 00001242                           268          
-00001242  B07C 0003                269          Cmp     #%0011, D0
-00001246  6700 0444                270          Beq     OP_SET_DATA_WORD
-0000124A                           271          
-0000124A  4E75                     272          Rts
-0000124C                           273  
-0000124C                           274  ;-----------------------  ADDQ  -----------------------------;
-0000124C                           275          
-0000124C                           276  OP_ADDQ
-0000124C                           277      ; start string
+00001242  4E75                     269          Rts
+00001244                           270          
+00001244                           271  OP_ADDQ
+00001244  6000 03BC                272      Bra DONE    ; PLACEHOLDER
+00001248                           273      
+00001248                           274  ;------------------  DIVIDE SINGED  -------------------------;
+00001248                           275      
+00001248                           276  OP_DIVS
+00001248  6000 03B8                277      Bra DONE    ; PLACEHOLDER
 0000124C                           278      
-0000124C  1CFC 0041                279          Move.B  #'A', (A6)+
-00001250  1CFC 0044                280          Move.B  #'D', (A6)+
-00001254  1CFC 0044                281          Move.B  #'D', (A6)+
-00001258  1CFC 0051                282          Move.B  #'Q', (A6)+
-0000125C                           283          
-0000125C                           284      ; Check data type        
-0000125C  4EB9 00001650            285          Jsr     OP_CHECK_DATA_SIZE
-00001262                           286          
-00001262                           287      ; Put in tabs
-00001262  4EB9 0000162E            288          Jsr     OP_TAB
-00001268                           289          
-00001268                           290      ; Hand the function off to John
-00001268                           291          ;Bra     EA_IMMEDIATE
-00001268                           292  
-00001268                           293      
-00001268                           294  ;------------------  DIVIDE SINGED  -------------------------;
-00001268                           295      
-00001268                           296  OP_DIVS
-00001268                           297      ; start string
-00001268                           298      
-00001268  1CFC 0044                299          Move.B  #'D', (A6)+
-0000126C  1CFC 0049                300          Move.B  #'I', (A6)+
-00001270  1CFC 0056                301          Move.B  #'V', (A6)+
-00001274  1CFC 0053                302          Move.B  #'S', (A6)+
-00001278  1CFC 002E                303          Move.B  #'.', (A6)+
-0000127C  1CFC 0057                304          Move.B  #'W', (A6)+
-00001280                           305          
-00001280                           306      ; Put in tabs
-00001280  4EB9 0000162E            307          Jsr     OP_TAB    
-00001286                           308      
-00001286                           309      ; Handoff to John
-00001286                           310          
-00001286                           311          ;Bra     #OP_DIVS
-00001286                           312  
-00001286                           313      
-00001286                           314  ;-----------------------  SUB  ------------------------------;    
-00001286                           315      
-00001286                           316  OP_SUB
-00001286                           317      ; start string
-00001286                           318      
-00001286  1CFC 0053                319          Move.B  #'S', (A6)+
-0000128A  1CFC 0055                320          Move.B  #'U', (A6)+
-0000128E  1CFC 0042                321          Move.B  #'B', (A6)+
-00001292                           322  
-00001292                           323  
-00001292                           324       ; Check for address version
-00001292                           325          
-00001292  4EB9 00001748            326          Jsr     GET6AND7
-00001298  B03C 0003                327          Cmp.B   #%11, D0    ; if both bits are 1 it is an address version
-0000129C                           328          
-0000129C  6700 000E                329          Beq     OP_SUB_ADDR
-000012A0                           330  
-000012A0                           331          ; Don't need to worry about ADDA in V1
-000012A0                           332          ; Check data size
-000012A0  4EB9 00001650            333          Jsr     OP_CHECK_DATA_SIZE
-000012A6                           334          
-000012A6                           335          ; Put in tabs
-000012A6  4EB9 0000162E            336          Jsr     OP_TAB
-000012AC                           337          
-000012AC                           338          ;Bra     EA_ADD 
-000012AC                           339          
-000012AC                           340  OP_SUB_ADDR
-000012AC                           341          
-000012AC  1CFC 0041                342          Move.B  #'A',(A6)+ ; add to the string
-000012B0                           343          
-000012B0                           344          ; Find data size
-000012B0                           345          
-000012B0  4EB9 00001670            346          Jsr     OP_CHECK_DATA_SIZE_ADDR
-000012B6                           347          
-000012B6                           348          ; Put in tabs
-000012B6  4EB9 0000162E            349          Jsr     OP_TAB
-000012BC                           350          
-000012BC                           351          ; Handoff
-000012BC                           352          ;Bra     EA_SUBA
-000012BC                           353          
-000012BC                           354  ;-----------------------  ADD  ------------------------------;
-000012BC                           355  
-000012BC                           356  OP_ADD
-000012BC                           357      ; start string
-000012BC                           358      
-000012BC  1CFC 0041                359          Move.B  #'A', (A6)+
-000012C0  1CFC 0044                360          Move.B  #'D', (A6)+
-000012C4  1CFC 0044                361          Move.B  #'D', (A6)+
-000012C8                           362  
-000012C8                           363      ; Check for address version
-000012C8                           364          
-000012C8  4EB9 00001748            365          Jsr     GET6AND7
-000012CE  B03C 0003                366          Cmp.B   #%11, D0    ; if both bits are 1 it is an address version
-000012D2                           367          
-000012D2  6700 000E                368          Beq     OP_ADD_ADDR
-000012D6                           369          
-000012D6                           370          ; Don't need to worry about ADDA in V1
-000012D6                           371          ; Check data size
-000012D6  4EB9 00001650            372          Jsr     OP_CHECK_DATA_SIZE
-000012DC                           373          
-000012DC                           374          ; Put in tabs
-000012DC  4EB9 0000162E            375          Jsr     OP_TAB
-000012E2                           376          
-000012E2                           377          ;Bra     EA_ADD
-000012E2                           378          
-000012E2                           379  OP_ADD_ADDR
-000012E2                           380          
-000012E2  1CFC 0041                381          Move.B  #'A',(A6)+ ; add to the string
-000012E6                           382          
-000012E6                           383          ; Find data size
-000012E6                           384          
-000012E6  4EB9 00001670            385          Jsr     OP_CHECK_DATA_SIZE_ADDR
-000012EC                           386          
-000012EC                           387          ; Put in tabs
-000012EC  4EB9 0000162E            388          Jsr     OP_TAB
-000012F2                           389          
-000012F2                           390          ; Handoff
-000012F2                           391          ;Bra     EA_ADDA
-000012F2                           392  
-000012F2                           393  ;------------------------  BTST -----------------------------;
-000012F2                           394  
-000012F2                           395  OP_BSTS
-000012F2                           396      ; start string
-000012F2                           397      
-000012F2  1CFC 0042                398          Move.B  #'B', (A6)+
-000012F6  1CFC 0054                399          Move.B  #'T', (A6)+
-000012FA  1CFC 0053                400          Move.B  #'S', (A6)+
-000012FE  1CFC 0054                401          Move.B  #'T', (A6)+
-00001302                           402          
-00001302                           403      ; Btst has data sizes, but they are implicit based on mode
-00001302                           404          
-00001302                           405      ; Put in tabs
-00001302  4EB9 0000162E            406          Jsr     OP_TAB
-00001308                           407          
-00001308                           408      ; Hand the function off to John
-00001308                           409          ;Bra     EA_BTST
-00001308                           410  
-00001308                           411  
-00001308                           412  ;---------------  IMEMDIATE FUNCTIONS  ----------------------;
-00001308                           413  
-00001308                           414  ;------------------------  ORI  -----------------------------;
-00001308                           415      
-00001308                           416  OP_ORI
-00001308                           417      ; start string
-00001308                           418      
-00001308  1CFC 004F                419          Move.B  #'O', (A6)+
-0000130C  1CFC 0052                420          Move.B  #'R', (A6)+
-00001310  1CFC 0049                421          Move.B  #'I', (A6)+
-00001314                           422          
-00001314                           423      ; Check data type        
-00001314  4EB9 00001650            424          Jsr     OP_CHECK_DATA_SIZE
-0000131A                           425          
-0000131A                           426      ; Put in tabs
-0000131A  4EB9 0000162E            427          Jsr     OP_TAB
-00001320                           428          
-00001320                           429      ; Hand the function off to John
-00001320                           430          ;Bra     EA_IMMEDIATE
-00001320                           431  
-00001320                           432  ;-----------------------  SUBI  -----------------------------;
-00001320                           433  
-00001320                           434  OP_SUBI
-00001320                           435      ; start string
-00001320                           436      
-00001320  1CFC 0053                437          Move.B  #'S', (A6)+
-00001324  1CFC 0055                438          Move.B  #'U', (A6)+
-00001328  1CFC 0042                439          Move.B  #'B', (A6)+
-0000132C  1CFC 0049                440          Move.B  #'I', (A6)+
-00001330                           441          
-00001330                           442      ; Check data type        
-00001330  4EB9 00001650            443          Jsr     OP_CHECK_DATA_SIZE
-00001336                           444          
-00001336                           445      ; Put in tabs
-00001336  4EB9 0000162E            446          Jsr     OP_TAB
-0000133C                           447          
-0000133C                           448      ; Hand the function off to John
-0000133C                           449          ;Bra     EA_IMMEDIATE  
-0000133C                           450          
-0000133C                           451  ;-----------------------  EORI  -----------------------------;        
-0000133C                           452          
-0000133C                           453  OP_EORI
-0000133C                           454      ; start string
-0000133C                           455      
-0000133C  1CFC 0045                456          Move.B  #'E', (A6)+
-00001340  1CFC 004F                457          Move.B  #'O', (A6)+
-00001344  1CFC 0052                458          Move.B  #'R', (A6)+
-00001348  1CFC 0049                459          Move.B  #'I', (A6)+
-0000134C                           460          
-0000134C                           461      ; Check data type        
-0000134C  4EB9 00001650            462          Jsr     OP_CHECK_DATA_SIZE
-00001352                           463          
-00001352                           464      ; Put in tabs
-00001352  4EB9 0000162E            465          Jsr     OP_TAB
-00001358                           466          
-00001358                           467      ; Hand the function off to John
-00001358                           468          ;Bra     EA_IMMEDIATE  
-00001358                           469          
-00001358                           470  ;-----------------------  CMPI  -----------------------------;        
-00001358                           471          
-00001358                           472  OP_CMPI
-00001358                           473      ; start string
-00001358                           474      
-00001358  1CFC 0043                475          Move.B  #'C', (A6)+
-0000135C  1CFC 004D                476          Move.B  #'M', (A6)+
-00001360  1CFC 0050                477          Move.B  #'P', (A6)+
-00001364  1CFC 0049                478          Move.B  #'I', (A6)+
-00001368                           479          
-00001368                           480      ; Check data type        
-00001368  4EB9 00001650            481          Jsr     OP_CHECK_DATA_SIZE
-0000136E                           482          
-0000136E                           483      ; Put in tabs
-0000136E  4EB9 0000162E            484          Jsr     OP_TAB
-00001374                           485          
-00001374                           486      ; Hand the function off to John
-00001374                           487          ;Bra     EA_IMMEDIATE  
-00001374                           488          
-00001374                           489  ;-----------------------  LEA  ------------------------------;
-00001374                           490  
-00001374                           491  OP_LEA
-00001374                           492      ; start string
-00001374                           493      
-00001374  1CFC 004C                494          Move.B  #'L', (A6)+
-00001378  1CFC 0045                495          Move.B  #'E', (A6)+
-0000137C  1CFC 0041                496          Move.B  #'A', (A6)+
-00001380                           497          
-00001380                           498      ; No data size for LEA
-00001380                           499          
-00001380                           500      ; Put in tabs
-00001380  4EB9 0000162E            501          Jsr     OP_TAB
-00001386                           502          
-00001386                           503      ; Hand the function off to John
-00001386                           504          ;Bra     EA_LEA  
-00001386                           505  
-00001386                           506  ;-----------------------  NEG  ------------------------------;
+0000124C                           279  ;-----------------------  SUB  ------------------------------;    
+0000124C                           280      
+0000124C                           281  OP_SUB
+0000124C                           282      ; start string
+0000124C                           283      
+0000124C  1CFC 0053                284          Move.B  #'S', (A6)+
+00001250  1CFC 0055                285          Move.B  #'U', (A6)+
+00001254  1CFC 0042                286          Move.B  #'B', (A6)+
+00001258                           287  
+00001258                           288       ; Check for address version
+00001258                           289          
+00001258  4EB9 000015DE            290          Jsr     GET6AND7
+0000125E  B03C 0003                291          Cmp.B   #%11, D0    ; if both bits are 1 it is an address version
+00001262                           292          
+00001262  6700 000E                293          Beq     OP_SUB_ADDR
+00001266                           294  
+00001266                           295          ; Don't need to worry about ADDA in V1
+00001266                           296          ; Check data size
+00001266  4EB9 000014E6            297          Jsr     OP_CHECK_DATA_SIZE
+0000126C                           298          
+0000126C                           299          ; Put in tabs
+0000126C  4EB9 000014C4            300          Jsr     OP_TAB
+00001272                           301          
+00001272                           302          ;Bra     EA_ADD 
+00001272                           303          
+00001272                           304  OP_SUB_ADDR
+00001272                           305          
+00001272  1CFC 0041                306          Move.B  #'A',(A6)+ ; add to the string
+00001276                           307          
+00001276                           308          ; Find data size
+00001276                           309          
+00001276  4EB9 00001506            310          Jsr     OP_CHECK_DATA_SIZE_ADDR
+0000127C                           311          
+0000127C                           312          ; Put in tabs
+0000127C  4EB9 000014C4            313          Jsr     OP_TAB
+00001282                           314          
+00001282                           315          ; Handoff
+00001282                           316          ;Bra     EA_SUBA
+00001282                           317          
+00001282                           318  ;-----------------------  ADD  ------------------------------;
+00001282                           319  
+00001282                           320  OP_ADD
+00001282                           321      ; start string
+00001282                           322      
+00001282  1CFC 0041                323          Move.B  #'A', (A6)+
+00001286  1CFC 0044                324          Move.B  #'D', (A6)+
+0000128A  1CFC 0044                325          Move.B  #'D', (A6)+
+0000128E                           326  
+0000128E                           327      ; Check for address version
+0000128E                           328          
+0000128E  4EB9 000015DE            329          Jsr     GET6AND7
+00001294  B03C 0003                330          Cmp.B   #%11, D0    ; if both bits are 1 it is an address version
+00001298                           331          
+00001298  6700 000E                332          Beq     OP_ADD_ADDR
+0000129C                           333          
+0000129C                           334          ; Don't need to worry about ADDA in V1
+0000129C                           335          ; Check data size
+0000129C  4EB9 000014E6            336          Jsr     OP_CHECK_DATA_SIZE
+000012A2                           337          
+000012A2                           338          ; Put in tabs
+000012A2  4EB9 000014C4            339          Jsr     OP_TAB
+000012A8                           340          
+000012A8                           341          ;Bra     EA_ADD
+000012A8                           342          
+000012A8                           343  OP_ADD_ADDR
+000012A8                           344          
+000012A8  1CFC 0041                345          Move.B  #'A',(A6)+ ; add to the string
+000012AC                           346          
+000012AC                           347          ; Find data size
+000012AC                           348          
+000012AC  4EB9 00001506            349          Jsr     OP_CHECK_DATA_SIZE_ADDR
+000012B2                           350          
+000012B2                           351          ; Put in tabs
+000012B2  4EB9 000014C4            352          Jsr     OP_TAB
+000012B8                           353          
+000012B8                           354          ; Handoff
+000012B8                           355          ;Bra     EA_ADDA
+000012B8                           356  
+000012B8                           357  OP_BSTS
+000012B8  6000 0348                358      Bra DONE    ; PLACEHOLDER
+000012BC                           359  OP_ORI
+000012BC  6000 0344                360      Bra DONE    ; PLACEHOLDER
+000012C0                           361  OP_SUBI
+000012C0  6000 0340                362      Bra DONE    ; PLACEHOLDER
+000012C4                           363  OP_EORI
+000012C4  6000 033C                364      Bra DONE    ; PLACEHOLDER
+000012C8                           365  OP_LEA
+000012C8  6000 0338                366      Bra DONE    ; PLACEHOLDER
+000012CC                           367  OP_NEG
+000012CC  6000 0334                368      Bra DONE    ; PLACEHOLDER
+000012D0                           369  OP_NOT
+000012D0  6000 0330                370      Bra DONE    ; PLACEHOLDER
+000012D4                           371  OP_MOVEM_RTOM
+000012D4  6000 032C                372      Bra DONE    ; PLACEHOLDER
+000012D8                           373  OP_MOVEM_MTOR
+000012D8  6000 0328                374      Bra DONE    ; PLACEHOLDER
+000012DC                           375  OP_RTS
+000012DC  6000 0324                376      Bra DONE    ; PLACEHOLDER
+000012E0                           377  OP_JSR
+000012E0  6000 0320                378      Bra DONE    ; PLACEHOLDER
+000012E4                           379  
+000012E4                           380  ;------------------  BRANCH CONDITIONALS  ------------------------;
+000012E4                           381  
+000012E4                           382  OP_BRANCH
+000012E4                           383      ; start string
+000012E4                           384      
+000012E4  1CFC 0042                385          Move.B  #'B', (A6)+
+000012E8  1CFC 0052                386          Move.B  #'R', (A6)+
+000012EC  1CFC 0041                387          Move.B  #'A', (A6)+
+000012F0                           388  
+000012F0                           389      ; Put in tabs
+000012F0  4EB9 000014C4            390          Jsr     OP_TAB
+000012F6                           391  
+000012F6                           392      ; Handoff to John
+000012F6                           393      
+000012F6                           394          ;Bra     EA_BCC
+000012F6                           395      
+000012F6                           396  OP_BRA_HIGH
+000012F6                           397      ; start string
+000012F6                           398      
+000012F6  1CFC 0042                399          Move.B  #'B', (A6)+
+000012FA  1CFC 0048                400          Move.B  #'H', (A6)+
+000012FE  1CFC 0049                401          Move.B  #'I', (A6)+
+00001302                           402  
+00001302                           403      ; Put in tabs
+00001302  4EB9 000014C4            404          Jsr     OP_TAB
+00001308                           405  
+00001308                           406      ; Handoff to John
+00001308                           407      
+00001308                           408          ;Bra     EA_BCC
+00001308                           409      
+00001308                           410  OP_BRA_LOW
+00001308                           411      ; start string
+00001308                           412      
+00001308  1CFC 0042                413          Move.B  #'B', (A6)+
+0000130C  1CFC 004C                414          Move.B  #'L', (A6)+
+00001310  1CFC 0053                415          Move.B  #'S', (A6)+
+00001314                           416  
+00001314                           417      ; Put in tabs
+00001314  4EB9 000014C4            418          Jsr     OP_TAB
+0000131A                           419  
+0000131A                           420      ; Handoff to John
+0000131A                           421      
+0000131A                           422          ;Bra     EA_BCC
+0000131A                           423      
+0000131A                           424  OP_BRA_CC
+0000131A                           425      ; start string
+0000131A                           426      
+0000131A  1CFC 0042                427          Move.B  #'B', (A6)+
+0000131E  1CFC 0043                428          Move.B  #'C', (A6)+
+00001322  1CFC 0043                429          Move.B  #'C', (A6)+
+00001326                           430  
+00001326                           431      ; Put in tabs
+00001326  4EB9 000014C4            432          Jsr     OP_TAB
+0000132C                           433  
+0000132C                           434      ; Handoff to John
+0000132C                           435      
+0000132C                           436          ;Bra     EA_BCC
+0000132C                           437  
+0000132C                           438  OP_BRA_CS
+0000132C                           439      ; start string
+0000132C                           440      
+0000132C  1CFC 0042                441          Move.B  #'B', (A6)+
+00001330  1CFC 0043                442          Move.B  #'C', (A6)+
+00001334  1CFC 0053                443          Move.B  #'S', (A6)+
+00001338                           444  
+00001338                           445      ; Put in tabs
+00001338  4EB9 000014C4            446          Jsr     OP_TAB
+0000133E                           447  
+0000133E                           448      ; Handoff to John
+0000133E                           449      
+0000133E                           450          ;Bra     EA_BCC
+0000133E                           451  
+0000133E                           452  OP_BRA_NE
+0000133E                           453      ; start string
+0000133E                           454      
+0000133E  1CFC 0042                455          Move.B  #'B', (A6)+
+00001342  1CFC 004E                456          Move.B  #'N', (A6)+
+00001346  1CFC 0045                457          Move.B  #'E', (A6)+
+0000134A                           458  
+0000134A                           459      ; Put in tabs
+0000134A  4EB9 000014C4            460          Jsr     OP_TAB
+00001350                           461  
+00001350                           462      ; Handoff to John
+00001350                           463      
+00001350                           464          ;Bra     EA_BCC
+00001350                           465  
+00001350                           466  OP_BRA_EQ
+00001350                           467      ; start string
+00001350                           468      
+00001350  1CFC 0042                469          Move.B  #'B', (A6)+
+00001354  1CFC 0045                470          Move.B  #'E', (A6)+
+00001358  1CFC 0051                471          Move.B  #'Q', (A6)+
+0000135C                           472  
+0000135C                           473      ; Put in tabs
+0000135C  4EB9 000014C4            474          Jsr     OP_TAB
+00001362                           475  
+00001362                           476      ; Handoff to John
+00001362                           477      
+00001362                           478          ;Bra     EA_BCC
+00001362                           479  
+00001362                           480  OP_BRA_VC
+00001362                           481      ; start string
+00001362                           482      
+00001362  1CFC 0042                483          Move.B  #'B', (A6)+
+00001366  1CFC 0056                484          Move.B  #'V', (A6)+
+0000136A  1CFC 0043                485          Move.B  #'C', (A6)+
+0000136E                           486  
+0000136E                           487      ; Put in tabs
+0000136E  4EB9 000014C4            488          Jsr     OP_TAB
+00001374                           489  
+00001374                           490      ; Handoff to John
+00001374                           491      
+00001374                           492          ;Bra     EA_BCC
+00001374                           493  
+00001374                           494  OP_BRA_VS
+00001374                           495      ; start string
+00001374                           496      
+00001374  1CFC 0042                497          Move.B  #'B', (A6)+
+00001378  1CFC 0056                498          Move.B  #'V', (A6)+
+0000137C  1CFC 0053                499          Move.B  #'S', (A6)+
+00001380                           500  
+00001380                           501      ; Put in tabs
+00001380  4EB9 000014C4            502          Jsr     OP_TAB
+00001386                           503  
+00001386                           504      ; Handoff to John
+00001386                           505      
+00001386                           506          ;Bra     EA_BCC
 00001386                           507  
-00001386                           508  OP_NEG
+00001386                           508  OP_BRA_PL
 00001386                           509      ; start string
 00001386                           510      
-00001386  1CFC 004E                511          Move.B  #'N', (A6)+
-0000138A  1CFC 0045                512          Move.B  #'E', (A6)+
-0000138E  1CFC 0047                513          Move.B  #'G', (A6)+
-00001392                           514          
-00001392                           515      ; Data size
-00001392  4EB9 00001650            516          Jsr     OP_CHECK_DATA_SIZE
-00001398                           517          
-00001398                           518      ; Put in tabs
-00001398  4EB9 0000162E            519          Jsr     OP_TAB
-0000139E                           520          
-0000139E                           521      ; Hand the function off to John
-0000139E                           522          ;Bra     EA_NEG  
-0000139E                           523  
-0000139E                           524      
-0000139E                           525  ;-----------------------  NOT  ------------------------------;    
-0000139E                           526      
-0000139E                           527  OP_NOT
-0000139E                           528      ; start string
-0000139E                           529      
-0000139E  1CFC 004E                530          Move.B  #'N', (A6)+
-000013A2  1CFC 004F                531          Move.B  #'O', (A6)+
-000013A6  1CFC 0054                532          Move.B  #'T', (A6)+
-000013AA                           533          
-000013AA                           534      ; Data size
-000013AA  4EB9 00001650            535          Jsr     OP_CHECK_DATA_SIZE
-000013B0                           536          
-000013B0                           537      ; Put in tabs
-000013B0  4EB9 0000162E            538          Jsr     OP_TAB
-000013B6                           539          
-000013B6                           540      ; Hand the function off to John
-000013B6                           541          ;Bra     EA_NOT
+00001386  1CFC 0042                511          Move.B  #'B', (A6)+
+0000138A  1CFC 0050                512          Move.B  #'P', (A6)+
+0000138E  1CFC 004C                513          Move.B  #'L', (A6)+
+00001392                           514  
+00001392                           515      ; Put in tabs
+00001392  4EB9 000014C4            516          Jsr     OP_TAB
+00001398                           517  
+00001398                           518      ; Handoff to John
+00001398                           519      
+00001398                           520          ;Bra     EA_BCC
+00001398                           521  
+00001398                           522  OP_BRA_MI
+00001398                           523      ; start string
+00001398                           524      
+00001398  1CFC 0042                525          Move.B  #'B', (A6)+
+0000139C  1CFC 004D                526          Move.B  #'M', (A6)+
+000013A0  1CFC 0049                527          Move.B  #'I', (A6)+
+000013A4                           528  
+000013A4                           529      ; Put in tabs
+000013A4  4EB9 000014C4            530          Jsr     OP_TAB
+000013AA                           531  
+000013AA                           532      ; Handoff to John
+000013AA                           533      
+000013AA                           534          ;Bra     EA_BCC
+000013AA                           535  
+000013AA                           536  OP_BRA_GE
+000013AA                           537      ; start string
+000013AA                           538      
+000013AA  1CFC 0042                539          Move.B  #'B', (A6)+
+000013AE  1CFC 0047                540          Move.B  #'G', (A6)+
+000013B2  1CFC 0045                541          Move.B  #'E', (A6)+
 000013B6                           542  
-000013B6                           543  ;-------------------  MOVE MULITPLE  ------------------------;
-000013B6                           544          
-000013B6                           545  OP_MOVEM
-000013B6                           546      ; start string
-000013B6                           547      
-000013B6  1CFC 004D                548          Move.B  #'M', (A6)+
-000013BA  1CFC 004F                549          Move.B  #'O', (A6)+
-000013BE  1CFC 0056                550          Move.B  #'V', (A6)+
-000013C2  1CFC 0045                551          Move.B  #'E', (A6)+
-000013C6  1CFC 004D                552          Move.B  #'M', (A6)+        
-000013CA                           553  
-000013CA                           554      ; Data size has to be checked manually
-000013CA  4EB9 000013D6            555          Jsr     OP_MOVEM_DATA
-000013D0                           556          
-000013D0                           557      ; Put in tabs
-000013D0  4EB9 0000162E            558          Jsr     OP_TAB
-000013D6                           559          
-000013D6                           560      ; Hand the function off to John
-000013D6                           561          ;Bra     EA_MOVEM
-000013D6                           562          
-000013D6                           563  OP_MOVEM_DATA
-000013D6                           564      ; get the size bit
-000013D6  4EB9 00001748            565          Jsr     GET6AND7
-000013DC                           566          
-000013DC  B03C 0002                567          Cmp.B   #%10,D0
-000013E0  6700 02AA                568          Beq     OP_SET_DATA_WORD
-000013E4                           569          
-000013E4  6000 02B0                570          Bra     OP_SET_DATA_LONG   
-000013E8                           571  
-000013E8                           572  OP_RTS
-000013E8                           573      ; start string
-000013E8                           574      
-000013E8  1CFC 0052                575          Move.B  #'R', (A6)+
-000013EC  1CFC 0054                576          Move.B  #'T', (A6)+
-000013F0  1CFC 0053                577          Move.B  #'S', (A6)+
-000013F4                           578  
-000013F4                           579      ; Put in tabs
-000013F4  4EB9 0000162E            580          Jsr     OP_TAB
-000013FA                           581  
-000013FA                           582      ; Handoff to Blong
-000013FA                           583      
-000013FA                           584          ;Bra     PRINT
-000013FA                           585          
-000013FA                           586  ;-----------------------  JSR  ------------------------------;        
-000013FA                           587          
-000013FA                           588  OP_JSR
-000013FA                           589      ; start string
-000013FA                           590      
-000013FA  1CFC 004A                591          Move.B  #'J', (A6)+
-000013FE  1CFC 0053                592          Move.B  #'S', (A6)+
-00001402  1CFC 0052                593          Move.B  #'R', (A6)+
-00001406                           594          
-00001406                           595      ; No data size
-00001406                           596          
-00001406                           597      ; Put in tabs
-00001406  4EB9 0000162E            598          Jsr     OP_TAB
-0000140C                           599          
-0000140C                           600      ; Hand the function off to John
-0000140C                           601          ;Bra     EA_JSR
-0000140C                           602  
-0000140C                           603  ;------------------  BRANCH CONDITIONALS  ------------------------;
-0000140C                           604  
-0000140C                           605  OP_BRANCH
-0000140C                           606      ; start string
-0000140C                           607      
-0000140C  1CFC 0042                608          Move.B  #'B', (A6)+
-00001410  1CFC 0052                609          Move.B  #'R', (A6)+
-00001414  1CFC 0041                610          Move.B  #'A', (A6)+
-00001418                           611  
-00001418                           612      ; Put in tabs
-00001418  4EB9 0000162E            613          Jsr     OP_TAB
-0000141E                           614  
-0000141E                           615      ; Handoff to John
-0000141E                           616      
-0000141E                           617          ;Bra     EA_BCC
-0000141E                           618      
-0000141E                           619  OP_BRA_HIGH
-0000141E                           620      ; start string
-0000141E                           621      
-0000141E  1CFC 0042                622          Move.B  #'B', (A6)+
-00001422  1CFC 0048                623          Move.B  #'H', (A6)+
-00001426  1CFC 0049                624          Move.B  #'I', (A6)+
-0000142A                           625  
-0000142A                           626      ; Put in tabs
-0000142A  4EB9 0000162E            627          Jsr     OP_TAB
-00001430                           628  
-00001430                           629      ; Handoff to John
-00001430                           630      
-00001430                           631          ;Bra     EA_BCC
-00001430                           632      
-00001430                           633  OP_BRA_LOW
-00001430                           634      ; start string
-00001430                           635      
-00001430  1CFC 0042                636          Move.B  #'B', (A6)+
-00001434  1CFC 004C                637          Move.B  #'L', (A6)+
-00001438  1CFC 0053                638          Move.B  #'S', (A6)+
-0000143C                           639  
-0000143C                           640      ; Put in tabs
-0000143C  4EB9 0000162E            641          Jsr     OP_TAB
-00001442                           642  
-00001442                           643      ; Handoff to John
-00001442                           644      
-00001442                           645          ;Bra     EA_BCC
-00001442                           646      
-00001442                           647  OP_BRA_CC
-00001442                           648      ; start string
-00001442                           649      
-00001442  1CFC 0042                650          Move.B  #'B', (A6)+
-00001446  1CFC 0043                651          Move.B  #'C', (A6)+
-0000144A  1CFC 0043                652          Move.B  #'C', (A6)+
-0000144E                           653  
-0000144E                           654      ; Put in tabs
-0000144E  4EB9 0000162E            655          Jsr     OP_TAB
-00001454                           656  
-00001454                           657      ; Handoff to John
-00001454                           658      
-00001454                           659          ;Bra     EA_BCC
-00001454                           660  
-00001454                           661  OP_BRA_CS
-00001454                           662      ; start string
-00001454                           663      
-00001454  1CFC 0042                664          Move.B  #'B', (A6)+
-00001458  1CFC 0043                665          Move.B  #'C', (A6)+
-0000145C  1CFC 0053                666          Move.B  #'S', (A6)+
-00001460                           667  
-00001460                           668      ; Put in tabs
-00001460  4EB9 0000162E            669          Jsr     OP_TAB
-00001466                           670  
-00001466                           671      ; Handoff to John
-00001466                           672      
-00001466                           673          ;Bra     EA_BCC
-00001466                           674  
-00001466                           675  OP_BRA_NE
-00001466                           676      ; start string
-00001466                           677      
-00001466  1CFC 0042                678          Move.B  #'B', (A6)+
-0000146A  1CFC 004E                679          Move.B  #'N', (A6)+
-0000146E  1CFC 0045                680          Move.B  #'E', (A6)+
-00001472                           681  
-00001472                           682      ; Put in tabs
-00001472  4EB9 0000162E            683          Jsr     OP_TAB
-00001478                           684  
-00001478                           685      ; Handoff to John
-00001478                           686      
-00001478                           687          ;Bra     EA_BCC
-00001478                           688  
-00001478                           689  OP_BRA_EQ
-00001478                           690      ; start string
-00001478                           691      
-00001478  1CFC 0042                692          Move.B  #'B', (A6)+
-0000147C  1CFC 0045                693          Move.B  #'E', (A6)+
-00001480  1CFC 0051                694          Move.B  #'Q', (A6)+
-00001484                           695  
-00001484                           696      ; Put in tabs
-00001484  4EB9 0000162E            697          Jsr     OP_TAB
-0000148A                           698  
-0000148A                           699      ; Handoff to John
-0000148A                           700      
-0000148A                           701          ;Bra     EA_BCC
-0000148A                           702  
-0000148A                           703  OP_BRA_VC
-0000148A                           704      ; start string
-0000148A                           705      
-0000148A  1CFC 0042                706          Move.B  #'B', (A6)+
-0000148E  1CFC 0056                707          Move.B  #'V', (A6)+
-00001492  1CFC 0043                708          Move.B  #'C', (A6)+
-00001496                           709  
-00001496                           710      ; Put in tabs
-00001496  4EB9 0000162E            711          Jsr     OP_TAB
-0000149C                           712  
-0000149C                           713      ; Handoff to John
-0000149C                           714      
-0000149C                           715          ;Bra     EA_BCC
-0000149C                           716  
-0000149C                           717  OP_BRA_VS
-0000149C                           718      ; start string
-0000149C                           719      
-0000149C  1CFC 0042                720          Move.B  #'B', (A6)+
-000014A0  1CFC 0056                721          Move.B  #'V', (A6)+
-000014A4  1CFC 0053                722          Move.B  #'S', (A6)+
-000014A8                           723  
-000014A8                           724      ; Put in tabs
-000014A8  4EB9 0000162E            725          Jsr     OP_TAB
-000014AE                           726  
-000014AE                           727      ; Handoff to John
-000014AE                           728      
-000014AE                           729          ;Bra     EA_BCC
-000014AE                           730  
-000014AE                           731  OP_BRA_PL
-000014AE                           732      ; start string
-000014AE                           733      
-000014AE  1CFC 0042                734          Move.B  #'B', (A6)+
-000014B2  1CFC 0050                735          Move.B  #'P', (A6)+
-000014B6  1CFC 004C                736          Move.B  #'L', (A6)+
-000014BA                           737  
-000014BA                           738      ; Put in tabs
-000014BA  4EB9 0000162E            739          Jsr     OP_TAB
-000014C0                           740  
-000014C0                           741      ; Handoff to John
-000014C0                           742      
-000014C0                           743          ;Bra     EA_BCC
-000014C0                           744  
-000014C0                           745  OP_BRA_MI
-000014C0                           746      ; start string
-000014C0                           747      
-000014C0  1CFC 0042                748          Move.B  #'B', (A6)+
-000014C4  1CFC 004D                749          Move.B  #'M', (A6)+
-000014C8  1CFC 0049                750          Move.B  #'I', (A6)+
-000014CC                           751  
-000014CC                           752      ; Put in tabs
-000014CC  4EB9 0000162E            753          Jsr     OP_TAB
-000014D2                           754  
-000014D2                           755      ; Handoff to John
-000014D2                           756      
-000014D2                           757          ;Bra     EA_BCC
-000014D2                           758  
-000014D2                           759  OP_BRA_GE
-000014D2                           760      ; start string
-000014D2                           761      
-000014D2  1CFC 0042                762          Move.B  #'B', (A6)+
-000014D6  1CFC 0047                763          Move.B  #'G', (A6)+
-000014DA  1CFC 0045                764          Move.B  #'E', (A6)+
-000014DE                           765  
-000014DE                           766      ; Put in tabs
-000014DE  4EB9 0000162E            767          Jsr     OP_TAB
-000014E4                           768  
-000014E4                           769      ; Handoff to John
-000014E4                           770      
-000014E4                           771          ;Bra     EA_BCC
-000014E4                           772  
-000014E4                           773  OP_BRA_LT
-000014E4                           774      ; start string
-000014E4                           775      
-000014E4  1CFC 0042                776          Move.B  #'B', (A6)+
-000014E8  1CFC 004C                777          Move.B  #'L', (A6)+
-000014EC  1CFC 0054                778          Move.B  #'T', (A6)+
-000014F0                           779  
-000014F0                           780      ; Put in tabs
-000014F0  4EB9 0000162E            781          Jsr     OP_TAB
-000014F6                           782  
-000014F6                           783      ; Handoff to John
-000014F6                           784      
-000014F6                           785          ;Bra     EA_BCC
-000014F6                           786  
-000014F6                           787  OP_BRA_GT
-000014F6                           788      ; start string
-000014F6                           789      
-000014F6  1CFC 0042                790          Move.B  #'B', (A6)+
-000014FA  1CFC 0047                791          Move.B  #'G', (A6)+
-000014FE  1CFC 0054                792          Move.B  #'T', (A6)+
-00001502                           793  
-00001502                           794      ; Put in tabs
-00001502  4EB9 0000162E            795          Jsr     OP_TAB
-00001508                           796  
-00001508                           797      ; Handoff to John
-00001508                           798      
-00001508                           799          ;Bra     EA_BCC
-00001508                           800  
-00001508                           801  OP_BRA_LE
-00001508                           802      ; start string
-00001508                           803      
-00001508  1CFC 0042                804          Move.B  #'B', (A6)+
-0000150C  1CFC 004C                805          Move.B  #'L', (A6)+
-00001510  1CFC 0045                806          Move.B  #'E', (A6)+
-00001514                           807  
-00001514                           808      ; Put in tabs
-00001514  4EB9 0000162E            809          Jsr     OP_TAB
-0000151A                           810  
-0000151A                           811      ; Handoff to John
-0000151A                           812      
-0000151A                           813          ;Bra     EA_BCC
-0000151A                           814  
-0000151A                           815  ;------------------  Multiply Singed ----------------------;    
-0000151A                           816  
-0000151A                           817  OP_MULS
-0000151A                           818      ; MULS only has one format, and that data size of word, so I don't need
-0000151A                           819      ; a very intelligent system
-0000151A                           820      
-0000151A  1CFC 004D                821          Move.B  #'M', (A6)+
-0000151E  1CFC 0055                822          Move.B  #'U', (A6)+
-00001522  1CFC 004C                823          Move.B  #'L', (A6)+
-00001526  1CFC 0053                824          Move.B  #'S', (A6)+
-0000152A  1CFC 002E                825          Move.B  #'.', (A6)+
-0000152E  1CFC 0057                826          Move.B  #'W', (A6)+
-00001532                           827  
-00001532                           828      ; Put in tabs
-00001532  4EB9 0000162E            829          Jsr     OP_TAB       
-00001538                           830      
-00001538                           831      ; Give to john
-00001538                           832      
-00001538                           833          ;Bra     EA_MULS
-00001538                           834  
-00001538                           835      
-00001538                           836  ;-----------------------  AND  ------------------------------;    
-00001538                           837      
-00001538                           838  OP_AND
-00001538                           839      ; start string
-00001538                           840      
-00001538  1CFC 0041                841          Move.B  #'A', (A6)+
-0000153C  1CFC 004E                842          Move.B  #'N', (A6)+
-00001540  1CFC 0044                843          Move.B  #'D', (A6)+
-00001544                           844  
-00001544                           845      ; No Address Version
-00001544                           846          
-00001544                           847      ; Check data size
-00001544  4EB9 00001650            848          Jsr     OP_CHECK_DATA_SIZE
-0000154A                           849          
-0000154A                           850      ; Put in tabs
-0000154A  4EB9 0000162E            851          Jsr     OP_TAB
-00001550                           852          
-00001550                           853      ;Bra     EA_AND
-00001550                           854  
-00001550                           855      
-00001550                           856  ;-----------------  ARITHMETIC SHIFTS  ----------------------;
-00001550                           857          
-00001550                           858  OP_AS_REG
-00001550                           859      ; start string
-00001550                           860      
-00001550  1CFC 0041                861          Move.B  #'A', (A6)+
-00001554  1CFC 0053                862          Move.B  #'S', (A6)+
-00001558                           863          
-00001558                           864      ; Determine Left or right shift
-00001558                           865      
-00001558  4EB9 000016A0            866          Jsr     OP_SHIFT_DIRECTION  ;Check the shift direction
-0000155E                           867          
-0000155E                           868      ; Determine data size
-0000155E                           869      
-0000155E  4EB9 00001650            870          Jsr     OP_CHECK_DATA_SIZE
-00001564                           871         
-00001564                           872      ; Tab out function
-00001564                           873      
-00001564  4EB9 0000162E            874          Jsr     OP_TAB
-0000156A                           875         
-0000156A                           876      ; Handoff function
-0000156A                           877          ;Bra     EA_AS_REG
-0000156A                           878          
-0000156A                           879  OP_AS_MEM
-0000156A                           880      
-0000156A                           881      ; start string
-0000156A                           882      
-0000156A  1CFC 0041                883          Move.B  #'A', (A6)+
-0000156E  1CFC 0053                884          Move.B  #'S', (A6)+
-00001572                           885          
-00001572                           886      ; Determine Left or right shift
-00001572                           887      
-00001572  4EB9 000016A0            888          Jsr     OP_SHIFT_DIRECTION  ;Check the shift direction
-00001578                           889         
-00001578                           890      ; Tab out function
-00001578                           891      
-00001578  4EB9 0000162E            892          Jsr     OP_TAB
-0000157E                           893         
-0000157E                           894      ; Handoff function
-0000157E                           895          ;Bra     EA_AS_MEM
-0000157E                           896  
-0000157E                           897  
-0000157E                           898  ;-------------------  LOGICAL SHIFT  ------------------------;
-0000157E                           899  
-0000157E                           900  OP_LS_REG
-0000157E                           901      ; start string
-0000157E                           902      
-0000157E  1CFC 004C                903          Move.B  #'L', (A6)+
-00001582  1CFC 0053                904          Move.B  #'S', (A6)+
-00001586                           905          
-00001586                           906      ; Determine Left or right shift
-00001586                           907      
-00001586  4EB9 000016A0            908          Jsr     OP_SHIFT_DIRECTION  ;Check the shift direction
-0000158C                           909          
-0000158C                           910      ; Determine data size
-0000158C                           911      
-0000158C  4EB9 00001650            912          Jsr     OP_CHECK_DATA_SIZE
-00001592                           913         
-00001592                           914      ; Tab out function
-00001592                           915      
-00001592  4EB9 0000162E            916          Jsr     OP_TAB
-00001598                           917         
-00001598                           918      ; Handoff function
-00001598                           919          ;Bra     EA_LS_REG
-00001598                           920  
-00001598                           921      
-00001598                           922  OP_LS_MEM    
-00001598                           923  
-00001598                           924      ; start string
-00001598                           925      
-00001598  1CFC 004C                926          Move.B  #'L', (A6)+
-0000159C  1CFC 0053                927          Move.B  #'S', (A6)+
-000015A0                           928          
-000015A0                           929      ; Determine Left or right shift
-000015A0                           930      
-000015A0  4EB9 000016A0            931          Jsr     OP_SHIFT_DIRECTION  ;Check the shift direction
-000015A6                           932         
-000015A6                           933      ; Tab out function
-000015A6                           934      
-000015A6  4EB9 0000162E            935          Jsr     OP_TAB
-000015AC                           936         
-000015AC                           937      ; Handoff function
-000015AC                           938          ;Bra     EA_LS_MEM
-000015AC                           939  
-000015AC                           940  
-000015AC                           941  ;----------------------  ROTATE  ----------------------------;
-000015AC                           942  
-000015AC                           943  OP_RO_REG
-000015AC                           944      ; start string
-000015AC                           945      
-000015AC  1CFC 0052                946          Move.B  #'R', (A6)+
-000015B0  1CFC 004F                947          Move.B  #'O', (A6)+
-000015B4                           948          
-000015B4                           949      ; Determine Left or right shift
-000015B4                           950      
-000015B4  4EB9 000016A0            951          Jsr     OP_SHIFT_DIRECTION  ;Check the shift direction
-000015BA                           952          
-000015BA                           953      ; Determine data size
-000015BA                           954      
-000015BA  4EB9 00001650            955          Jsr     OP_CHECK_DATA_SIZE
-000015C0                           956         
-000015C0                           957      ; Tab out function
-000015C0                           958      
-000015C0  4EB9 0000162E            959          Jsr     OP_TAB
-000015C6                           960         
-000015C6                           961      ; Handoff function
-000015C6                           962          ;Bra     EA_RO_REG
-000015C6                           963  
-000015C6                           964      
-000015C6                           965  OP_RO_MEM
-000015C6                           966  
-000015C6                           967      ; start string
-000015C6                           968      
-000015C6  1CFC 0052                969          Move.B  #'R', (A6)+
-000015CA  1CFC 004F                970          Move.B  #'O', (A6)+
-000015CE                           971          
-000015CE                           972      ; Determine Left or right shift
-000015CE                           973      
-000015CE  4EB9 000016A0            974          Jsr     OP_SHIFT_DIRECTION  ;Check the shift direction
-000015D4                           975         
-000015D4                           976      ; Tab out function
-000015D4                           977      
-000015D4  4EB9 0000162E            978          Jsr     OP_TAB
-000015DA                           979         
-000015DA                           980      ; Handoff function
-000015DA                           981          ;Bra     EA_RO_MEM
-000015DA                           982  
-000015DA                           983  
-000015DA                           984  ;-----------------------  CMP  ------------------------------;
-000015DA                           985  
-000015DA                           986  OP_Cmp
-000015DA                           987      ; start string
-000015DA                           988      
-000015DA  1CFC 0043                989          Move.B  #'C', (A6)+
-000015DE  1CFC 004D                990          Move.B  #'M', (A6)+
-000015E2  1CFC 0050                991          Move.B  #'P', (A6)+
-000015E6                           992  
-000015E6                           993      ; Check for address version
-000015E6                           994          
-000015E6  4EB9 00001748            995          Jsr     GET6AND7
-000015EC  B03C 0003                996          Cmp.B   #%11, D0    ; if both bits are 1 it is an address version
-000015F0                           997          
-000015F0  6700 000E                998          Beq     OP_CMP_ADDR
-000015F4                           999          
-000015F4                          1000      ; Check which of the two versions is it?
-000015F4                          1001  
-000015F4  4EB9 00001650           1002          Jsr     OP_CHECK_DATA_SIZE
-000015FA                          1003          
-000015FA                          1004      ; Put in tabs
-000015FA  4EB9 0000162E           1005          Jsr     OP_TAB
-00001600                          1006  
-00001600                          1007      ; Handoff
-00001600                          1008          ;Bra     EA_CMP
-00001600                          1009          
-00001600                          1010  OP_CMP_ADDR
-00001600                          1011          
-00001600  1CFC 0041               1012          Move.B  #'A',(A6)+ ; add to the string
-00001604                          1013      
-00001604                          1014      ; Find data size
-00001604                          1015          
-00001604  4EB9 00001670           1016          Jsr     OP_CHECK_DATA_SIZE_ADDR
-0000160A                          1017          
-0000160A                          1018      ; Put in tabs
-0000160A  4EB9 0000162E           1019          Jsr     OP_TAB
-00001610                          1020  
-00001610                          1021      ; Handoff
-00001610                          1022          ;Bra     EA_CMPA
-00001610                          1023      
-00001610                          1024  ;-----------------------  EOR  ------------------------------;
-00001610                          1025  
-00001610                          1026  OP_EOR
-00001610                          1027      ; start string
-00001610                          1028      
-00001610  1CFC 0045               1029          Move.B  #'E', (A6)+
-00001614  1CFC 004F               1030          Move.B  #'O', (A6)+
-00001618  1CFC 0052               1031          Move.B  #'R', (A6)+
-0000161C                          1032  
-0000161C                          1033      ; No Address Version
-0000161C                          1034          
-0000161C                          1035      ; Check data size
-0000161C  4EB9 00001650           1036          Jsr     OP_CHECK_DATA_SIZE
-00001622                          1037          
-00001622                          1038      ; Put in tabs
-00001622  4EB9 0000162E           1039          Jsr     OP_TAB
-00001628                          1040          
-00001628                          1041      ;Bra     EA_EOR
-00001628                          1042  
-00001628                          1043  ;---------------- Misc Op-Code Sub Routines ----------------;
-00001628                          1044  ; Set Bad Buffer
-00001628                          1045  ; Sub Routine that sets the Bad buffer bit and returns
-00001628                          1046  ;
-00001628                          1047  ; REGISTERS USED: D7
-00001628                          1048  
-00001628                          1049  OP_SET_BAD_BUFFER
-00001628  1E3C 0001               1050      Move.B  #%1, D7
-0000162C  4E75                    1051      Rts
-0000162E                          1052  
-0000162E                          1053  ;-------------------------- Tab ----------------------------;
-0000162E                          1054  ; Sets the total size of the string to be 12 spaces (3 tabs)
-0000162E                          1055  ; taking into account the current size of the string
-0000162E                          1056  
-0000162E                          1057  ; REGISTERS USED: A6, A5(const), D0
-0000162E                          1058  
-0000162E                          1059  OP_TAB
-0000162E  220D                    1060      Move.L      A5,D1   ; Move the start of string to a Dn
-00001630  928E                    1061      Sub.L       A6,D1   ; Find the compliment of how long the String is
-00001632  0601 000C               1062      AddI.B      #12,D1  ; Get the number of spaces before 3 tabs
-00001636                          1063      
-00001636                          1064      ; Loop till you have enough spaces
-00001636                          1065  LOOP_TAB
-00001636  1CFC 0020               1066      Move.B      #' ',(A6)+  ; Add a space to the string
-0000163A  5301                    1067      SubI.B      #1,D1       ; Decrement the loop counter (D0)
-0000163C  66F8                    1068      BNE         LOOP_TAB    ; Continue looping if the loop counter hasn't hit 0
-0000163E                          1069      
-0000163E  4E75                    1070      Rts
-00001640                          1071  
-00001640                          1072  ;--------------------- Address Version ---------------------;
-00001640                          1073  ; This Sub Routine Checks if the Src address is an An and
-00001640                          1074  ; Adds an A to the sring if it is, to represent that it is
-00001640                          1075  ; Is the Address version of the Op-code. This function assumes
-00001640                          1076  ; That D0 will have the mode for the Destination in it.
-00001640                          1077  
-00001640                          1078  ; REGISTERS USED: D0, D4 (const), D1 (calls Bit Getters)
-00001640                          1079  ;                 A6 (Add string input)
-00001640                          1080  
-00001640                          1081  OP_CHECK_ADDRESS_VERSION
-00001640                          1082  
-00001640  B03C 0001               1083      Cmp.B    #%001, D0 ; Check to see if the src mode is An
-00001644  6700 0004               1084      Beq     OP_ADD_ADDRESS_VERSION ; If true add the 'A'
-00001648                          1085      
-00001648  4E75                    1086      Rts     ; Otherwise go back without changing anything
-0000164A                          1087  
-0000164A                          1088  OP_ADD_ADDRESS_VERSION
-0000164A  1CFC 0041               1089      Move.B  #'A',(A6)+     ; Add the letter A to the string
-0000164E                          1090      
-0000164E  4E75                    1091      Rts     ; Finish up and go back
-00001650                          1092      
-00001650                          1093  ;--------------------- Data Size Check ---------------------;
-00001650                          1094  ; A set of sub routines to check the size of the data and add it
-00001650                          1095  ; To the string.
-00001650                          1096  
-00001650                          1097  ; REGISTERS USED: D0, D1(Bit Shifts), D4(const), D7(checks illegal ops)
-00001650                          1098  ;                 A6(adds letters)    
-00001650                          1099  OP_CHECK_DATA_SIZE
-00001650  4EB9 00001748           1100      Jsr     GET6AND7
-00001656                          1101      
-00001656  B03C 0000               1102      Cmp.B    #%00, D0    ; Byte Size
-0000165A  6700 0026               1103      Beq     OP_SET_DATA_BYTE
-0000165E                          1104      
-0000165E  B03C 0001               1105      Cmp.B    #%01, D0    ; Word Size
-00001662  6700 0028               1106      Beq     OP_SET_DATA_WORD
-00001666                          1107      
-00001666  B03C 0002               1108      Cmp.B    #%10, D0    ; Long Size
-0000166A  6700 002A               1109      Beq     OP_SET_DATA_LONG
-0000166E                          1110      
-0000166E                          1111      ; If it was not one of those three types, it is not a legal operation
-0000166E  60B8                    1112      Bra     OP_SET_BAD_BUFFER     ; Set the Bad buffer bit
-00001670                          1113  
-00001670                          1114  OP_CHECK_DATA_SIZE_ADDR
-00001670  4EB9 00001724           1115      Jsr     GETBIT8
-00001676                          1116      
-00001676  B03C 0000               1117      Cmp.B   #%0, D0     ; Word Size
-0000167A  6700 0010               1118      Beq     OP_SET_DATA_WORD
-0000167E                          1119                          ; Otherwise its Long Size
-0000167E  6000 0016               1120      Bra     OP_SET_DATA_LONG
-00001682                          1121  
-00001682                          1122  OP_SET_DATA_BYTE
-00001682                          1123  
-00001682  1CFC 002E               1124      Move.B  #'.',(A6)+  ; Add Letters
-00001686  1CFC 0042               1125      Move.B  #'B',(A6)+
-0000168A                          1126      
-0000168A  4E75                    1127      Rts
-0000168C                          1128  
-0000168C                          1129  OP_SET_DATA_WORD
-0000168C                          1130  
-0000168C  1CFC 002E               1131      Move.B  #'.',(A6)+  ; Add Letters
-00001690  1CFC 0057               1132      Move.B  #'W',(A6)+
-00001694                          1133  
-00001694  4E75                    1134      Rts
-00001696                          1135  
-00001696                          1136  OP_SET_DATA_LONG
-00001696                          1137  
-00001696  1CFC 002E               1138      Move.B  #'.',(A6)+  ; Add Letters
-0000169A  1CFC 004C               1139      Move.B  #'L',(A6)+
-0000169E                          1140  
-0000169E  4E75                    1141      Rts
-000016A0                          1142  
-000016A0                          1143  ;------------------- Bit Shift Direction -------------------;
-000016A0                          1144  ; This checks bit 8 to see what direction the shift is going
-000016A0                          1145  
-000016A0                          1146  ; REGISTERS USED: D0, D1, D4 (const), A6
-000016A0                          1147  
-000016A0                          1148  OP_SHIFT_DIRECTION
-000016A0  4EB9 00001724           1149      Jsr     GETBIT8 ; Get the shift direction bit
-000016A6                          1150      
-000016A6  B03C 0000               1151      Cmp.B   #%0,D0  ; 0 is Right
-000016AA  6700 0006               1152      Beq     OP_SHIFT_RIGHT
-000016AE                          1153  
-000016AE  6000 0008               1154      Bra     OP_SHIFT_LEFT   ; Otherwise it's a left shift
-000016B2                          1155  
-000016B2                          1156  OP_SHIFT_RIGHT
-000016B2                          1157      ; Add the character and return
-000016B2  1CFC 0052               1158      Move.B  #'R',(A6)+
-000016B6                          1159  
-000016B6  4E75                    1160      Rts    
-000016B8                          1161  
-000016B8                          1162  OP_SHIFT_LEFT
-000016B8                          1163      ; Add the character and return
-000016B8  1CFC 004C               1164      Move.B  #'L',(A6)+
-000016BC                          1165  
-000016BC  4E75                    1166      Rts
-000016BE                          1167  
-000016BE                          1168  ;---------------- Bit Chopping Sub Routines ----------------;
-000016BE                          1169  ; These Sub Routines Chop a WORD size piece of data from
-000016BE                          1170  ; Data register 4 into a smaller piece, leaving just the
-000016BE                          1171  ; Piece in register 0 while leaving the original piece
-000016BE                          1172  ; of data intact.
-000016BE                          1173  
-000016BE                          1174  ; REGISTERS USED: D0, D1, D4 (const input)
-000016BE                          1175  
-000016BE                          1176  GET12TO15   ;1001 0000 0000 0000 -> 1001
-000016BE  4280                    1177                  CLR.L   D0      
-000016C0  3004                    1178                  Move.W  D4, D0      
-000016C2                          1179                  
-000016C2  123C 000C               1180                  Move.B  #12, D1     
-000016C6  E268                    1181                  LSR.W       D1, D0      
-000016C8                          1182                  
-000016C8  4E75                    1183                  RTS
-000016CA                          1184  
-000016CA                          1185  GET8TO11    ; 0000 1010 0000 0000 -> 1010   
-000016CA  4280                    1186                  CLR.L   D0      ; Clear out D0
-000016CC  3004                    1187                  Move.W  D4, D0      ; Move a copy of the bit string to D0
-000016CE                          1188                  
-000016CE  123C 0004               1189                  Move.B  #4, D1      ; This is nessassary to move by > 8 bits
-000016D2  E368                    1190                  LSL.W   D1, D0      ; Move the string all the way to the left
-000016D4                          1191                  
-000016D4  123C 000C               1192                  Move.B  #12, D1     ; Change the amount of bits shifted
-000016D8  E268                    1193                  LSR.W       D1, D0      ; Move the bits all the way back to the right, isolating the bits
-000016DA                          1194                  
-000016DA  4E75                    1195                  RTS         ; Return from the subroutine
-000016DC                          1196                      
-000016DC                          1197  GET9TO11    ; 0000 1010 0000 0000 -> 101    
-000016DC  4280                    1198                  CLR.L   D0      ; Clear out D0
-000016DE  3004                    1199                  Move.W  D4, D0      ; Move a copy of the bit string to D0
-000016E0                          1200                  
-000016E0  123C 0004               1201                  Move.B  #4, D1      ; This is nessassary to move by > 8 bits
-000016E4  E368                    1202                  LSL.W   D1, D0      ; Move the string all the way to the left
-000016E6                          1203                  
-000016E6  123C 000D               1204                  Move.B  #13, D1     ; Change the amount of bits shifted
-000016EA  E268                    1205                  LSR.W       D1, D0      ; Move the bits all the way back to the right, isolating the bits
-000016EC                          1206                  
-000016EC  4E75                    1207                  RTS         ; Return from the subroutine
-000016EE                          1208                  
-000016EE                          1209  GET6TO8     ; 0000 0001 1000 0000 -> 110
-000016EE  4280                    1210                  CLR.L   D0
-000016F0  3004                    1211                  Move.W  D4, D0
-000016F2                          1212                  
-000016F2  123C 0007               1213                  Move.B  #7, D1
-000016F6  E368                    1214                  LSL.W   D1, D0
-000016F8                          1215                  
-000016F8  123C 000D               1216                  Move.B  #13, D1
-000016FC  E268                    1217                  LSR.W       D1, D0
-000016FE                          1218                  
-000016FE  4E75                    1219                  RTS
-00001700                          1220                  
-00001700                          1221  GET3TO5     ; 0000 0000 0011 1000 -> 111
-00001700  4280                    1222                  CLR.L   D0
-00001702  3004                    1223                  Move.W  D4, D0
-00001704                          1224                  
-00001704  123C 000A               1225                  Move.B  #10, D1
-00001708  E368                    1226                  LSL.W   D1, D0
-0000170A                          1227                  
-0000170A  123C 000D               1228                  Move.B  #13, D1
-0000170E  E268                    1229                  LSR.W       D1, D0
-00001710                          1230                  
-00001710  4E75                    1231                  RTS
-00001712                          1232  GET0TO2     ; 0000 0000 0000 0011 -> 011
-00001712  4280                    1233                  CLR.L   D0
-00001714  3004                    1234                  Move.W  D4, D0
-00001716                          1235                  
-00001716  123C 000D               1236                  Move.B  #13, D1
-0000171A  E368                    1237                  LSL.W   D1, D0
-0000171C                          1238                  
-0000171C  123C 000D               1239                  Move.B  #13, D1
-00001720  E268                    1240                  LSR.W       D1, D0
-00001722                          1241                  
-00001722  4E75                    1242                  RTS
-00001724                          1243  GETBIT8     ; 0000 0001 0000 0000 -> 1
-00001724  4280                    1244                  CLR.L   D0
-00001726  3004                    1245                  Move.W  D4, D0
-00001728                          1246                  
-00001728  123C 0007               1247                  Move.B  #7, D1
-0000172C  E368                    1248                  LSL.W   D1, D0
-0000172E                          1249                  
-0000172E  123C 000F               1250                  Move.B  #15, D1
-00001732  E268                    1251                  LSR.W       D1, D0
-00001734                          1252                  
-00001734  4E75                    1253                  RTS
-00001736                          1254                  
-00001736                          1255  GET9AND10    ; 0000 0110 0000 0000 -> 11
-00001736  4280                    1256                  CLR.L   D0
-00001738  3004                    1257                  Move.W  D4, D0
-0000173A                          1258                  
-0000173A  123C 0005               1259                  Move.B  #5, D1
-0000173E  E368                    1260                  LSL.W   D1, D0
-00001740                          1261                  
-00001740  123C 000E               1262                  Move.B  #14, D1
-00001744  E268                    1263                  LSR.W   D1, D0
-00001746                          1264                  
-00001746  4E75                    1265                  RTS             
-00001748                          1266                  
-00001748                          1267  GET6AND7    ; 0000 0000 1100 0000 -> 11
-00001748  4280                    1268                  CLR.L   D0
-0000174A  3004                    1269                  Move.W  D4, D0
-0000174C                          1270                  
-0000174C  123C 0008               1271                  Move.B  #8, D1
-00001750  E368                    1272                  LSL.W   D1, D0
-00001752                          1273                  
-00001752  123C 000E               1274                  Move.B  #14, D1
-00001756  E268                    1275                  LSR.W   D1, D0
-00001758                          1276                  
-00001758  4E75                    1277                  RTS
-0000175A                          1278                  
-0000175A                          1279  GET3AND4    ; 0000 0000 0001 1000 -> 11
-0000175A  4280                    1280                  CLR.L   D0
-0000175C  3004                    1281                  Move.W  D4, D0
-0000175E                          1282                  
-0000175E  123C 000B               1283                  Move.B  #11, D1
-00001762  E368                    1284                  LSL.W   D1, D0
-00001764                          1285                  
-00001764  123C 000E               1286                  Move.B  #14, D1
-00001768  E268                    1287                  LSR.W   D1, D0
-0000176A                          1288                  
-0000176A  4E75                    1289                  RTS
-0000176C                          1290  
-0000176C                          1291  DONE       ; Close out the program
-0000176C  103C 0009               1292          Move.B #9, D0
-00001770  4E4F                    1293          Trap    #15        
-00001772                          1294          
-00001772                          1295  ILLEGAL     ; PLACEHOLDER
-00001772  60F8                    1296          Bra     DONE
-00001774                          1297      END    START        ; last line of source
+000013B6                           543      ; Put in tabs
+000013B6  4EB9 000014C4            544          Jsr     OP_TAB
+000013BC                           545  
+000013BC                           546      ; Handoff to John
+000013BC                           547      
+000013BC                           548          ;Bra     EA_BCC
+000013BC                           549  
+000013BC                           550  OP_BRA_LT
+000013BC                           551      ; start string
+000013BC                           552      
+000013BC  1CFC 0042                553          Move.B  #'B', (A6)+
+000013C0  1CFC 004C                554          Move.B  #'L', (A6)+
+000013C4  1CFC 0054                555          Move.B  #'T', (A6)+
+000013C8                           556  
+000013C8                           557      ; Put in tabs
+000013C8  4EB9 000014C4            558          Jsr     OP_TAB
+000013CE                           559  
+000013CE                           560      ; Handoff to John
+000013CE                           561      
+000013CE                           562          ;Bra     EA_BCC
+000013CE                           563  
+000013CE                           564  OP_BRA_GT
+000013CE                           565      ; start string
+000013CE                           566      
+000013CE  1CFC 0042                567          Move.B  #'B', (A6)+
+000013D2  1CFC 0047                568          Move.B  #'G', (A6)+
+000013D6  1CFC 0054                569          Move.B  #'T', (A6)+
+000013DA                           570  
+000013DA                           571      ; Put in tabs
+000013DA  4EB9 000014C4            572          Jsr     OP_TAB
+000013E0                           573  
+000013E0                           574      ; Handoff to John
+000013E0                           575      
+000013E0                           576          ;Bra     EA_BCC
+000013E0                           577  
+000013E0                           578  OP_BRA_LE
+000013E0                           579      ; start string
+000013E0                           580      
+000013E0  1CFC 0042                581          Move.B  #'B', (A6)+
+000013E4  1CFC 004C                582          Move.B  #'L', (A6)+
+000013E8  1CFC 0045                583          Move.B  #'E', (A6)+
+000013EC                           584  
+000013EC                           585      ; Put in tabs
+000013EC  4EB9 000014C4            586          Jsr     OP_TAB
+000013F2                           587  
+000013F2                           588      ; Handoff to John
+000013F2                           589      
+000013F2                           590          ;Bra     EA_BCC
+000013F2                           591  
+000013F2                           592  OP_MULS
+000013F2  6000 020E                593      Bra DONE    ; PLACEHOLDER
+000013F6                           594  OP_AND
+000013F6  6000 020A                595      Bra DONE    ; PLACEHOLDER
+000013FA                           596      
+000013FA                           597  ;-----------------  ARITHMETIC SHIFTS  ----------------------;
+000013FA                           598          
+000013FA                           599  OP_AS_REG
+000013FA                           600      ; start string
+000013FA                           601      
+000013FA  1CFC 0041                602          Move.B  #'A', (A6)+
+000013FE  1CFC 0053                603          Move.B  #'S', (A6)+
+00001402                           604          
+00001402                           605      ; Determine Left or right shift
+00001402                           606      
+00001402  4EB9 00001536            607          Jsr     OP_SHIFT_DIRECTION  ;Check the shift direction
+00001408                           608          
+00001408                           609      ; Determine data size
+00001408                           610      
+00001408  4EB9 000014E6            611          Jsr     OP_CHECK_DATA_SIZE
+0000140E                           612         
+0000140E                           613      ; Tab out function
+0000140E                           614      
+0000140E  4EB9 000014C4            615          Jsr     OP_TAB
+00001414                           616         
+00001414                           617      ; Handoff function
+00001414                           618          ;Bra     EA_AS_REG
+00001414                           619          
+00001414                           620  OP_AS_MEM
+00001414                           621      
+00001414                           622      ; start string
+00001414                           623      
+00001414  1CFC 0041                624          Move.B  #'A', (A6)+
+00001418  1CFC 0053                625          Move.B  #'S', (A6)+
+0000141C                           626          
+0000141C                           627      ; Determine Left or right shift
+0000141C                           628      
+0000141C  4EB9 00001536            629          Jsr     OP_SHIFT_DIRECTION  ;Check the shift direction
+00001422                           630         
+00001422                           631      ; Tab out function
+00001422                           632      
+00001422  4EB9 000014C4            633          Jsr     OP_TAB
+00001428                           634         
+00001428                           635      ; Handoff function
+00001428                           636          ;Bra     EA_AS_MEM
+00001428                           637  
+00001428                           638  
+00001428                           639  ;-------------------  LOGICAL SHIFT  ------------------------;
+00001428                           640  
+00001428                           641  OP_LS_REG
+00001428                           642      ; start string
+00001428                           643      
+00001428  1CFC 004C                644          Move.B  #'L', (A6)+
+0000142C  1CFC 0053                645          Move.B  #'S', (A6)+
+00001430                           646          
+00001430                           647      ; Determine Left or right shift
+00001430                           648      
+00001430  4EB9 00001536            649          Jsr     OP_SHIFT_DIRECTION  ;Check the shift direction
+00001436                           650          
+00001436                           651      ; Determine data size
+00001436                           652      
+00001436  4EB9 000014E6            653          Jsr     OP_CHECK_DATA_SIZE
+0000143C                           654         
+0000143C                           655      ; Tab out function
+0000143C                           656      
+0000143C  4EB9 000014C4            657          Jsr     OP_TAB
+00001442                           658         
+00001442                           659      ; Handoff function
+00001442                           660          ;Bra     EA_LS_REG
+00001442                           661  
+00001442                           662      
+00001442                           663  OP_LS_MEM    
+00001442                           664  
+00001442                           665      ; start string
+00001442                           666      
+00001442  1CFC 004C                667          Move.B  #'L', (A6)+
+00001446  1CFC 0053                668          Move.B  #'S', (A6)+
+0000144A                           669          
+0000144A                           670      ; Determine Left or right shift
+0000144A                           671      
+0000144A  4EB9 00001536            672          Jsr     OP_SHIFT_DIRECTION  ;Check the shift direction
+00001450                           673         
+00001450                           674      ; Tab out function
+00001450                           675      
+00001450  4EB9 000014C4            676          Jsr     OP_TAB
+00001456                           677         
+00001456                           678      ; Handoff function
+00001456                           679          ;Bra     EA_LS_MEM
+00001456                           680  
+00001456                           681  
+00001456                           682  ;----------------------  ROTATE  ----------------------------;
+00001456                           683  
+00001456                           684  OP_RO_REG
+00001456                           685      ; start string
+00001456                           686      
+00001456  1CFC 0052                687          Move.B  #'R', (A6)+
+0000145A  1CFC 004F                688          Move.B  #'O', (A6)+
+0000145E                           689          
+0000145E                           690      ; Determine Left or right shift
+0000145E                           691      
+0000145E  4EB9 00001536            692          Jsr     OP_SHIFT_DIRECTION  ;Check the shift direction
+00001464                           693          
+00001464                           694      ; Determine data size
+00001464                           695      
+00001464  4EB9 000014E6            696          Jsr     OP_CHECK_DATA_SIZE
+0000146A                           697         
+0000146A                           698      ; Tab out function
+0000146A                           699      
+0000146A  4EB9 000014C4            700          Jsr     OP_TAB
+00001470                           701         
+00001470                           702      ; Handoff function
+00001470                           703          ;Bra     EA_RO_REG
+00001470                           704  
+00001470                           705      
+00001470                           706  OP_RO_MEM
+00001470                           707  
+00001470                           708      ; start string
+00001470                           709      
+00001470  1CFC 0052                710          Move.B  #'R', (A6)+
+00001474  1CFC 004F                711          Move.B  #'O', (A6)+
+00001478                           712          
+00001478                           713      ; Determine Left or right shift
+00001478                           714      
+00001478  4EB9 00001536            715          Jsr     OP_SHIFT_DIRECTION  ;Check the shift direction
+0000147E                           716         
+0000147E                           717      ; Tab out function
+0000147E                           718      
+0000147E  4EB9 000014C4            719          Jsr     OP_TAB
+00001484                           720         
+00001484                           721      ; Handoff function
+00001484                           722          ;Bra     EA_RO_MEM
+00001484                           723  
+00001484                           724  
+00001484                           725  ;-----------------------  CMP  ------------------------------;
+00001484                           726  
+00001484                           727  OP_Cmp
+00001484                           728      ; start string
+00001484                           729      
+00001484  1CFC 0043                730          Move.B  #'C', (A6)+
+00001488  1CFC 004D                731          Move.B  #'M', (A6)+
+0000148C  1CFC 0050                732          Move.B  #'P', (A6)+
+00001490                           733  
+00001490                           734      ; Check for address version
+00001490                           735          
+00001490  4EB9 000015DE            736          Jsr     GET6AND7
+00001496  B03C 0003                737          Cmp.B   #%11, D0    ; if both bits are 1 it is an address version
+0000149A                           738          
+0000149A  6700 000E                739          Beq     OP_CMP_ADDR
+0000149E                           740          
+0000149E                           741      ; Check which of the two versions is it?
+0000149E                           742  
+0000149E  4EB9 000014E6            743          Jsr     OP_CHECK_DATA_SIZE
+000014A4                           744          
+000014A4                           745      ; Put in tabs
+000014A4  4EB9 000014C4            746          Jsr     OP_TAB
+000014AA                           747  
+000014AA                           748      ; Handoff
+000014AA                           749          ;Bra     EA_CMP
+000014AA                           750          
+000014AA                           751  OP_CMP_ADDR
+000014AA                           752          
+000014AA  1CFC 0041                753          Move.B  #'A',(A6)+ ; add to the string
+000014AE                           754      
+000014AE                           755      ; Find data size
+000014AE                           756          
+000014AE  4EB9 00001506            757          Jsr     OP_CHECK_DATA_SIZE_ADDR
+000014B4                           758          
+000014B4                           759      ; Put in tabs
+000014B4  4EB9 000014C4            760          Jsr     OP_TAB
+000014BA                           761  
+000014BA                           762      ; Handoff
+000014BA                           763          ;Bra     EA_CMPA
+000014BA                           764      
+000014BA                           765  
+000014BA                           766  OP_EOR
+000014BA  6000 0146                767      Bra DONE    ; PLACEHOLDER
+000014BE                           768  
+000014BE                           769  ;---------------- Misc Op-Code Sub Routines ----------------;
+000014BE                           770  ; Set Bad Buffer
+000014BE                           771  ; Sub Routine that sets the Bad buffer bit and returns
+000014BE                           772  ;
+000014BE                           773  ; REGISTERS USED: D7
+000014BE                           774  
+000014BE                           775  OP_SET_BAD_BUFFER
+000014BE  1E3C 0001                776      Move.B  #%1, D7
+000014C2  4E75                     777      Rts
+000014C4                           778  
+000014C4                           779  ;-------------------------- Tab ----------------------------;
+000014C4                           780  ; Sets the total size of the string to be 12 spaces (3 tabs)
+000014C4                           781  ; taking into account the current size of the string
+000014C4                           782  
+000014C4                           783  ; REGISTERS USED: A6, A5(const), D0
+000014C4                           784  
+000014C4                           785  OP_TAB
+000014C4  220D                     786      Move.L      A5,D1   ; Move the start of string to a Dn
+000014C6  928E                     787      Sub.L       A6,D1   ; Find the compliment of how long the String is
+000014C8  0601 000C                788      AddI.B      #12,D1  ; Get the number of spaces before 3 tabs
+000014CC                           789      
+000014CC                           790      ; Loop till you have enough spaces
+000014CC                           791  LOOP_TAB
+000014CC  1CFC 0020                792      Move.B      #' ',(A6)+  ; Add a space to the string
+000014D0  5301                     793      SubI.B      #1,D1       ; Decrement the loop counter (D0)
+000014D2  66F8                     794      BNE         LOOP_TAB    ; Continue looping if the loop counter hasn't hit 0
+000014D4                           795      
+000014D4  4E75                     796      Rts
+000014D6                           797  
+000014D6                           798  ;--------------------- Address Version ---------------------;
+000014D6                           799  ; This Sub Routine Checks if the Src address is an An and
+000014D6                           800  ; Adds an A to the sring if it is, to represent that it is
+000014D6                           801  ; Is the Address version of the Op-code. This function assumes
+000014D6                           802  ; That D0 will have the mode for the Destination in it.
+000014D6                           803  
+000014D6                           804  ; REGISTERS USED: D0, D4 (const), D1 (calls Bit Getters)
+000014D6                           805  ;                 A6 (Add string input)
+000014D6                           806  
+000014D6                           807  OP_CHECK_ADDRESS_VERSION
+000014D6                           808  
+000014D6  B03C 0001                809      Cmp.B    #%001, D0 ; Check to see if the src mode is An
+000014DA  6700 0004                810      Beq     OP_ADD_ADDRESS_VERSION ; If true add the 'A'
+000014DE                           811      
+000014DE  4E75                     812      Rts     ; Otherwise go back without changing anything
+000014E0                           813  
+000014E0                           814  OP_ADD_ADDRESS_VERSION
+000014E0  1CFC 0041                815      Move.B  #'A',(A6)+     ; Add the letter A to the string
+000014E4                           816      
+000014E4  4E75                     817      Rts     ; Finish up and go back
+000014E6                           818      
+000014E6                           819  ;--------------------- Data Size Check ---------------------;
+000014E6                           820  ; A set of sub routines to check the size of the data and add it
+000014E6                           821  ; To the string.
+000014E6                           822  
+000014E6                           823  ; REGISTERS USED: D0, D1(Bit Shifts), D4(const), D7(checks illegal ops)
+000014E6                           824  ;                 A6(adds letters)    
+000014E6                           825  OP_CHECK_DATA_SIZE
+000014E6  4EB9 000015DE            826      Jsr     GET6AND7
+000014EC                           827      
+000014EC  B03C 0000                828      Cmp.B    #%00, D0    ; Byte Size
+000014F0  6700 0026                829      Beq     OP_SET_DATA_BYTE
+000014F4                           830      
+000014F4  B03C 0001                831      Cmp.B    #%01, D0    ; Word Size
+000014F8  6700 0028                832      Beq     OP_SET_DATA_WORD
+000014FC                           833      
+000014FC  B03C 0002                834      Cmp.B    #%10, D0    ; Long Size
+00001500  6700 002A                835      Beq     OP_SET_DATA_LONG
+00001504                           836      
+00001504                           837      ; If it was not one of those three types, it is not a legal operation
+00001504  60B8                     838      Bra     OP_SET_BAD_BUFFER     ; Set the Bad buffer bit
+00001506                           839  
+00001506                           840  OP_CHECK_DATA_SIZE_ADDR
+00001506  4EB9 000015BA            841      Jsr     GETBIT8
+0000150C                           842      
+0000150C  B03C 0000                843      Cmp.B   #%0, D0     ; Word Size
+00001510  6700 0010                844      Beq     OP_SET_DATA_WORD
+00001514                           845                          ; Otherwise its Long Size
+00001514  6000 0016                846      Bra     OP_SET_DATA_LONG
+00001518                           847  
+00001518                           848  OP_SET_DATA_BYTE
+00001518                           849  
+00001518  1CFC 002E                850      Move.B  #'.',(A6)+  ; Add Letters
+0000151C  1CFC 0042                851      Move.B  #'B',(A6)+
+00001520                           852      
+00001520  4E75                     853      Rts
+00001522                           854  
+00001522                           855  OP_SET_DATA_WORD
+00001522                           856  
+00001522  1CFC 002E                857      Move.B  #'.',(A6)+  ; Add Letters
+00001526  1CFC 0057                858      Move.B  #'W',(A6)+
+0000152A                           859  
+0000152A  4E75                     860      Rts
+0000152C                           861  
+0000152C                           862  OP_SET_DATA_LONG
+0000152C                           863  
+0000152C  1CFC 002E                864      Move.B  #'.',(A6)+  ; Add Letters
+00001530  1CFC 004C                865      Move.B  #'L',(A6)+
+00001534                           866  
+00001534  4E75                     867      Rts
+00001536                           868  
+00001536                           869  ;------------------- Bit Shift Direction -------------------;
+00001536                           870  ; This checks bit 8 to see what direction the shift is going
+00001536                           871  
+00001536                           872  ; REGISTERS USED: D0, D1, D4 (const), A6
+00001536                           873  
+00001536                           874  OP_SHIFT_DIRECTION
+00001536  4EB9 000015BA            875      Jsr     GETBIT8 ; Get the shift direction bit
+0000153C                           876      
+0000153C  B03C 0000                877      Cmp.B   #%0,D0  ; 0 is Right
+00001540  6700 0006                878      Beq     OP_SHIFT_RIGHT
+00001544                           879  
+00001544  6000 0008                880      Bra     OP_SHIFT_LEFT   ; Otherwise it's a left shift
+00001548                           881  
+00001548                           882  OP_SHIFT_RIGHT
+00001548                           883      ; Add the character and return
+00001548  1CFC 0052                884      Move.B  #'R',(A6)+
+0000154C                           885  
+0000154C  4E75                     886      Rts    
+0000154E                           887  
+0000154E                           888  OP_SHIFT_LEFT
+0000154E                           889      ; Add the character and return
+0000154E  1CFC 004C                890      Move.B  #'L',(A6)+
+00001552                           891  
+00001552  4E75                     892      Rts
+00001554                           893  
+00001554                           894  ;---------------- Bit Chopping Sub Routines ----------------;
+00001554                           895  ; These Sub Routines Chop a WORD size piece of data from
+00001554                           896  ; Data register 4 into a smaller piece, leaving just the
+00001554                           897  ; Piece in register 0 while leaving the original piece
+00001554                           898  ; of data intact.
+00001554                           899  
+00001554                           900  ; REGISTERS USED: D0, D1, D4 (const input)
+00001554                           901  
+00001554                           902  GET12TO15   ;1001 0000 0000 0000 -> 1001
+00001554  4280                     903                  CLR.L   D0      
+00001556  3004                     904                  Move.W  D4, D0      
+00001558                           905                  
+00001558  123C 000C                906                  Move.B  #12, D1     
+0000155C  E268                     907                  LSR.W       D1, D0      
+0000155E                           908                  
+0000155E  4E75                     909                  RTS
+00001560                           910  
+00001560                           911  GET8TO11    ; 0000 1010 0000 0000 -> 1010   
+00001560  4280                     912                  CLR.L   D0      ; Clear out D0
+00001562  3004                     913                  Move.W  D4, D0      ; Move a copy of the bit string to D0
+00001564                           914                  
+00001564  123C 0004                915                  Move.B  #4, D1      ; This is nessassary to move by > 8 bits
+00001568  E368                     916                  LSL.W   D1, D0      ; Move the string all the way to the left
+0000156A                           917                  
+0000156A  123C 000C                918                  Move.B  #12, D1     ; Change the amount of bits shifted
+0000156E  E268                     919                  LSR.W       D1, D0      ; Move the bits all the way back to the right, isolating the bits
+00001570                           920                  
+00001570  4E75                     921                  RTS         ; Return from the subroutine
+00001572                           922                      
+00001572                           923  GET9TO11    ; 0000 1010 0000 0000 -> 101    
+00001572  4280                     924                  CLR.L   D0      ; Clear out D0
+00001574  3004                     925                  Move.W  D4, D0      ; Move a copy of the bit string to D0
+00001576                           926                  
+00001576  123C 0004                927                  Move.B  #4, D1      ; This is nessassary to move by > 8 bits
+0000157A  E368                     928                  LSL.W   D1, D0      ; Move the string all the way to the left
+0000157C                           929                  
+0000157C  123C 000D                930                  Move.B  #13, D1     ; Change the amount of bits shifted
+00001580  E268                     931                  LSR.W       D1, D0      ; Move the bits all the way back to the right, isolating the bits
+00001582                           932                  
+00001582  4E75                     933                  RTS         ; Return from the subroutine
+00001584                           934                  
+00001584                           935  GET6TO8     ; 0000 0001 1000 0000 -> 110
+00001584  4280                     936                  CLR.L   D0
+00001586  3004                     937                  Move.W  D4, D0
+00001588                           938                  
+00001588  123C 0007                939                  Move.B  #7, D1
+0000158C  E368                     940                  LSL.W   D1, D0
+0000158E                           941                  
+0000158E  123C 000D                942                  Move.B  #13, D1
+00001592  E268                     943                  LSR.W       D1, D0
+00001594                           944                  
+00001594  4E75                     945                  RTS
+00001596                           946                  
+00001596                           947  GET3TO5     ; 0000 0000 0011 1000 -> 111
+00001596  4280                     948                  CLR.L   D0
+00001598  3004                     949                  Move.W  D4, D0
+0000159A                           950                  
+0000159A  123C 000A                951                  Move.B  #10, D1
+0000159E  E368                     952                  LSL.W   D1, D0
+000015A0                           953                  
+000015A0  123C 000D                954                  Move.B  #13, D1
+000015A4  E268                     955                  LSR.W       D1, D0
+000015A6                           956                  
+000015A6  4E75                     957                  RTS
+000015A8                           958  GET0TO2     ; 0000 0000 0000 0011 -> 011
+000015A8  4280                     959                  CLR.L   D0
+000015AA  3004                     960                  Move.W  D4, D0
+000015AC                           961                  
+000015AC  123C 000D                962                  Move.B  #13, D1
+000015B0  E368                     963                  LSL.W   D1, D0
+000015B2                           964                  
+000015B2  123C 000D                965                  Move.B  #13, D1
+000015B6  E268                     966                  LSR.W       D1, D0
+000015B8                           967                  
+000015B8  4E75                     968                  RTS
+000015BA                           969  GETBIT8     ; 0000 0001 0000 0000 -> 1
+000015BA  4280                     970                  CLR.L   D0
+000015BC  3004                     971                  Move.W  D4, D0
+000015BE                           972                  
+000015BE  123C 0007                973                  Move.B  #7, D1
+000015C2  E368                     974                  LSL.W   D1, D0
+000015C4                           975                  
+000015C4  123C 000F                976                  Move.B  #15, D1
+000015C8  E268                     977                  LSR.W       D1, D0
+000015CA                           978                  
+000015CA  4E75                     979                  RTS
+000015CC                           980                  
+000015CC                           981  GET9AND10    ; 0000 0110 0000 0000 -> 11
+000015CC  4280                     982                  CLR.L   D0
+000015CE  3004                     983                  Move.W  D4, D0
+000015D0                           984                  
+000015D0  123C 0005                985                  Move.B  #5, D1
+000015D4  E368                     986                  LSL.W   D1, D0
+000015D6                           987                  
+000015D6  123C 000E                988                  Move.B  #14, D1
+000015DA  E268                     989                  LSR.W   D1, D0
+000015DC                           990                  
+000015DC  4E75                     991                  RTS             
+000015DE                           992                  
+000015DE                           993  GET6AND7    ; 0000 0000 1100 0000 -> 11
+000015DE  4280                     994                  CLR.L   D0
+000015E0  3004                     995                  Move.W  D4, D0
+000015E2                           996                  
+000015E2  123C 0008                997                  Move.B  #8, D1
+000015E6  E368                     998                  LSL.W   D1, D0
+000015E8                           999                  
+000015E8  123C 000E               1000                  Move.B  #14, D1
+000015EC  E268                    1001                  LSR.W   D1, D0
+000015EE                          1002                  
+000015EE  4E75                    1003                  RTS
+000015F0                          1004                  
+000015F0                          1005  GET3AND4    ; 0000 0000 0001 1000 -> 11
+000015F0  4280                    1006                  CLR.L   D0
+000015F2  3004                    1007                  Move.W  D4, D0
+000015F4                          1008                  
+000015F4  123C 000B               1009                  Move.B  #11, D1
+000015F8  E368                    1010                  LSL.W   D1, D0
+000015FA                          1011                  
+000015FA  123C 000E               1012                  Move.B  #14, D1
+000015FE  E268                    1013                  LSR.W   D1, D0
+00001600                          1014                  
+00001600  4E75                    1015                  RTS
+00001602                          1016  
+00001602                          1017  DONE       ; Close out the program
+00001602  103C 0009               1018          Move.B #9, D0
+00001606  4E4F                    1019          Trap    #15        
+00001608                          1020          
+00001608                          1021  ILLEGAL     ; PLACEHOLDER
+00001608  60F8                    1022          Bra     DONE
+0000160A                          1023      END    START        ; last line of source
 
 No errors detected
 No warnings generated
@@ -1307,85 +1033,84 @@ No warnings generated
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-AND_MULS            118A
-BIT_SHIFT           119C
-BIT_SHIFT_MEM       11AE
-BIT_SHIFT_REG       11D0
-BRANCH_CONDITIONALS  1108
-CMP_EOR             11F2
-DONE                176C
-GET0TO2             1712
-GET12TO15           16BE
-GET3AND4            175A
-GET3TO5             1700
-GET6AND7            1748
-GET6TO8             16EE
-GET8TO11            16CA
-GET9AND10           1736
-GET9TO11            16DC
-GETBIT8             1724
-ILLEGAL             1772
+AND_MULS            1182
+BIT_SHIFT           1194
+BIT_SHIFT_MEM       11A6
+BIT_SHIFT_REG       11C8
+BRANCH_CONDITIONALS  1100
+CMP_EOR             11EA
+DONE                1602
+GET0TO2             15A8
+GET12TO15           1554
+GET3AND4            15F0
+GET3TO5             1596
+GET6AND7            15DE
+GET6TO8             1584
+GET8TO11            1560
+GET9AND10           15CC
+GET9TO11            1572
+GETBIT8             15BA
+ILLEGAL             1608
 IMMEDIATE_BTST      1076
-JSR_RTS             10EE
-LOOP_TAB            1636
-OP_ADD              12BC
-OP_ADDQ             124C
-OP_ADD_ADDR         12E2
-OP_ADD_ADDRESS_VERSION  164A
-OP_AND              1538
-OP_AS_MEM           156A
-OP_AS_REG           1550
-OP_BRANCH           140C
-OP_BRA_CC           1442
-OP_BRA_CS           1454
-OP_BRA_EQ           1478
-OP_BRA_GE           14D2
-OP_BRA_GT           14F6
-OP_BRA_HIGH         141E
-OP_BRA_LE           1508
-OP_BRA_LOW          1430
-OP_BRA_LT           14E4
-OP_BRA_MI           14C0
-OP_BRA_NE           1466
-OP_BRA_PL           14AE
-OP_BRA_VC           148A
-OP_BRA_VS           149C
-OP_BSTS             12F2
-OP_CHECK_ADDRESS_VERSION  1640
-OP_CHECK_DATA_SIZE  1650
-OP_CHECK_DATA_SIZE_ADDR  1670
-OP_CMP              15DA
-OP_CMPI             1358
-OP_CMP_ADDR         1600
+JSR_RTS             10E6
+LOOP_TAB            14CC
+OP_ADD              1282
+OP_ADDQ             1244
+OP_ADD_ADDR         12A8
+OP_ADD_ADDRESS_VERSION  14E0
+OP_AND              13F6
+OP_AS_MEM           1414
+OP_AS_REG           13FA
+OP_BRANCH           12E4
+OP_BRA_CC           131A
+OP_BRA_CS           132C
+OP_BRA_EQ           1350
+OP_BRA_GE           13AA
+OP_BRA_GT           13CE
+OP_BRA_HIGH         12F6
+OP_BRA_LE           13E0
+OP_BRA_LOW          1308
+OP_BRA_LT           13BC
+OP_BRA_MI           1398
+OP_BRA_NE           133E
+OP_BRA_PL           1386
+OP_BRA_VC           1362
+OP_BRA_VS           1374
+OP_BSTS             12B8
+OP_CHECK_ADDRESS_VERSION  14D6
+OP_CHECK_DATA_SIZE  14E6
+OP_CHECK_DATA_SIZE_ADDR  1506
+OP_CMP              1484
+OP_CMP_ADDR         14AA
 OP_CODE_TREE        1004
-OP_DIVS             1268
-OP_EOR              1610
-OP_EORI             133C
-OP_JSR              13FA
-OP_LEA              1374
-OP_LS_MEM           1598
-OP_LS_REG           157E
-OP_MOVE             1204
-OP_MOVEM            13B6
-OP_MOVEM_DATA       13D6
-OP_MOVE_DATA        1232
-OP_MULS             151A
-OP_NEG              1386
-OP_NOT              139E
-OP_ORI              1308
-OP_RO_MEM           15C6
-OP_RO_REG           15AC
-OP_RTS              13E8
-OP_SET_BAD_BUFFER   1628
-OP_SET_DATA_BYTE    1682
-OP_SET_DATA_LONG    1696
-OP_SET_DATA_WORD    168C
-OP_SHIFT_DIRECTION  16A0
-OP_SHIFT_LEFT       16B8
-OP_SHIFT_RIGHT      16B2
-OP_SUB              1286
-OP_SUBI             1320
-OP_SUB_ADDR         12AC
-OP_TAB              162E
-SINGLE_OPERATOR_CODES  10AE
+OP_DIVS             1248
+OP_EOR              14BA
+OP_EORI             12C4
+OP_JSR              12E0
+OP_LEA              12C8
+OP_LS_MEM           1442
+OP_LS_REG           1428
+OP_MOVE             11FC
+OP_MOVEM_MTOR       12D8
+OP_MOVEM_RTOM       12D4
+OP_MOVE_DATA        122A
+OP_MULS             13F2
+OP_NEG              12CC
+OP_NOT              12D0
+OP_ORI              12BC
+OP_RO_MEM           1470
+OP_RO_REG           1456
+OP_RTS              12DC
+OP_SET_BAD_BUFFER   14BE
+OP_SET_DATA_BYTE    1518
+OP_SET_DATA_LONG    152C
+OP_SET_DATA_WORD    1522
+OP_SHIFT_DIRECTION  1536
+OP_SHIFT_LEFT       154E
+OP_SHIFT_RIGHT      1548
+OP_SUB              124C
+OP_SUBI             12C0
+OP_SUB_ADDR         1272
+OP_TAB              14C4
+SINGLE_OPERATOR_CODES  10A6
 START               1000
