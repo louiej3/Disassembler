@@ -920,6 +920,15 @@ OP_NOT
 ;-------------------  MOVE MULITPLE  ------------------------;
         
 OP_MOVEM
+    ; Exception checks
+        Jsr     GET7AND8
+        Cmp.B   #%01,D0
+        Bne     SET_BAD_BUFFER_BIT
+        
+        Jsr     GET3TO5
+        Cmp.B   #%000,D0
+        Bne     SET_BAD_BUFFER_BIT
+
     ; start string
     
         Move.B  #'M', (A6)+
@@ -2434,7 +2443,7 @@ GET9AND10    ; 0000 0110 0000 0000 -> 11
 				
 				RTS				
 				
-GET6AND7    ; 0000 0000 1100 0000 -> 11
+GET6AND7    
                 CLR.L	D0
 				Move.W 	D4, D0
 				
@@ -2446,7 +2455,19 @@ GET6AND7    ; 0000 0000 1100 0000 -> 11
 				
 				RTS
 				
-GET3AND4    ; 0000 0000 0001 1000 -> 11
+GET7AND8    
+                CLR.L	D0
+				Move.W 	D4, D0
+				
+				Move.B	#7, D1
+				LSL.W 	D1, D0
+				
+				Move.B	#14, D1
+				LSR.W	D1, D0
+				
+				RTS				
+				
+GET3AND4    
                 CLR.L	D0
 				Move.W 	D4, D0
 				
@@ -2556,6 +2577,7 @@ illegal_data    DS.L    80              ; Data/Instructions that we do not conve
 valid_data      DS.L    80              ; Instructions that we converted
                 
                 END     START
+
 
 
 
