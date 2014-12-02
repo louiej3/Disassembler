@@ -430,7 +430,7 @@ SINGLE_OPERATOR_CODES   ; Continue through Op-code Tree, first 4 are 0100
         
         Cmp.B     #%1, D0      ; Load effetive address
         Beq     OP_LEA
-        
+                
         Jsr     GET9TO11       ; Change out test bits        
 
         Cmp.B     #%010, D0    ; Negate
@@ -444,6 +444,9 @@ SINGLE_OPERATOR_CODES   ; Continue through Op-code Tree, first 4 are 0100
         
         Cmp.B     #%110, D0    ; Move multiple registers Memory -> Registers
         Beq     OP_MOVEM
+        
+        Cmp.B     #%111, D0    ; JSR
+        Beq     OP_JSR
         
         Bra     OP_SET_BAD_BUFFER     ; Everything else is uncovered
 
@@ -645,7 +648,7 @@ OP_ADDQ
         Beq     OP_SET_BAD_BUFFER        
         Jsr     GET6AND7
         Cmp.B   #%11,D0
-        Beq     OP_SET_BAD_BUFFER       ; Blong edited, was Bne
+        Beq     OP_SET_BAD_BUFFER       
 
     ; start string
     
@@ -660,7 +663,7 @@ OP_ADDQ
     ; Put in tabs
         Jsr     OP_TAB
         
-    ; Hand the function off to John / Blong edited, was EA_IMMEDIATE
+    ; Hand the function off to John
         BRA     EA_ADDQ
 
     
@@ -1907,6 +1910,8 @@ EA_ADDQ ; Figures out the EA for AddQ
         Jsr     EA_ADDQ_CHECK_8         ; Get the immediate value
         Move.B  #',', (A6)+             ; Add a comma
         Jsr     EA_ADDQ_DEST            ; Add the destination
+        
+        Rts
 
 EA_ADDQ_CHECK_8 ; A bit value of 1-7 corresponds to 1-7, but 0 corresponds to 8
         Jsr     GET9TO11                ; Isolate the count/register bits
@@ -1927,7 +1932,8 @@ EA_ADDQ_IMMEDIATE   ; Adds an immediate value before the comma
         
 EA_ADDQ_DEST    ; Determines the destination       
         Jsr     EA_0TO5                 ; Check for all EA except #<data>
-        Rts     ; Blong edited, was blank
+        
+        Rts     
         
 ;=========================================================;        
 ;---------------------- EA Sub/SubA ----------------------;
@@ -2131,7 +2137,6 @@ EA_BTST_DN  ; Gets the register for the bit number
         RTS
 
 EA_BTST_IMM ; Gets the immediate data for the bit number
-        AddA.W  #1, A3                  ; Move the pointer forward by a byte to get the next byte
         Jsr     EA_IMM_BYTE             ; Add the bit number as an immediate hex byte
         
         Jsr     EA_BTST_ADDRESS         ; Add the register to the string
@@ -2559,6 +2564,7 @@ illegal_data    DS.L    80              ; Data/Instructions that we do not conve
 valid_data      DS.L    80              ; Instructions that we converted
                 
                 END     START
+
 
 
 
