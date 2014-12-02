@@ -190,6 +190,8 @@ prompt_to_rerun LEA     ask_user,A1         ; Load ask user message to rerun
                 LEA     ask_input,A1        ; Take user input
                 MOVE.B  #2,D0
                 TRAP    #15
+                LEA     line_count,A2       ; Load line count to reset
+                MOVE.B  #0,(A2)             ; Reset the line_count
                 CMP.B   #1,D1               ; User input must be the length of 1
                 BGT     rerun_err_msg       ; Otherwise, will prompt msg again
                 BLT     rerun_err_msg       ; until the user inputs correctly.
@@ -643,7 +645,7 @@ OP_ADDQ
         Beq     OP_SET_BAD_BUFFER        
         Jsr     GET6AND7
         Cmp.B   #%11,D0
-        Bne     OP_SET_BAD_BUFFER
+        Beq     OP_SET_BAD_BUFFER       ; Blong edited, was Bne
 
     ; start string
     
@@ -658,8 +660,8 @@ OP_ADDQ
     ; Put in tabs
         Jsr     OP_TAB
         
-    ; Hand the function off to John
-        BRA     EA_IMMEDIATE
+    ; Hand the function off to John / Blong edited, was EA_IMMEDIATE
+        BRA     EA_ADDQ
 
     
 ;------------------  DIVIDE SINGED  -------------------------;
@@ -1925,6 +1927,7 @@ EA_ADDQ_IMMEDIATE   ; Adds an immediate value before the comma
         
 EA_ADDQ_DEST    ; Determines the destination       
         Jsr     EA_0TO5                 ; Check for all EA except #<data>
+        Rts     ; Blong edited, was blank
         
 ;=========================================================;        
 ;---------------------- EA Sub/SubA ----------------------;
@@ -2556,6 +2559,7 @@ illegal_data    DS.L    80              ; Data/Instructions that we do not conve
 valid_data      DS.L    80              ; Instructions that we converted
                 
                 END     START
+
 
 
 
