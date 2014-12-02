@@ -28,8 +28,11 @@ START:                  ; first instruction of program
     AddA.W      $1234,A4
     AddA.W      $89AB,A4
     AddA.L      $1234,A5
-
-    ;Add ADDI
+    
+    AddQ.B      #1,D0       ; Bug - near EA_ADDQ_DEST
+    AddQ.W      #$8,$7000   ; Bug
+    AddQ.L      #4,$8000    ; Bug
+    ;Add ADDI - Not needed?
 
 ;-------------- SUB ------------------;
 
@@ -40,7 +43,7 @@ START:                  ; first instruction of program
     SubA.W      (A1),A2
     SubA.L      D1,A4
 
-    ; Add SUBI
+    ; Add SUBI - located at IMMEDIATE FUNCTIONS
 
 ;-------------- CMP -------------------;
 
@@ -51,14 +54,17 @@ START:                  ; first instruction of program
     CmpA.W      #$FFFF,A4
     CmpA.L      (A4)+,A5
     
-    ; Add CMPI
+    ; Add CMPI - located at IMMEDIATE FUNCTIONS
 
 ;------------ BCC & Jumps --------------;
 
     Bra         $1234
     Beq         $5678
+    Bne         $1111
+    Blt         $9999
+    Bhi         $1000
     
-    Jsr         $ABCD
+    Jsr         $ABCD   ; Bug - is ILLEGAL
     Rts
     
 ;--------- SHIFT FUNCTIONS -------------;
@@ -103,11 +109,29 @@ START:                  ; first instruction of program
     
     Divs.W  #3,D7
     Divs.W  (A2),D3
+    
+;------- BTST - EOR - AND - MOVEM ------;
+    
+    BTST.L  D0,D1           ; Bug - does not specify long (.L)
+    ;BTST.L  #$8000,D1      ; Bug - when using immediate data
+    BTST.B  D0,$7000        ; Bug - does not specify byte (.B)
+    ;BTST.B  #$8,$8000      ; Bug - when using immediate data
 
+    EOR.B   D0,$1000
+    EOR.W   D0,D1
+    EOR.L   D1,$4000    
+    
+    AND.B   $1000,D0
+    AND.W   D1,$1000
+    AND.L   D1,D0
+    
+    MOVEM.L D1/D2/D3, -(SP)
+    MOVEM.W D0/A1/A2, -(SP)
+    MOVEM.L (SP)+,D1/D2/D3
+    MOVEM.W (SP)+,D0/A1/A2
 
-* Put variables and constants here
+    END    START
 
-    END    START        ; last line of source
 
 
 
