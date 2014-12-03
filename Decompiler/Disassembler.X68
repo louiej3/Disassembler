@@ -27,6 +27,21 @@ Imm_Reg         EQU     %100
                 ORG     $1000
 START       
 *-----------Introduction Message----------------------------
+                LEA     psychobots1, A1     ; Load introduction
+                MOVE.B  #14, D0             ; Load task code for display
+                TRAP    #15                 ; Display introduction
+                LEA     psychobots2, A1     ; Load introduction
+                MOVE.B  #14, D0             ; Load task code for display
+                TRAP    #15                 ; Display introduction
+                LEA     psychobots3, A1     ; Load introduction
+                MOVE.B  #14, D0             ; Load task code for display
+                TRAP    #15                 ; Display introduction
+                LEA     psychobots4, A1     ; Load introduction
+                MOVE.B  #14, D0             ; Load task code for display
+                TRAP    #15                 ; Display introduction
+                LEA     psychobots5, A1     ; Load introduction
+                MOVE.B  #14, D0             ; Load task code for display
+                TRAP    #15                 ; Display introduction
                 LEA     intro_stuff, A1     ; Load introduction
                 MOVE.B  #14, D0             ; Load task code for display
                 TRAP    #15                 ; Display introduction
@@ -2557,10 +2572,15 @@ GET6TO11    ; 0000 0000 1100 0000 -> 11
 				
            
 ;-----------Constants/Messages-------------------------------------------------
-intro_stuff     DC.B    HT,'------------------------------------------------------',CR,LF,0
+psychobots1     DC.B    ' _____  ____   _  _   ____   __  __   _____    _____   _____    _____    ___',CR,LF,0
+psychobots2     DC.B    '/\ == \/\  _\ /\\_\\ /\  _\ /\ \_\ \ /\  __ \ /\ == \ /\  __ \ /\_   _\ /\  _\',CR,LF,0
+psychobots3     DC.B    '\ \  -/\ \__ \\ \__ \\ \ \__\ \  __ \\ \ \/\ \\ \  _< \ \ \/\ \\/_/\ \/ \ \__ \',CR,LF,0
+psychobots4     DC.B    ' \ \_\  \/\___\\/\___\\ \___\\ \_\ \_\\ \_____\\ \____\\ \_____\  \ \_\  \/\___\',CR,LF,0
+psychobots5     DC.B    '  \/_/   \/___/ \/___/ \/___/ \/_/\/_/ \/_____/ \/_____/\/_____/   \/_/   \/___/',CR,LF,0
+intro_stuff     DC.B    HT,HT,'------------------------------------------------------',CR,LF,0
 
-intro_msg       DC.B    HT,' Welcome to the Motorola 68K Instruction Disassembler',CR,LF
-                DC.B    HT,' Created By: Blong Thao, Curtis Andersson, John Louie',CR,LF,0
+intro_msg       DC.B    HT,HT,' Welcome to the Motorola 68K Instruction Disassembler',CR,LF
+                DC.B    HT,HT,' Created By: Blong Thao, Curtis Andersson, John Louie',CR,LF,0
        
 start_address   DC.B    'Please enter the starting address from $0 to $00FFFFFE: ',0
 end_address1    DC.B    'Please enter the ending address from $',0
@@ -2582,6 +2602,8 @@ illegal_data    DS.L    80              ; Data/Instructions that we do not conve
 valid_data      DS.L    80              ; Instructions that we converted
                 
                 END     START
+
+
 
 
 
