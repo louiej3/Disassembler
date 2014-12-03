@@ -446,16 +446,13 @@ SINGLE_OPERATOR_CODES   ; Continue through Op-code Tree, first 4 are 0100
         Beq     OP_MOVEM
         
         Cmp.B     #%111, D0    ; JSR
-        Beq     OP_JSR
+        Beq     JSR_CHECK   ; A second check for JSR   
         
         Bra     OP_SET_BAD_BUFFER     ; Everything else is uncovered
 
-JSR_RTS     ; Continue through OP tree, first 4 are 0100, 8-11 are 1110
+JSR_CHECK     ; Continue through OP tree, first 4 are 0100, 8-11 are 1110
 
-        Jsr     GET6TO8        ; Change out test bits        
-
-        Cmp.B     #%001, D0    ; Return from subroutine
-        Beq     OP_RTS
+        Jsr     GET6TO8        ; Change out test bits
         
         Cmp.B     #%010, D0    ; Jump to Subroutine
         Beq     OP_JSR
