@@ -928,11 +928,11 @@ OP_MOVEM
     ; Exception checks
         Jsr     GET7AND8
         Cmp.B   #%01,D0
-        Bne     SET_BAD_BUFFER_BIT
+        Bne     OP_SET_BAD_BUFFER
         
         Jsr     GET3TO5
         Cmp.B   #%000,D0
-        Bne     SET_BAD_BUFFER_BIT
+        Beq     OP_SET_BAD_BUFFER
 
     ; start string
     
@@ -2585,6 +2585,7 @@ illegal_data    DS.L    80              ; Data/Instructions that we do not conve
 valid_data      DS.L    80              ; Instructions that we converted
                 
                 END     START
+
 
 
 

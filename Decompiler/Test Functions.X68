@@ -68,7 +68,7 @@ START:                  ; first instruction of program
     Blt         $9999
     Bhi         $1000
     
-    Jsr         $ABCD   ; Bug - is ILLEGAL
+    Jsr         $ABCD
     Jsr         (A6)
     Rts
     
@@ -136,6 +136,7 @@ START:                  ; first instruction of program
     Lea         $12345678,A5    
 
     END    START
+
 
 
 
