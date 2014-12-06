@@ -132,20 +132,47 @@ START:                  ; first instruction of program
     
     Jsr         $ABCD
     Jsr         (A6)
+    Jsr         $1234
+    Jsr         $12345678
     Rts
     
 ;--------- SHIFT FUNCTIONS -------------;
 
     ASL.B       D1, D2
+    Asl.B       #8,D1
+    Asr.W       #3,D1
+    Asl.L       #6,D1
     ASR.L       #5, D4
     ASR         (A3)
+    Asr.W       (A4)+
+    Asl.W       -(A3)
+    Asr.W       $1234
+    Asl.W       $11111118
     
     LSL.L       D2,D3
     LSR.B       #1,D4
     LSL         $8000
+    LSL.B       D1, D2
+    LSL.B       #8,D1
+    LSR.W       #3,D1
+    LSL.L       #6,D1
+    LSR.L       #5, D4
+    LSR         (A3)
+    LSR.W       (A4)+
+    LSL.W       -(A3)
+    LSR.W       $1234
+    LSL.W       $11111118
+
     
     ROR.L       D1,D5
+    ROL.B       #1,D2
+    ROL.B       #2,D2
+    ROL.B       #3,D2
+    ROL.B       #4,D2
+    ROL.B       #5,D2
     ROL.B       #6,D2
+    ROL.B       #7,D2
+    ROL.B       #8,D2
     
 ;--------- IMMEDIATE FUNCTIONS ---------;
 
