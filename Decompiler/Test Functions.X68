@@ -11,11 +11,18 @@ START:                  ; first instruction of program
 
     Move.B      $4214,D1
     Move.W      -(A5),D2
+    Move.L      A5, (A3)+
     Move.W      $8000,D4
+    Move.B      $80001000, -(A2)
+    Move.B      #12, D7
+    Move.L      #1234, $1234
     Move.L      #12345678,$7000
 
     MoveA.W     #$3000,A0
+    MoveA.L     #$12345678,A3
     MoveA.L     D1,A5
+    MoveA.B     $1234,A2
+    MoveA.B     12345678,A1
     
     MOVEM.L     D1/D2/D3, -(SP)
     MOVEM.W     D0/A1/A2, -(SP)
@@ -136,6 +143,7 @@ START:                  ; first instruction of program
     Lea         $12345678,A5    
 
     END    START
+
 
 
 
