@@ -177,16 +177,38 @@ START:                  ; first instruction of program
 ;--------- IMMEDIATE FUNCTIONS ---------;
 
     CmpI.W      #$ABCD, D4
+    CmpI.B      #$12,D4
+    CmpI.W      #$1234,(A4)
+    CmpI.L      #$12345678,(A4)+
+    CmpI.W      #$12,-(A7)
     CmpI.L      #$87654321, $12345678
+    CmpI.B      #12,$1234
     
+    Ori.L       #$12345678,D1
     OrI.B       #$02,(A6)
     OrI.L       #12,(A5)+
+    Ori.L       #$1234,-(A1)
+    Ori.L       #$12345678,$1234
+    Ori.B       #$12,$12345678
     
     SubI.W      #1423,-(A3)
     SubI.B      #12,D3
-    
+    SubI.L       #$12345678,D1
+    SubI.B       #$02,(A6)
+    SubI.L       #12,(A5)+
+    SubI.L       #$1234,-(A1)
+    SubI.L       #$12345678,$1234
+    SubI.B       #$12,$12345678
+
     EorI.L      #$ABCE1452,(A5)
     EorI.B      #255,$FFFFA000
+    EorI.W      #$ABCD, D4
+    EorI.B      #$12,D4
+    EorI.W      #$1234,(A4)
+    EorI.L      #$12345678,(A4)+
+    EorI.W      #$12,-(A7)
+    EorI.L      #$87654321, $12345678
+    EorI.B      #12,$1234
         
 ;------- Neg - Not - Muls - Divs -------;
 
