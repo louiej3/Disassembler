@@ -15,8 +15,8 @@ START:                  ; first instruction of program
     Move.W      $8000,D4
     Move.B      $80001000, -(A2)
     Move.B      #12, D7
-    Move.L      #1234, $1234
-    Move.L      #12345678,$7000
+    Move.L      #$1234, $1234
+    Move.L      #$12345678,$7000
 
     MoveA.W     #$3000,A0
     MoveA.L     #$12345678,A3
@@ -71,17 +71,55 @@ START:                  ; first instruction of program
     Sub.B       -(A3),D5
     Sub.W       D7, $12345678
     Sub.L       D4, D6
+    Sub.B       D2,D4
+    Sub.W       A7,D2
+    Sub.W       (A6),D3
+    Sub.W       (A7)+,D2
+    Sub.W       -(A3),D2
+    Sub.B       $1234,D7
+    Sub.W       $12345678,D3
+    Sub.B       $12,D2
+    Sub.W       #1245,D5
+    Sub.L       #12345678,D5
+    
+    Sub.W       D4,(A3)
+    Sub.W       D2,(A4)+
+    Sub.W       D3,-(A3)
+    Sub.W       D2,$1234
+    Sub.W       D2,$12345678
 
-    SubA.W      (A1),A2
     SubA.L      D1,A4
+    SubA.W      A1,A2
+    SubA.W      (A1),A2
+    SubA.W      (A1)+,A2
+    SubA.W      -(A1),A2
+    SubA.W      $1234,A2
+    SubA.L      $12345678,A2
+    SubA.W      #$1234,A2
+    SubA.L      #$12345678,A3
 
 ;-------------- CMP -------------------;
 
     Cmp.B       D2,D4
+    Cmp.W       A7,D2
     Cmp.W       (A6),D3
-    Cmp.L       #1245,D5
-    
+    Cmp.W       (A7)+,D2
+    Cmp.W       -(A3),D2
+    Cmp.B       $1234,D7
+    Cmp.W       $12345678,D3
+    Cmp.B       $12,D2
+    Cmp.W       #1245,D5
+    Cmp.L       #12345678,D5
+        
+    CmpA.W      D4,A5
+    CmpA.W      A4,A5
+    CmpA.W      (A4),A5
+    CmpA.W      (A4)+,A5
+    CmpA.W      -(A4),A5
+    CmpA.W      $1234,A5
+    CmpA.L      $11111111,A5
     CmpA.W      #$FFFF,A4
+    CmpA.L      #$AAAAFFFF,A6
     CmpA.L      (A4)+,A5
     
 ;------------ BCC & Jumps --------------;
