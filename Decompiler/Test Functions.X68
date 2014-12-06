@@ -21,8 +21,8 @@ START:                  ; first instruction of program
     MoveA.W     #$3000,A0
     MoveA.L     #$12345678,A3
     MoveA.L     D1,A5
-    MoveA.B     $1234,A2
-    MoveA.B     12345678,A1
+    MoveA.W     $1234,A2
+    MoveA.W     12345678,A1
     
     MOVEM.L     D1/D2/D3, -(SP)
     MOVEM.W     D0/A1/A2, -(SP)
@@ -38,16 +38,33 @@ START:                  ; first instruction of program
     Add.L       (A3)+,D1
     Add.L       #$1234,D3       ; Defaults to AddI
     Add.W       D1,$1234
+    Add.L       $1234,D1
+    Add.L       $12345678,D1
+    Add.L       D6,$1234
+    Add.W       D6,$12345678    
 
     AddA.W      $1234,A4
     AddA.W      $89AB,A4
     AddA.L      $1234,A5
+    AddA.L      $12345678,A7
     AddA.W      #$1234,A7
     AddA.L      #$12345678,A7
+    AddA.W      D1,A2
+    AddA.W      -(A3),A2
+    AddA.W      A3,A2
+    AddA.W      (A3),A2
+    AddA.W      (A3)+,A2
     
-    AddQ.B      #1,D0       
+    AddQ.B      #1,D0
+    AddQ.W      #2,A3
+    AddQ.W      #3,(A3)
+    AddQ.L      #4,$8000
+    AddQ.W      #5,(A3)+
+    AddQ.W      #6,-(A6)
+    AddQ.W      #7,$12345678
+    AddQ.W      #8,$12348000       
     AddQ.W      #$8,$7000 
-    AddQ.L      #4,$8000 
+     
     
 ;-------------- SUB ------------------;
 
