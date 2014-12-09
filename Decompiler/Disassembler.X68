@@ -423,6 +423,10 @@ IMMEDIATE_BTST  ; Continue through Op-code Tree, first 4 are 0000
         Cmp.B   #%100000,D0     ;BTST
         Beq     OP_BTST
         
+        Jsr     GETBIT8
+        Cmp.B   #%1,D0
+        Beq     OP_SET_BAD_BUFFER   ; All other Bit test functions are not required
+        
         Jsr     GET9TO11        ; Change out test bits
         
         Cmp.B     #%000, D0        ; Or I
@@ -1427,6 +1431,11 @@ OP_CMP_ADDR
 ;-----------------------  EOR  ------------------------------;
 
 OP_EOR
+    ; Compare to make sure it is not CmpM
+        Jsr     GET3TO5
+        Cmp.B   #%001,D0
+        Beq     OP_SET_BAD_BUFFER
+
     ; start string
     
         Move.B  #'E', (A6)+
@@ -2602,6 +2611,7 @@ illegal_data    DS.L    80              ; Data/Instructions that we do not conve
 valid_data      DS.L    80              ; Instructions that we converted
                 
                 END     START
+
 
 
 
